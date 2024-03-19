@@ -1,0 +1,46 @@
+---
+- name: Setup BTRFS
+  block:
+    - name: Create btrfs filesystem in main volume
+      filesystem:
+        dev: '{{ install_drive }}{{ main_partition_suffix }}'
+        fstype: btrfs
+        force: yes
+
+    - name: Prepare BTRFS Subvolume
+      mount:
+        path: /mnt
+        src: '{{ install_drive }}{{ main_partition_suffix }}'
+        fstype: btrfs
+        opts: rw,relatime,compress=zstd:15,ssd,space_cache=v2,discard=async
+        state: mounted
+
+    - name: Enable quotas on Btrfs filesystem
+      command: btrfs quota enable /mnt
+
+    - name: Make root subvolumes
+      when: cis == true or item.subvol not in ['var_log', 'var_log_audit']
+      command: btrfs su cr /mnt/{{ '@' if item.subvol == 'root' else '@' + item.subvol }}
+      loop:
+        - { subvol: root }
+        - { subvol: home }
+        - { subvol: var }
+        - { subvol: var_log }
+        - { subvol: var_log_audit }
+
+    - name: Set quotas for subvolumes
+      when: cis == true or item.subvol not in ['var_log', 'var_log_audit']
+      command: btrfs qgroup limit {{ item.quota }} /mnt/{{ '@' if item.subvol == 'root' else '@' + item.subvol }}
+      loop:
+        - { subvol: root, quota: '12G' }
+        - { subvol: home, quota: '2G' }
+        - { subvol: var, quota: '2G' }
+        - { subvol: var_log, quota: '2G' }
+        - { subvol: var_log_audit, quota: '1536M' }
+
+    - name: Unmount Partition
+      mount:
+        path: /mnt
+        src: '{{ install_drive }}{{ main_partition_suffix }}'
+        fstype: btrfs
+        state: unmounted

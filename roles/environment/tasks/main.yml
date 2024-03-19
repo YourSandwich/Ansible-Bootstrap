@@ -1,0 +1,72 @@
+- name: Configre work environment
+  become: true
+  block:
+    - name: Wait for connection
+      wait_for_connection:
+        timeout: 300
+        delay: 5
+
+    - name: Gather facts
+      setup:
+
+    - name: Check if host is booted from the Arch install media
+      stat:
+        path: /run/archiso
+      register: archiso_stat
+
+    - name: Abort if the host is not booted from the Arch install media
+      fail:
+        msg: "This host is not booted from the Arch install media!"
+      when: not archiso_stat.stat.exists
+
+    - name: Setect Interface
+      when: hypervisor == "vmware"
+      shell: "ip l | awk -F': ' '!/lo/{print $2; exit}'"
+      register: interface_name
+
+    - name: Set IP-Address
+      when: hypervisor == "vmware"
+      command: ip addr replace {{ ansible_host }}/24 dev {{ interface_name.stdout }}
+
+    - name: Set Default Gateway
+      when: hypervisor == "vmware"
+      command: ip route replace default via {{ vm_gw }}
+
+    - name: Synchronize clock via NTP
+      command: timedatectl set-ntp true
+
+    - name: Speed-up Bootstrap process
+      lineinfile:
+        path: /etc/pacman.conf
+        regexp: '^#ParallelDownloads ='
+        line: 'ParallelDownloads = 20'
+
+    - name: Wait for Pacman
+      wait_for:
+        timeout: 15
+
+    - name: Setup Pacman
+      pacman:
+        update_cache: yes
+        name:
+          - glibc
+          - debootstrap
+          - debian-archive-keyring
+          - dnf
+        state: latest
+      retries: 3
+      delay: 15
+      ignore_errors: no
+
+    - name: Configure RHEL Repos for installation
+      when: os | lower == "almalinux" or os | lower == "fedora"
+      block:
+      - name: Create directories for repository files and RPM GPG keys
+        file:
+          path: /etc/yum.repos.d
+          state: directory
+
+      - name: Create RHEL repository file
+        template:
+          src: '{{ os | lower }}.repo.j2'
+          dest: '/etc/yum.repos.d/{{ os | lower }}.repo'

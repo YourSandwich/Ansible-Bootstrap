@@ -1,0 +1,89 @@
+---
+- name: Create and configure VMs
+  hosts: all
+  strategy: free
+  gather_facts: false
+  become: true
+  vars_prompt:
+  - name: user_name
+    prompt: |
+      What is your username?
+    private: false
+
+  - name: user_password
+    prompt: |
+      What is your password?
+    confirm: true
+
+  - name: root_password
+    prompt: |
+      What is your root password?
+    confirm: true
+
+  - name: hypervisor
+    prompt: |
+      Select an Hypervisor:
+      - libvirt
+      - proxmox
+      - vmware
+    private: false
+    default: "proxmox"
+
+  - name: install_drive
+    prompt: |
+      "Enter the drive to install the system (default: /dev/sda)"
+    confirm: true
+    private: false
+    default: "/dev/sda"
+  vars_files: vars.yml
+  pre_tasks:
+    - name: Set ansible_python_interpreter
+      when: os | lower in ["almalinux", "rhel9", "rhel8"]
+      set_fact:
+        ansible_python_interpreter: /usr/bin/python3
+
+    - name: Validate variables
+      assert:
+        that:
+          - hypervisor in hypervisor_list
+          - filesystem in filesystem_list
+          - os in os_list
+        fail_msg: "Invalid input specified, please try again"
+
+    - name: Set connection
+      when: hypervisor == "vmware"
+      set_fact:
+        ansible_connection: vmware_tools
+
+  roles:
+
+  - role: virtualization
+    when: install_type == "virtual"
+    become: false
+    vars:
+      ansible_connection: local
+
+  - role: environment
+    vars:
+      ansible_connection: "{{ 'vmware_tools' if hypervisor == 'vmware' else 'ssh' }}"
+
+  - role: partitioning
+    vars:
+      boot_partition_suffix: 1
+      main_partition_suffix: 2
+
+  - role: bootstrap
+
+  - role: configuration
+
+  - role: cis
+    when: cis == true
+
+  - role: cleanup
+    when: install_type == "virtual"
+
+  tasks:
+    - name: Reboot system
+      when: hypervisor != "libvirt"
+      command: reboot
+      ignore_errors: true

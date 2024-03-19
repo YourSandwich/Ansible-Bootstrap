@@ -1,0 +1,160 @@
+---
+archlinux:
+  - base
+  - btrfs-progs
+  - cronie
+  - dhcpcd
+  - efibootmgr
+  - firewalld
+  - fish
+  - grub
+  - htop
+  - linux
+  - logrotate
+  - lrzsz
+  - lsof
+  - lvm2
+  - ncdu
+  - neofetch
+  - networkmanager
+  - nfs-utils
+  - openssh
+  - open-vm-tools
+  - prometheus-node-exporter
+  - python-psycopg2
+  - qemu-guest-agent
+  - reflector
+  - rsync
+  - screen
+  - sudo
+  - vim
+  - wireguard-tools
+
+debian11:
+  base:
+    - apparmor-utils
+    - btrfs-progs
+    - xfsprogs
+    - chrony
+    - cron
+    - grub-efi
+    - grub-efi-amd64-signed
+    - grub2-common
+    - gnupg
+    - linux-image-amd64
+    - locales
+    - logrotate
+    - lvm2
+    - net-tools
+    - openssh-server
+    - python3
+    - sudo
+  extra:
+    - curl
+    - firewalld
+    - htop
+    - network-manager
+    - screen
+    - open-vm-tools
+    - python-is-python3
+    - ncdu
+    - neofetch
+    - lrzsz
+    - libpam-pwquality
+    - rsync
+    - software-properties-common
+    - syslog-ng
+    - tcpd
+    - fish
+    - vim
+    - wget
+
+debian12:
+  base:
+    - btrfs-progs
+    - xfsprogs
+    - cron
+    - grub-efi
+    - grub-efi-amd64-signed
+    - grub2-common
+    - gnupg
+    - linux-image-amd64
+    - locales
+    - lvm2
+
+  extra:
+    - apparmor-utils
+    - chrony
+    - curl
+    - firewalld
+    - fish
+    - htop
+    - network-manager
+    - screen
+    - open-vm-tools
+    - python-is-python3
+    - ncdu
+    - neofetch
+    - logrotate
+    - lrzsz
+    - libpam-pwquality
+    - rsync
+    - software-properties-common
+    - sudo
+    - syslog-ng
+    - tcpd
+    - net-tools
+    - openssh-server
+    - python3
+    - vim
+    - wget
+
+fedora:
+  - dhcp-client
+  - efibootmgr
+  - grub2
+  - grub2-efi-x64-modules
+  - lrzsz
+  - nfs-utils
+  - open-vm-tools
+  - shim
+  - telnet
+  - vim-default-editor
+  - zstd
+
+almalinux:
+  - dhcp-client
+  - efibootmgr
+  - grub2
+  - grub2-efi-x64-modules
+  - lrzsz
+  - nfs-utils
+  - open-vm-tools
+  - shims
+  - telnet
+  - vim
+  - zstd
+
+rhel8:
+  - dhcp-client
+  - efibootmgr
+  - grub2
+  - grub2-efi-x64-modules
+  - lrzsz
+  - nfs-utils
+  - open-vm-tools
+  - shim
+  - telnet
+  - zstd
+
+rhel9:
+  - dhcp-client
+  - efibootmgr
+  - grub2
+  - grub2-efi-x64-modules
+  - lrzsz
+  - nfs-utils
+  - open-vm-tools
+  - shim
+  - telnet
+  - zstd

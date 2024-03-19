@@ -1,0 +1,165 @@
+- name: Configuration
+  block:
+    - name: Generate fstab
+      shell: genfstab -LU /mnt > /mnt/etc/fstab
+
+    - name: Append TempFS to fstab
+      lineinfile:
+        path: /mnt/etc/fstab
+        line: "{{ item }}"
+        insertafter: EOF
+      with_items:
+        - ""
+        - "# TempFS"
+        - "tmpfs           /tmp            tmpfs           defaults,nosuid,nodev,noexec    0 0"
+        - "tmpfs           /var/tmp        tmpfs           defaults,nosuid,nodev,noexec    0 0"
+        - "tmpfs           /dev/shm        tmpfs           defaults,noexec    0 0"
+
+    - name: Set local timezone
+      command: '{{ item }}'
+      with_items:
+        - systemctl daemon-reload
+        - arch-chroot /mnt ln -sf /usr/share/zoneinfo/Europe/Vienna /etc/localtime
+
+    - name: Generate adjtime file
+      command: arch-chroot /mnt /usr/sbin/hwclock --systohc
+
+    - name: Setup locales
+      block:
+        - name: Configure locale.gen
+          lineinfile:
+            dest: /mnt/etc/locale.gen
+            regexp: '{{ item.regex }}'
+            line: '{{ item.line }}'
+          loop:
+            - {regex: en_US\.UTF-8 UTF-8, line: en_US.UTF-8 UTF-8}
+
+        - name: Generate locales
+          command: arch-chroot /mnt /usr/sbin/locale-gen
+
+        - name: Set hostname
+          copy:
+            content: "{{ hostname }}"
+            dest: /mnt/etc/hostname
+
+        - name: Add host entry to /etc/hosts
+          lineinfile:
+            path: /mnt/etc/hosts
+            line: "{{ ansible_host }}    {{ hostname }}"
+            state: present
+
+        - name: Create vconsole.conf
+          copy:
+            content: "KEYMAP=de-latin1-nodeadkeys"
+            dest: /mnt/etc/vconsole.conf
+
+        - name: Create locale.conf
+          copy:
+            content: "LANG=en_US.UTF-8"
+            dest: /mnt/etc/locale.conf
+
+        - name: SSH permit Password
+          replace:
+            path: /mnt/etc/ssh/sshd_config
+            regexp: '#PasswordAuthentication yes'
+            replace: 'PasswordAuthentication yes'
+
+    - name: Enable Systemd Services
+      block:
+      - name: Enable sshd
+        when: os | lower == "archlinux"
+        command: arch-chroot /mnt systemctl enable sshd NetworkManager logrotate
+
+    - name: Configure grub
+      when: os | lower != "fedora" and os | lower != "almalinux" and os | lower != "rhel8" and os | lower != "rhel9"
+      block:
+        - name: Add commandline information to grub config
+          lineinfile:
+            dest: /mnt/etc/default/grub
+            regexp: ^GRUB_CMDLINE_LINUX_DEFAULT=
+            line: 'GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3"'
+
+        - name: Change Grub time
+          lineinfile:
+            dest: /mnt/etc/default/grub
+            regexp: ^GRUB_TIMEOUT=
+            line: 'GRUB_TIMEOUT=0'
+
+    - name: Configure Bootloader
+      block:
+        - name: Install Bootloader
+          command: arch-chroot /mnt {% if os | lower != "archlinux" and os | lower != "debian11" and os | lower != "debian12" %}/usr/sbin/efibootmgr -c -L '{{ os }}' -d "{{ install_drive }}" -wwp 1 -l '\efi\EFI\{{ os }}\shimx64.efi'{% else %}/usr/sbin/grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id={{ os }}{% endif %}
+
+        - name: Generate grub config
+          command: arch-chroot /mnt {% if os | lower != "archlinux" and os | lower != "debian11" and os | lower != "debian12" %}/usr/sbin/grub2-mkconfig -o /boot/efi/EFI/{{ os }}/grub.cfg{% else %}/usr/sbin/grub-mkconfig -o /boot/grub/grub.cfg{% endif %}
+
+    - name: Extra Configuration
+      when: os | lower != "archlinux"
+      block:
+        - name: Append lines to vimrc
+          lineinfile:
+            path: "{{ '/mnt/etc/vim/vimrc' if os|lower == 'debian11' or os|lower == 'debian12' else '/mnt/etc/vimrc' }}"
+            line: "{{ item }}"
+            insertafter: EOF
+          with_items:
+            - "set encoding=utf-8"
+            - "set number"
+            - "set autoindent"
+            - "set smartindent"
+            - "set mouse=a"
+
+        - name: Copy FirstRun Script
+          template:
+            src: firstrun.sh.j2
+            dest: /mnt/root/firstrun.sh
+            mode: '0755'
+
+        - name: Copy Custom Shell config
+          template:
+            src: custom.sh.j2
+            dest: /mnt/etc/profile.d/custom.sh
+
+    - name: Setup Network
+      block:
+      - name: Generate UUID for Network Profile
+        command: "uuidgen"
+        register: net_uuid
+
+      - name: Retrieve Network Interface Name
+        shell: "ip r | awk 'NR==1 {print $5}'"
+        register: net_inf
+
+      - name: Copy NetworkManager keyfile
+        template:
+          src: network.j2
+          dest: /mnt/etc/NetworkManager/system-connections/LAN.nmconnection
+          mode: '0600'
+
+    - name: Setup user account
+      block:
+        - name: Create user account
+          command: '{{ item }}'
+          with_items:
+          - arch-chroot /mnt /usr/sbin/useradd --create-home --user-group --groups {{ "sudo" if os|lower == "debian11" or os|lower == "debian12" else "wheel" }} {{ user_name }} --password {{ user_password | password_hash('sha512') }} --shell /bin/bash
+          - arch-chroot /mnt /usr/sbin/usermod --password '{{ root_password | password_hash('sha512') }}' root --shell /bin/bash
+
+        - name: Add SSH public key to authorized_keys
+          when: user_public_key is defined
+          lineinfile:
+            path: "/mnt/home/{{ user_name }}/.ssh/authorized_keys"
+            line: "{{ user_public_key }}"
+            owner: 1000
+            group: 1000
+            mode: "0600"
+            create: yes
+
+    - name: Give sudo access to wheel group
+      copy:
+        content: "{{ '%sudo ALL=(ALL) ALL' if os|lower == 'debian11' or os|lower == 'debian12' else '%wheel ALL=(ALL) ALL' }}"
+        dest: /mnt/etc/sudoers.d/01-wheel
+        mode: 0440
+        validate: /usr/sbin/visudo --check --file=%s
+
+    - name: Fix SELinux
+      when: (os | lower == "almalinux" or os | lower == "fedora" or os | lower == "rhel8" or os | lower == "rhel9")
+      command: touch /mnt/.autorelabel

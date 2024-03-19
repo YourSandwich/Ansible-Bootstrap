@@ -1,0 +1,18 @@
+ansible_user: "{{ user_name }}"
+ansible_password: "{{ user_password }}"
+ansible_become_password: "{{ user_password }}"
+ansible_ssh_extra_args: '-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'
+
+vm_ip: "{{ inventory_hostname }}/24"
+hypervisor_list: ["libvirt", "proxmox", "vmware", "none"]
+filesystem_list: ["btrfs", "ext4", "xfs"]
+os_list: ["archlinux", "almalinux", "debian11", "debian12", "fedora"]
+install_type: "virtual"
+cis: false
+
+hypervisor_url:      "192.168.0.2"
+hypervisor_username: "root@pam"
+hypervisor_password: "SomePassword"
+hypervisor_node:     "NodeName"
+hypervisor_storage:  "local-btrfs"
+boot_iso: "local-btrfs:iso/archlinux-x86_64.iso"

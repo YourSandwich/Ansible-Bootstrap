@@ -1,0 +1,23 @@
+---
+- name: Create and format ext4 logical volumes
+  when: cis == true or item.lv not in ['var_log', 'var_log_audit']
+  filesystem:
+    dev: '/dev/sys/{{ item.lv }}'
+    fstype: ext4
+    force: yes
+  loop:
+    - { lv: root }
+    - { lv: home }
+    - { lv: var }
+    - { lv: var_log }
+    - { lv: var_log_audit }
+
+- name: Remove Unsupported features for older Systems
+  when: (os | lower == 'debian11') and (cis == true or item.lv not in ['var_log', 'var_log_audit'])
+  command: tune2fs -O "^orphan_file,^metadata_csum_seed" "/dev/sys/{{ item.lv }}"
+  loop:
+    - { lv: root }
+    - { lv: home }
+    - { lv: var }
+    - { lv: var_log }
+    - { lv: var_log_audit }

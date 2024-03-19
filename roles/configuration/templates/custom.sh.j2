@@ -1,0 +1,12 @@
+# Prompt Style
+if [ "$PS1" ]; then
+  PS1="\[\033[01;32m\][\u@\h:\l \[\033[01;34m\]\W\[\033[00m\]]\\$ "
+fi
+
+# Timestamps and instant apply
+HISTTIMEFORMAT="%F %T "
+PROMPT_COMMAND="history -a;$PROMPT_COMMAND"
+
+# History Size
+HISTFILESIZE=
+HISTSIZE=

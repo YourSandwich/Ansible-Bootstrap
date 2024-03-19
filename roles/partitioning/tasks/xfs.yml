@@ -1,0 +1,13 @@
+---
+- name: Create and format XFS logical volumes
+  when: cis == true or item.lv not in ['var_log', 'var_log_audit']
+  filesystem:
+    dev: '/dev/sys/{{ item.lv }}'
+    fstype: xfs
+    force: yes
+  loop:
+    - { lv: root }
+    - { lv: home }
+    - { lv: var }
+    - { lv: var_log }
+    - { lv: var_log_audit }

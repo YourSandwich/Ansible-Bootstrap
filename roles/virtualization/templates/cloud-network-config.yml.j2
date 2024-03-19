@@ -1,0 +1,11 @@
+network:
+  version: 2
+  ethernets:
+    id0:
+      match:
+        macaddress: "{{ mac_address_output.stdout }}"
+      addresses:
+        - "{{ vm_ip }}"
+      gateway4: "{{ vm_gw }}"
+      nameservers:
+        addresses: ['1.1.1.1', '1.0.0.1']

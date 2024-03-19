@@ -1,0 +1,43 @@
+---
+- name: Include Packages
+  include_vars:
+    file: packages.yml
+    name: role_packages
+
+- name: Run OS-specific bootstrap process
+  block:
+    - name: Bootstrap ArchLinux
+      when: os | lower == 'archlinux'
+      command: pacstrap /mnt {{ role_packages.archlinux | join(' ') }} --asexplicit
+
+    - name: Bootstrap Debian System
+      when: os | lower in ['debian11', 'debian12']
+      shell: "{{ item }}"
+      with_items:
+        - debootstrap --include={{ role_packages[os].base | join(',') }} {{ 'bullseye' if os == 'debian11' else 'bookworm' }} /mnt http://deb.debian.org/debian/
+        - arch-chroot /mnt apt install -y {{ role_packages[os].extra | join(' ') }}
+        - arch-chroot /mnt apt remove -y libcups2 libavahi-common3 libavahi-common-data
+
+    - name: Bootstrap AlmaLinux 9
+      when: os | lower == 'almalinux'
+      shell: "{{ item }}"
+      with_items:
+        - dnf --releasever=9 --best --repo=alma-baseos --installroot=/mnt --setopt=install_weak_deps=False groupinstall -y base core
+        - echo "nameserver 1.0.0.1" > /mnt/etc/resolv.conf
+        - arch-chroot /mnt dnf --releasever=9 --setopt=install_weak_deps=False install -y {{ role_packages.almalinux | join(' ') }}
+
+    - name: Bootstrap Fedora 39
+      when: os | lower == 'fedora'
+      shell: "{{ item }}"
+      with_items:
+        - dnf --releasever=39 --best --repo=fedora --repo=fedora-updates --installroot=/mnt --setopt=install_weak_deps=False groupinstall -y critical-path-base core
+        - arch-chroot /mnt dnf --releasever=39 --setopt=install_weak_deps=False install -y {{ role_packages.fedora | join(' ') }}
+        - arch-chroot /mnt dnf reinstall -y grub2-efi-x64 kernel
+
+    - name: Bootstrap RHEL System
+      when: os | lower in ['rhel8', 'rhel9']
+      shell: "{{ item }}"
+      with_items:
+        - "dnf --releasever={{ '8' if os == 'rhel8' else '9' }} --installroot=/mnt --setopt=install_weak_deps=False groupinstall -y base core"
+        - "echo 'nameserver 1.0.0.1' > /mnt/etc/resolv.conf"
+        - "arch-chroot /mnt dnf --releasever={{ '8' if os == 'rhel8' else '9' }} --setopt=install_weak_deps=False install -y {{ role_packages[os] | join(' ') }}"

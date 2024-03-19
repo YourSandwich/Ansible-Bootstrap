@@ -1,0 +1,145 @@
+#!/bin/bash
+
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+BLUE='\033[1;34m'
+NC='\033[0m' # No Color
+
+# Ask for and set the hostname
+echo -e "${BLUE}Enter the hostname:${NC}"
+read -r new_hostname
+
+# Detect the network interface
+network_interface=$(nmcli -t -f DEVICE connection show --active | head -n 1)
+
+# Ask for and set the IP address
+echo -e "${BLUE}Enter the IP address (eg.: 10.11.x.x/24):${NC}"
+read -r ip_address
+
+# Ask for and set the DNS server
+default_dns1="10.11.23.10"
+default_dns2="10.11.23.18"
+echo -e "${BLUE}Enter the DNS server (default: $default_dns1, $default_dns2):${NC}"
+read -r dns_server
+dns_server=${dns_server:-"$default_dns1 $default_dns2"}
+
+# Ask if Btrfs compression should be enabled
+if [[ $(df -T / | awk 'NR==2 {print $2}') == "btrfs" ]]; then
+    echo -e "${BLUE}Do you want to enable Btrfs compression? (y/n):${NC}"
+    read -r enable_compression
+fi
+
+if [[ "$enable_compression" == "y" || "$enable_compression" == "Y" ]]; then
+    # Ask for the use case
+    echo -e "${BLUE} the use case:${NC}"
+    echo "1. Databases, File Storage, etc (recommended compression level: 15)"
+    echo "2. Real-time compression (recommended compression level: 3)"
+    echo "3. Custom compression level"
+    read -r use_case
+
+    # Set the recommended compression level based on the use case
+    case "$use_case" in
+        1) compression_level=15 ;;
+        2) compression_level=3 ;;
+        3) echo -e "${BLUE}Enter the custom compression level (1-15):${NC}"
+           read -r compression_level ;;
+        *) echo -e "${RED}Invalid use case. Exiting script.${NC}"; exit 1 ;;
+    esac
+fi
+
+# Ask if CheckMK Agent should be installed
+echo -e "${BLUE}Do you want to install the CheckMK Agent? (y/n):${NC}"
+read -r install_checkmk_agent
+
+# Ask if ports and services should be opened
+echo -e "${BLUE}Do you want to open any ports or services? (y/n):${NC}"
+read -r open_ports_services
+
+if [[ "$open_ports_services" == "y" || "$open_ports_services" == "Y" ]]; then
+    # Ask for and set the services to open
+    echo -e "${BLUE}Enter the services to open (comma-separated):${NC}"
+    read -r services
+
+    # Ask for and set the ports to open
+    echo -e "${BLUE}Enter the ports to open (comma-separated):${NC}"
+    read -r ports
+fi
+
+# Apply Changes
+echo -e "${BLUE}Are you sure you want to apply the changes? This may cause a loss of SSH connection. (y/n):${NC}"
+read -r answer
+
+# Check the user's response
+if [[ "$answer" == "y" || "$answer" == "Y" ]]; then
+    # Comment out the script execution line in .bashrc
+    sed -i '/~\/firstrun\.sh/s/^/#/' ~/.bashrc
+    hostnamectl set-hostname "$new_hostname"
+
+    nmcli device modify "$network_interface" ipv4.dns "$dns_server" > /dev/null
+    nmcli device modify "$network_interface" ipv6.method ignore > /dev/null
+    nmcli device modify "$network_interface" ipv4.addresses "$ip_address" ipv4.method manual > /dev/null
+
+    # Modify /etc/hosts file
+    ip_address=$(echo "$ip_address" | sed 's/.\{3\}$//')
+    if grep "$ip_address" /etc/hosts > /dev/null 2>&1; then
+    echo "IP address already exists in /etc/hosts"
+    else
+        # Add IP address and hostname after the "127.0.0.1 localhost" entry
+        sed -i '1a\'"$ip_address\t$new_hostname" /etc/hosts
+
+        if [ $? -eq 0 ]; then
+            echo "IP address and hostname added to /etc/hosts"
+        else
+            echo "Failed to add IP address and hostname to /etc/hosts"
+        fi
+    fi
+
+    # Modify Btrfs compression settings in /etc/fstab
+    if [[ "$enable_compression" == "y" || "$enable_compression" == "Y" ]]; then
+        if ! grep -q "compress=zstd" /etc/fstab; then
+            sed -i "/btrfs/s/defaults/defaults,compress=zstd:$compression_level/" /etc/fstab
+        else
+            sed -i "/btrfs/s/compress=zstd:[0-9]*/compress=zstd:$compression_level/" /etc/fstab
+        fi
+    else
+        if grep -q "compress=zstd" /etc/fstab; then
+            sed -i "/btrfs/s/,compress=zstd:[0-9]*//" /etc/fstab
+        fi
+    fi
+
+    if [[ "$install_checkmk_agent" == "y" || "$install_checkmk_agent" == "Y" ]]; then
+        # Run the CheckMK Agent installation script
+        bash Scripts/install_checkmk_agent.sh
+    fi
+
+    if [[ "$open_ports_services" == "y" || "$open_ports_services" == "Y" ]]; then
+        # Open the specified services
+        IFS=',' read -ra service_array <<< "$services"
+        for service in "${service_array[@]}"; do
+            firewall-cmd --add-service="$service" --permanent > /dev/null
+        done
+
+        # Open the specified ports
+        IFS=',' read -ra port_array <<< "$ports"
+        for port in "${port_array[@]}"; do
+            firewall-cmd --add-port="$port"/tcp --permanent > /dev/null
+        done
+
+        firewall-cmd --reload > /dev/null 2>&1
+    fi
+
+    # Open port 6556/tcp for CheckMK Agent if it was installed
+    if [[ "$install_checkmk_agent" == "y" || "$install_checkmk_agent" == "Y" ]]; then
+        firewall-cmd --add-port=6556/tcp --permanent > /dev/null 2>&1
+        firewall-cmd --reload > /dev/null 2>&1
+    else
+        firewall-cmd --remove-port=6556/tcp --permanent > /dev/null 2>&1
+        firewall-cmd --reload > /dev/null 2>&1
+    fi
+
+    echo -e "${GREEN}Changes applied successfully.${NC}"
+else
+    echo -e "${RED}Changes not applied. Exiting script.${NC}"
+    exit 0
+fi
