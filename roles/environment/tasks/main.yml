@@ -47,7 +47,8 @@
 
     - name: Setup Pacman
       pacman:
-        update_cache: yes
+        update_cache: true
+        force: true
         name:
           - glibc
           - debootstrap
@@ -56,7 +57,7 @@
         state: latest
       retries: 3
       delay: 15
-      ignore_errors: no
+      ignore_errors: false
 
     - name: Configure RHEL Repos for installation
       when: os | lower == "almalinux" or os | lower == "fedora"
