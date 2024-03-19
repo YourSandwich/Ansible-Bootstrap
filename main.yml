@@ -81,6 +81,8 @@
 
   - role: cleanup
     when: install_type == "virtual"
+    vars:
+      ansible_connection: local
 
   tasks:
     - name: Reboot system
