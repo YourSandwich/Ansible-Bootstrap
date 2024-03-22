@@ -55,9 +55,8 @@
           - debian-archive-keyring
           - dnf
         state: latest
-      retries: 3
+      retries: 4
       delay: 15
-      ignore_errors: false
 
     - name: Configure RHEL Repos for installation
       when: os | lower == "almalinux" or os | lower == "fedora"
