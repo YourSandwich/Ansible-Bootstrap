@@ -6,7 +6,6 @@
     api_password: "{{ hypervisor_password }}"
     ciuser: "{{ user_name }}"
     cipassword: "{{ user_password }}"
-    ciupgrade: 0
     node: "{{ hypervisor_node }}"  # Proxmox node name
     vmid: "{{ vm_id }}"  # Unique ID for the VM
     name: "{{ hostname }}"  # Name of the VM
