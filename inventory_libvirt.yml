@@ -1,0 +1,53 @@
+all:
+  children:
+      local:
+        hosts:
+          192.168.122.10:
+            hostname: proxy
+            os: archlinux
+            filesystem: btrfs
+            vm_memory: "2048"
+            vm_ballo: "1024"
+            vm_cpus: "2"
+            vm_size: "5"
+            vm_gw: 192.168.122.1
+            vm_dns: 1.1.1.1
+          192.168.122.11:
+            hostname: database
+            os: debian12
+            filesystem: btrfs
+            vm_memory: "6144"
+            vm_ballo: "3072"
+            vm_cpus: "4"
+            vm_size: "40"
+            vm_gw: 192.168.122.1
+            vm_dns: 1.1.1.1
+      kube:
+        hosts:
+          192.168.122.201:
+            hostname: kube01
+            os: archlinux
+            filesystem: btrfs
+            vm_memory: "4096"
+            vm_cpus: "4"
+            vm_size: "25"
+            vm_gw: 192.168.122.1
+            vm_dns: 1.1.1.1
+          192.168.122.202:
+            hostname: kube02
+            os: archlinux
+            filesystem: btrfs
+            vm_memory: "4096"
+            vm_cpus: "4"
+            vm_size: "25"
+            vm_gw: 192.168.122.1
+            vm_dns: 1.1.1.1
+          192.168.122.203:
+            hostname: kube03
+            os: archlinux
+            filesystem: btrfs
+            vm_memory: "4096"
+            vm_cpus: "4"
+            vm_size: "25"
+            vm_gw: 192.168.122.1
+            vm_dns: 1.1.1.1
