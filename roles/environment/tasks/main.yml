@@ -49,12 +49,14 @@
       pacman:
         update_cache: true
         force: true
-        name:
-          - glibc
-          - debootstrap
-          - debian-archive-keyring
-          - dnf
+        name: "{{ item.name }}"
         state: latest
+      loop:
+        - { name: 'glibc' }
+        - { name: 'dnf', os: ['almalinux', 'rhel9', 'rhel8'] }
+        - { name: 'debootstrap', os: ['debian11', 'debian12'] }
+        - { name: 'debian-archive-keyring', os: ['debian11', 'debian12'] }
+      when: "'os' not in item or os in item.os"
       retries: 4
       delay: 15
 
