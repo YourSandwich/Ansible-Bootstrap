@@ -1,5 +1,7 @@
 inventory.yml
 inventory.yaml
+inventory_libvirt.yml
 
 vars.yml
 vars.yaml
+vars_libvirt.yml
