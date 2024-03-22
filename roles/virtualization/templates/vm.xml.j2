@@ -34,7 +34,7 @@
     </disk>
     <disk type="file" device="cdrom">
       <driver name="qemu" type="raw"/>
-      <source file="{{ storage_path | default('/var/lib/libvirt/images/') }}{{ hostname }}-cloudinit.iso"/>
+      <source file="{{ vm_path | default('/var/lib/libvirt/images/') }}{{ hostname }}-cloudinit.iso"/>
       <target dev="sdb" bus="sata"/>
     </disk>
     <interface type='network'>

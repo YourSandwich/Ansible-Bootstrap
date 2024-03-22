@@ -47,7 +47,7 @@
 
     - name: Remove cloud-init disk
       file:
-        path: "{{ storage_path | default('/var/lib/libvirt/images/') }}{{ hostname }}-cloudinit.iso"
+        path: "{{ vm_path | default('/var/lib/libvirt/images/') }}{{ hostname }}-cloudinit.iso"
         state: absent
 
     - name: Get list of CD-ROM devices

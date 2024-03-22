@@ -1,13 +1,13 @@
 - name: Check if VM disk exists
   delegate_to: localhost
   stat:
-    path: "{{ storage_path | default('/var/lib/libvirt/images/') }}{{ hostname }}.qcow2"
+    path: "{{ vm_path | default('/var/lib/libvirt/images/') }}{{ hostname }}.qcow2"
   register: vm_disk_stat
 
 - name: Create VM disk
   when: not vm_disk_stat.stat.exists
   delegate_to: localhost
-  command: "qemu-img create -f qcow2 {{ storage_path | default('/var/lib/libvirt/images/') }}{{ hostname }}.qcow2 {{ vm_size }}G"
+  command: "qemu-img create -f qcow2 {{ vm_path | default('/var/lib/libvirt/images/') }}{{ hostname }}.qcow2 {{ vm_size }}G"
 
 - name: Generate Random MAC Address
   delegate_to: localhost
@@ -26,7 +26,7 @@
 
 - name: Create cloud-init disk
   delegate_to: localhost
-  command: "cloud-localds {{ storage_path | default('/var/lib/libvirt/images/') }}{{ hostname }}-cloudinit.iso /tmp/cloud-user-data-{{ hostname }}.yml -N /tmp/cloud-network-config-{{ hostname }}.yml"
+  command: "cloud-localds {{ vm_path | default('/var/lib/libvirt/images/') }}{{ hostname }}-cloudinit.iso /tmp/cloud-user-data-{{ hostname }}.yml -N /tmp/cloud-network-config-{{ hostname }}.yml"
 
 - name: Create VM using libvirt
   delegate_to: localhost
