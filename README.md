@@ -1,3 +1,7 @@
+# Ansible-Bootstrap
+
+An Ansible playbook for automating system bootstrap processes in an Infrastructure-as-Code manner, utilizing ArchISO as the foundational tool.
+
 # Info
 Most of the roles are adaptable for use with systems beyond ArchLinux, requiring only that the target system can install a necessary package manager, such as `dnf` for RHEL-based systems. Additionally, a replacement for the `arch-chroot` command may be required for these systems.
 
