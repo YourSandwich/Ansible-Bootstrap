@@ -1,3 +1,10 @@
+# Info
+Most of the roles are adaptable for use with systems beyond ArchLinux, requiring only that the target system can install a necessary package manager, such as `dnf` for RHEL-based systems. Additionally, a replacement for the `arch-chroot` command may be required for these systems.
+
+**NOTE**:
+- RHEL Systems are not currently supported due to restricted access to their repositories.
+  A workaround could involve using an ISO as a local repository or setting up a proxy repository to facilitate access.
+
 # Documentation
 
 ## Table of Contents

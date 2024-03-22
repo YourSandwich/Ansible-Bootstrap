@@ -13,7 +13,7 @@
     cpu: "host"
     cores: "{{ vm_cpus }}"  # Number of CPU cores
     memory: "{{ vm_memory }}"  # Memory size in MB
-    balloon: "{{ vm_ballo | default(omit) }}"
+    balloon: "{{ vm_ballo | default(omit) }}" # Minimum Memory size in MB
     numa_enabled: true
     hotplug: "network,disk"
     bios: ovmf
