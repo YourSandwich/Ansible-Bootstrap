@@ -68,7 +68,7 @@
       block:
       - name: Enable sshd
         when: os | lower == "archlinux"
-        command: arch-chroot /mnt systemctl enable sshd NetworkManager logrotate
+        command: arch-chroot /mnt systemctl enable sshd logrotate systemd-resolved systemd-timesyncd NetworkManager
 
     - name: Configure grub
       when: os | lower != "fedora" and os | lower != "almalinux" and os | lower != "rhel8" and os | lower != "rhel9"
