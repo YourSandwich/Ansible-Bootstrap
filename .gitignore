@@ -4,4 +4,5 @@ inventory_libvirt.yml
 
 vars.yml
 vars.yaml
+vars_kvm.yml
 vars_libvirt.yml

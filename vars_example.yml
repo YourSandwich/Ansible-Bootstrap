@@ -4,9 +4,6 @@ ansible_become_password: "{{ user_password }}"
 ansible_ssh_extra_args: '-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'
 
 vm_ip: "{{ inventory_hostname }}/24"
-hypervisor_list: ["libvirt", "proxmox", "vmware", "none"]
-filesystem_list: ["btrfs", "ext4", "xfs"]
-os_list: ["archlinux", "almalinux", "debian11", "debian12", "fedora"]
 install_type: "virtual"
 cis: false
 
