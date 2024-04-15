@@ -34,6 +34,14 @@
         - arch-chroot /mnt dnf --releasever=39 --setopt=install_weak_deps=False install -y {{ role_packages.fedora | join(' ') }}
         - arch-chroot /mnt dnf reinstall -y grub2-efi-x64 kernel
 
+    - name: Bootstrap RockyLinux 9
+      when: os | lower == 'rocky'
+      shell: "{{ item }}"
+      with_items:
+        - dnf --releasever=9 --best --repo=rocky-baseos --installroot=/mnt --setopt=install_weak_deps=False groupinstall -y base core
+        - echo "nameserver 1.0.0.1" > /mnt/etc/resolv.conf
+        - arch-chroot /mnt dnf --releasever=9 --setopt=install_weak_deps=False install -y {{ role_packages.rocky | join(' ') }}
+
     - name: Bootstrap RHEL System
       when: os | lower in ['rhel8', 'rhel9']
       shell: "{{ item }}"

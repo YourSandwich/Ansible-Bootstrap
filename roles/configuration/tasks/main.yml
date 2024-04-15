@@ -27,6 +27,7 @@
     - name: Setup locales
       block:
         - name: Configure locale.gen
+          when: os | lower != "rocky"
           lineinfile:
             dest: /mnt/etc/locale.gen
             regexp: '{{ item.regex }}'
@@ -34,7 +35,8 @@
           loop:
             - {regex: en_US\.UTF-8 UTF-8, line: en_US.UTF-8 UTF-8}
 
-        - name: Generate locales
+        - name: Generate locales\
+          when: os | lower != "rocky"
           command: arch-chroot /mnt /usr/sbin/locale-gen
 
         - name: Set hostname
@@ -71,7 +73,7 @@
         command: arch-chroot /mnt systemctl enable sshd logrotate systemd-resolved systemd-timesyncd NetworkManager
 
     - name: Configure grub
-      when: os | lower != "fedora" and os | lower != "almalinux" and os | lower != "rhel8" and os | lower != "rhel9"
+      when: os | lower not in ['almalinux', 'fedora', 'rhel8', 'rhel9', 'rocky']
       block:
         - name: Add commandline information to grub config
           lineinfile:
@@ -88,17 +90,21 @@
     - name: Configure Bootloader
       block:
         - name: Install Bootloader
-          command: arch-chroot /mnt {% if os | lower != "archlinux" and os | lower != "debian11" and os | lower != "debian12" %}/usr/sbin/efibootmgr -c -L '{{ os }}' -d "{{ install_drive }}" -wwp 1 -l '\efi\EFI\{{ os }}\shimx64.efi'{% else %}/usr/sbin/grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id={{ os }}{% endif %}
+          command: arch-chroot /mnt {% if os | lower not in ["archlinux", "debian11", "debian12"] %}/usr/sbin/efibootmgr -c -L '{{ os }}' -d "{{ install_drive }}" -wwp 1 -l '\efi\EFI\{{ os }}\shimx64.efi'{% else %}/usr/sbin/grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id={{ os }}{% endif %}
 
         - name: Generate grub config
-          command: arch-chroot /mnt {% if os | lower != "archlinux" and os | lower != "debian11" and os | lower != "debian12" %}/usr/sbin/grub2-mkconfig -o /boot/efi/EFI/{{ os }}/grub.cfg{% else %}/usr/sbin/grub-mkconfig -o /boot/grub/grub.cfg{% endif %}
+          command: arch-chroot /mnt {% if os | lower not in ["archlinux", "debian11", "debian12"] %}/usr/sbin/grub2-mkconfig -o /boot/efi/EFI/{{ os }}/grub.cfg{% else %}/usr/sbin/grub-mkconfig -o /boot/grub/grub.cfg{% endif %}
+
+        - name: Regenerate initramfs
+          command: arch-chroot /mnt {% if os | lower not in ["archlinux", "debian11", "debian12"] %}/usr/bin/dracut --regenerate-all --force{% else %}/usr/sbin/mkinitcpio -P{% endif %}
 
     - name: Extra Configuration
       when: os | lower != "archlinux"
       block:
         - name: Append lines to vimrc
+          ignore_errors: true
           lineinfile:
-            path: "{{ '/mnt/etc/vim/vimrc' if os|lower == 'debian11' or os|lower == 'debian12' else '/mnt/etc/vimrc' }}"
+            path: "{{ '/mnt/etc/vim/vimrc' if os|lower in ['debian11' ,'debian12'] else '/mnt/etc/vimrc' }}"
             line: "{{ item }}"
             insertafter: EOF
           with_items:
@@ -140,7 +146,7 @@
         - name: Create user account
           command: '{{ item }}'
           with_items:
-          - arch-chroot /mnt /usr/sbin/useradd --create-home --user-group --groups {{ "sudo" if os|lower == "debian11" or os|lower == "debian12" else "wheel" }} {{ user_name }} --password {{ user_password | password_hash('sha512') }} --shell /bin/bash
+          - arch-chroot /mnt /usr/sbin/useradd --create-home --user-group --groups {{ "sudo" if os|lower in ["debian11", "debian12"] else "wheel" }} {{ user_name }} --password {{ user_password | password_hash('sha512') }} --shell /bin/bash
           - arch-chroot /mnt /usr/sbin/usermod --password '{{ root_password | password_hash('sha512') }}' root --shell /bin/bash
 
         - name: Add SSH public key to authorized_keys
@@ -155,11 +161,11 @@
 
     - name: Give sudo access to wheel group
       copy:
-        content: "{{ '%sudo ALL=(ALL) ALL' if os|lower == 'debian11' or os|lower == 'debian12' else '%wheel ALL=(ALL) ALL' }}"
+        content: "{{ '%sudo ALL=(ALL) ALL' if os|lower in ['debian11', 'debian12'] else '%wheel ALL=(ALL) ALL' }}"
         dest: /mnt/etc/sudoers.d/01-wheel
         mode: 0440
         validate: /usr/sbin/visudo --check --file=%s
 
     - name: Fix SELinux
-      when: (os | lower == "almalinux" or os | lower == "fedora" or os | lower == "rhel8" or os | lower == "rhel9")
+      when: os | lower in ['almalinux', 'fedora', 'rhel8', 'rhel9', 'rocky']
       command: touch /mnt/.autorelabel

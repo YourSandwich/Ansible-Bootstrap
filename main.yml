@@ -38,7 +38,7 @@
   vars_files: vars.yml
   pre_tasks:
     - name: Set ansible_python_interpreter
-      when: os | lower in ["almalinux", "rhel9", "rhel8"]
+      when: os | lower in ["almalinux", "rhel9", "rhel8", "rocky"]
       set_fact:
         ansible_python_interpreter: /usr/bin/python3
 
@@ -47,7 +47,7 @@
         that:
           - hypervisor in ["libvirt", "proxmox", "vmware", "none"]
           - filesystem in ["btrfs", "ext4", "xfs"]
-          - os in ["archlinux", "almalinux", "debian11", "debian12", "fedora"]
+          - os in ["archlinux", "almalinux", "debian11", "debian12", "fedora", "rocky"]
         fail_msg: "Invalid input specified, please try again"
 
     - name: Set connection

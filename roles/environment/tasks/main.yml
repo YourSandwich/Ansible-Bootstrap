@@ -53,7 +53,7 @@
         state: latest
       loop:
         - { name: 'glibc' }
-        - { name: 'dnf', os: ['almalinux', 'rhel9', 'rhel8'] }
+        - { name: 'dnf', os: ['almalinux', 'rhel9', 'rhel8', 'rocky'] }
         - { name: 'debootstrap', os: ['debian11', 'debian12'] }
         - { name: 'debian-archive-keyring', os: ['debian11', 'debian12'] }
       when: "'os' not in item or os in item.os"
@@ -61,7 +61,7 @@
       delay: 15
 
     - name: Configure RHEL Repos for installation
-      when: os | lower == "almalinux" or os | lower == "fedora"
+      when: os | lower in ["almalinux", "fedora", "rocky"]
       block:
       - name: Create directories for repository files and RPM GPG keys
         file:

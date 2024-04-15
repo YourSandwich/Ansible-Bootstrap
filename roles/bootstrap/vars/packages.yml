@@ -130,7 +130,7 @@ almalinux:
   - lrzsz
   - nfs-utils
   - open-vm-tools
-  - shims
+  - shim
   - telnet
   - vim
   - zstd
@@ -157,4 +157,18 @@ rhel9:
   - open-vm-tools
   - shim
   - telnet
+  - zstd
+
+rocky:
+  - dhcp-client
+  - efibootmgr
+  - grub2
+  - grub2-efi
+  - lrzsz
+  - nfs-utils
+  - open-vm-tools
+  - shim
+  - telnet
+  - util-linux-core
+  - vim-minimal
   - zstd
