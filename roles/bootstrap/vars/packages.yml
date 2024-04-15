@@ -2,6 +2,7 @@
 archlinux:
   - base
   - btrfs-progs
+  - cloud-init
   - cronie
   - dhcpcd
   - efibootmgr
@@ -50,6 +51,7 @@ debian11:
     - python3
     - sudo
   extra:
+    - cloud-init
     - curl
     - firewalld
     - htop
@@ -83,6 +85,7 @@ debian12:
     - lvm2
 
   extra:
+    - cloud-init
     - apparmor-utils
     - chrony
     - curl
@@ -110,6 +113,7 @@ debian12:
     - wget
 
 fedora:
+  - cloud-init
   - dhcp-client
   - efibootmgr
   - grub2
@@ -123,6 +127,7 @@ fedora:
   - zstd
 
 almalinux:
+  - cloud-init
   - dhcp-client
   - efibootmgr
   - grub2
@@ -136,6 +141,7 @@ almalinux:
   - zstd
 
 rhel8:
+  - cloud-init
   - dhcp-client
   - efibootmgr
   - grub2
@@ -148,6 +154,7 @@ rhel8:
   - zstd
 
 rhel9:
+  - cloud-init
   - dhcp-client
   - efibootmgr
   - grub2
@@ -160,6 +167,7 @@ rhel9:
   - zstd
 
 rocky:
+  - cloud-init
   - dhcp-client
   - efibootmgr
   - grub2
