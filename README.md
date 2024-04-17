@@ -9,6 +9,22 @@ Most of the roles are adaptable for use with systems beyond ArchLinux, requiring
 - RHEL Systems are not currently supported due to restricted access to their repositories.
   A workaround could involve using an ISO as a local repository or setting up a proxy repository to facilitate access.
 
+# Supported Distributions
+
+This playbook supports multiple Linux distributions with specific versions tailored to each. Below is a list of supported distributions:
+
+| `os`       | Distribution                       |
+|------------|------------------------------------|
+| archlinux  | ArchLinux (Latest rolling release) |
+| almalinux  | AlmaLinux 8.x, 9.x                 |
+| debian11   | Debian 11 (Bullseye)               |
+| debian12   | Debian 12 (Bookworm)               |
+| fedora     | Fedora 40                          |
+| rocky      | Rocky Linux 9.x                    |
+| ubuntu     | Ubuntu 23.10 (Mantic Minotaur)     |
+| ubuntu-lts | Ubuntu 22.04 LTS (Jammy Jellyfish) |
+
+
 # Documentation
 
 ## Table of Contents
