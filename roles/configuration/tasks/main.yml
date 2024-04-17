@@ -82,15 +82,15 @@
           lineinfile:
             dest: /mnt/etc/default/grub
             regexp: ^GRUB_TIMEOUT=
-            line: 'GRUB_TIMEOUT=0'
+            line: 'GRUB_TIMEOUT=1'
 
     - name: Configure Bootloader
       block:
         - name: Install Bootloader
-          command: arch-chroot /mnt {% if os | lower not in ["archlinux", "debian11", "debian12", "ubuntu", "ubuntu-lts"] %}/usr/sbin/efibootmgr -c -L '{{ os }}' -d "{{ install_drive }}" -wwp 1 -l '\efi\EFI\{{ os }}\shimx64.efi'{% else %}/usr/sbin/grub-install --target=x86_64-efi --efi-directory={{ "/boot/efi" if os | lower in ["ubuntu", "ubuntu-lts"] else "/boot" }} --bootloader-id={{ os }}{% endif %}
+          command: arch-chroot /mnt {% if os | lower not in ["archlinux", "debian11", "debian12", "ubuntu", "ubuntu-lts"] %}/usr/sbin/efibootmgr -c -L '{{ os }}' -d "{{ install_drive }}" -p 1 -l '\efi\EFI\{{ os }}\shimx64.efi'{% else %}/usr/sbin/grub-install --target=x86_64-efi --efi-directory={{ "/boot/efi" if os | lower in ["ubuntu", "ubuntu-lts"] else "/boot" }} --bootloader-id={{ "ubuntu" if os | lower in ["ubuntu", "ubuntu-lts"] else os }}{% endif %}
 
         - name: Generate grub config
-          command: arch-chroot /mnt {% if os | lower not in ["archlinux", "debian11", "debian12", "ubuntu", "ubuntu-lts"] %}/usr/sbin/grub2-mkconfig -o /boot/efi/EFI/{{ os }}/grub.cfg{% else %}/usr/sbin/grub-mkconfig -o {{ "/boot/efi/EFI/" + os + "/grub.cfg" if os | lower in ["ubuntu", "ubuntu-lts"] else "/boot/grub/grub.cfg" }}{% endif %}
+          command: arch-chroot /mnt {% if os | lower not in ["archlinux", "debian11", "debian12", "ubuntu", "ubuntu-lts"] %}/usr/sbin/grub2-mkconfig -o /boot/efi/EFI/{{ os }}/grub.cfg{% else %}/usr/sbin/grub-mkconfig -o {{ "/boot/efi/EFI/ubuntu/grub.cfg" if os | lower in ["ubuntu", "ubuntu-lts"] else "/boot/grub/grub.cfg" }}{% endif %}
 
         - name: Regenerate initramfs
           when: os | lower not in ["debian11", "debian12", "ubuntu", "ubuntu-lts"]
