@@ -97,7 +97,6 @@
           command: arch-chroot /mnt {% if os | lower == "archlinux" %}/usr/sbin/mkinitcpio -P{% elif os | lower not in ["debian11", "debian12", "ubuntu", "ubuntu-lts", "archlinux"] %}/usr/bin/dracut --regenerate-all --force{% else %}echo "Skipping initramfs regeneration"{% endif %}
 
     - name: Extra Configuration
-      when: os | lower != "archlinux"
       block:
         - name: Append lines to vimrc
           ignore_errors: true
@@ -113,6 +112,7 @@
             - "set mouse=a"
 
         - name: Copy FirstRun Script
+          when: os | lower != "archlinux"
           template:
             src: firstrun.sh.j2
             dest: /mnt/root/firstrun.sh

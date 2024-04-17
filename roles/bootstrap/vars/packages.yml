@@ -1,6 +1,7 @@
 almalinux:
   - bind-utils
   - cloud-init
+  - dbus-daemon
   - dhcp-client
   - efibootmgr
   - glibc-langpack-de
@@ -13,6 +14,7 @@ almalinux:
   - nfs-utils
   - nfsv4-client-utils
   - open-vm-tools
+  - ppp
   - shim
   - telnet
   - vim
@@ -30,6 +32,7 @@ archlinux:
   - fish
   - grub
   - htop
+  - libpwquality
   - linux
   - logrotate
   - lrzsz
@@ -41,6 +44,7 @@ archlinux:
   - nfs-utils
   - openssh
   - open-vm-tools
+  - ppp
   - prometheus-node-exporter
   - python-psycopg2
   - qemu-guest-agent
@@ -140,18 +144,22 @@ fedora:
   - bind-utils
   - btrfs-progs
   - cloud-init
+  - cronie
   - dhcp-client
   - efibootmgr
   - glibc-langpack-de
   - glibc-langpack-en
   - grub2
   - grub2-efi
+  - logrotate
   - lrzsz
   - lvm2
   - nc
   - nfs-utils
   - nfsv4-client-utils
   - open-vm-tools
+  - polkit
+  - ppp
   - shim
   - telnet
   - vim-default-editor
@@ -189,6 +197,7 @@ rhel9:
 rocky:
   - bind-utils
   - cloud-init
+  - dbus-daemon
   - dhcp-client
   - efibootmgr
   - glibc-langpack-de
@@ -201,6 +210,7 @@ rocky:
   - nfs-utils
   - nfsv4-client-utils
   - open-vm-tools
+  - ppp
   - shim
   - telnet
   - util-linux-core

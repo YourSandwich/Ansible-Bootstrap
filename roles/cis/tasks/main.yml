@@ -65,7 +65,7 @@
     #     - { regexp: '^PASS_MIN_DAYS.*', replace: 'PASS_MIN_DAYS 7' }
     #     - { regexp: '^UMASK.*', replace: 'UMASK           027' }
 
-    - name: Create allow files
+    - name: Ensure files exist
       file:
         path: "{{ item }}"
         state: touch
@@ -73,6 +73,8 @@
       loop:
         - /mnt/etc/at.allow
         - /mnt/etc/cron.allow
+        - /mnt/etc/hosts.allow
+        - /mnt/etc/hosts.deny
 
     - name: Add Security related lines into config files
       lineinfile:
@@ -85,14 +87,14 @@
         - { path: '/mnt/etc/security/pwquality.conf', content: 'ucredit = -1' }
         - { path: '/mnt/etc/security/pwquality.conf', content: 'ocredit = -1' }
         - { path: '/mnt/etc/security/pwquality.conf', content: 'lcredit = -1' }
-        - { path: '/mnt/etc/bash.bashrc', content: 'umask 077' }
-        - { path: '/mnt/etc/bash.bashrc', content: 'export TMOUT=3000' }
-        - { path: '/mnt/etc/systemd/journald.conf', content: 'Storage=persistent' }
+        - { path: '/mnt/etc/{{ "bashrc" if os in ["almalinux", "fedora", "rocky"] else "bash.bashrc" }}', content: 'umask 077' }
+        - { path: '/mnt/etc/{{ "bashrc" if os in ["almalinux", "fedora", "rocky"] else "bash.bashrc" }}', content: 'export TMOUT=3000' }
+        - { path: '/mnt/{{ "usr/lib/systemd/journald.conf" if os == "fedora" else "etc/systemd/journald.conf" }}', content: 'Storage=persistent' }
         - { path: '/mnt/etc/sudoers', content: 'Defaults        logfile="/var/log/sudo.log"' }
         - { path: '/mnt/etc/pam.d/su', content: 'auth required pam_wheel.so' }
-        - { path: '/mnt/etc/pam.d/common-auth', content: 'auth required pam_faillock.so onerr=fail audit silent deny=5 unlock_time=900' }
-        - { path: '/mnt/etc/pam.d/common-account', content: 'account required pam_faillock.so' }
-        - { path: '/mnt/etc/pam.d/common-password', content: 'password [success=1 default=ignore] pam_unix.so obscure sha512 remember=5' }
+        - { path: '/mnt/etc/{{ "pam.d/common-auth" if os in ["debian11", "debian12", "ubuntu", "ubuntu-lts"] else "authselect/system-auth" if os == "fedora" else "pam.d/system-auth" }}', content: 'auth required pam_faillock.so onerr=fail audit silent deny=5 unlock_time=900' }
+        - { path: '/mnt/etc/{{ "pam.d/common-account" if os in ["debian11", "debian12", "ubuntu", "ubuntu-lts"] else "authselect/system-auth" if os == "fedora" else "pam.d/system-auth" }}', content: 'account required pam_faillock.so' }
+        - { path: '/mnt/etc/pam.d/{{ "common-password" if os in ["debian11", "debian12", "ubuntu", "ubuntu-lts"] else "passwd" }}', content: 'password [success=1 default=ignore] pam_unix.so obscure sha512 remember=5' }
         - { path: '/mnt/etc/hosts.deny', content: 'ALL: ALL' }
         - { path: '/mnt/etc/hosts.allow', content: 'sshd: ALL' }
 
@@ -112,12 +114,8 @@
         - { path: '/mnt/etc/crontab', mode: '0600' }
         - { path: '/mnt/etc/logrotate.conf', mode: '0644' }
         - { path: '/mnt/usr/sbin/pppd', mode: '754' }
-        - { path: '/mnt/usr/lib/dbus-1.0/dbus-daemon-launch-helper', mode: '754' }
-        - { path: '/mnt/usr/libexec/polkit-agent-helper-1', mode: '755' }
-        - { path: '/mnt/usr/bin/{{ "fusermount" if os == "debian11" else "fusermount3" }}', mode: '755' }
+        - { path: '/mnt/usr/bin/{{ "fusermount3" if os in ["archlinux", "debian12", "fedora"] else "fusermount" }}', mode: '755' }
         - { path: '/mnt/usr/bin/{{ "write.ul" if os == "debian11" else "write" }}', mode: '755' }
-        - { path: '/mnt/usr/lib/x86_64-linux-gnu/utempter/utempter', mode: '755' }
-        - { path: '/mnt/home/svcansible', mode: '750' }
 
     - name: Adjust SSHD config
       lineinfile:
