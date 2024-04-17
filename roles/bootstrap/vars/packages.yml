@@ -167,6 +167,7 @@ rhel9:
   - zstd
 
 rocky:
+  - bind-utils
   - cloud-init
   - dhcp-client
   - efibootmgr
@@ -175,10 +176,13 @@ rocky:
   - grub2
   - grub2-efi
   - lrzsz
+  - nc
   - nfs-utils
+  - nfsv4-client-utils
   - open-vm-tools
   - shim
   - telnet
   - util-linux-core
-  - vim-minimal
+  - vim
+  - wget
   - zstd
