@@ -27,7 +27,7 @@
     - name: Setup locales
       block:
         - name: Configure locale.gen
-          when: os | lower != "rocky"
+          when: os | lower not in ['almalinux', 'fedora', 'rhel8', 'rhel9', 'rocky']
           lineinfile:
             dest: /mnt/etc/locale.gen
             regexp: '{{ item.regex }}'
@@ -36,7 +36,7 @@
             - {regex: en_US\.UTF-8 UTF-8, line: en_US.UTF-8 UTF-8}
 
         - name: Generate locales\
-          when: os | lower != "rocky"
+          when: os | lower not in ['almalinux', 'fedora', 'rhel8', 'rhel9', 'rocky']
           command: arch-chroot /mnt /usr/sbin/locale-gen
 
         - name: Set hostname

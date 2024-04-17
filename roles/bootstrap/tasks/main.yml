@@ -26,12 +26,12 @@
         - echo "nameserver 1.0.0.1" > /mnt/etc/resolv.conf
         - arch-chroot /mnt dnf --releasever=9 --setopt=install_weak_deps=False install -y {{ role_packages.almalinux | join(' ') }}
 
-    - name: Bootstrap Fedora 39
+    - name: Bootstrap Fedora 40
       when: os | lower == 'fedora'
       shell: "{{ item }}"
       with_items:
-        - dnf --releasever=39 --best --repo=fedora --repo=fedora-updates --installroot=/mnt --setopt=install_weak_deps=False groupinstall -y critical-path-base core
-        - arch-chroot /mnt dnf --releasever=39 --setopt=install_weak_deps=False install -y {{ role_packages.fedora | join(' ') }}
+        - dnf --releasever=40 --best --repo=fedora --repo=fedora-updates --installroot=/mnt --setopt=install_weak_deps=False groupinstall -y critical-path-base core
+        - arch-chroot /mnt dnf --releasever=40 --setopt=install_weak_deps=False install -y {{ role_packages.fedora | join(' ') }}
         - arch-chroot /mnt dnf reinstall -y grub2-efi-x64 kernel
 
     - name: Bootstrap RockyLinux 9

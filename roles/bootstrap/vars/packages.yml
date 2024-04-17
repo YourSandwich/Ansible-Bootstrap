@@ -1,4 +1,24 @@
 ---
+almalinux:
+  - bind-utils
+  - cloud-init
+  - dhcp-client
+  - efibootmgr
+  - glibc-langpack-en
+  - glibc-langpack-de
+  - grub2
+  - grub2-efi
+  - lrzsz
+  - nc
+  - nfs-utils
+  - nfsv4-client-utils
+  - open-vm-tools
+  - shim
+  - telnet
+  - vim
+  - wget
+  - zstd
+
 archlinux:
   - base
   - btrfs-progs
@@ -124,20 +144,6 @@ fedora:
   - shim
   - telnet
   - vim-default-editor
-  - zstd
-
-almalinux:
-  - cloud-init
-  - dhcp-client
-  - efibootmgr
-  - grub2
-  - grub2-efi-x64-modules
-  - lrzsz
-  - nfs-utils
-  - open-vm-tools
-  - shim
-  - telnet
-  - vim
   - zstd
 
 rhel8:
