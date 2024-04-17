@@ -167,5 +167,14 @@
         validate: /usr/sbin/visudo --check --file=%s
 
     - name: Fix SELinux
-      when: os | lower in ['almalinux', 'fedora', 'rhel8', 'rhel9', 'rocky']
-      command: touch /mnt/.autorelabel
+      block:
+       - name: Relabel the filesystem
+         when: os | lower in ['almalinux', 'rhel8', 'rhel9', 'rocky']
+         command: touch /mnt/.autorelabel
+
+       - name: Disable SELinux
+         when: os | lower == "fedora"
+         lineinfile:
+           path: /mnt/etc/selinux/config
+           regexp: '^SELINUX='
+           line: 'SELINUX=permissive'

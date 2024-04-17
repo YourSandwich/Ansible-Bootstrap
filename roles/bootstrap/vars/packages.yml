@@ -9,6 +9,7 @@ almalinux:
   - grub2
   - grub2-efi
   - lrzsz
+  - lvm2
   - nc
   - nfs-utils
   - nfsv4-client-utils
@@ -133,17 +134,25 @@ debian12:
     - wget
 
 fedora:
+  - bind-utils
+  - btrfs-progs
   - cloud-init
   - dhcp-client
   - efibootmgr
+  - glibc-langpack-en
+  - glibc-langpack-de
   - grub2
-  - grub2-efi-x64-modules
+  - grub2-efi
   - lrzsz
+  - lvm2
+  - nc
   - nfs-utils
+  - nfsv4-client-utils
   - open-vm-tools
   - shim
   - telnet
   - vim-default-editor
+  - wget
   - zstd
 
 rhel8:
@@ -151,8 +160,9 @@ rhel8:
   - dhcp-client
   - efibootmgr
   - grub2
-  - grub2-efi-x64-modules
+  - grub2-efi
   - lrzsz
+  - lvm2
   - nfs-utils
   - open-vm-tools
   - shim
@@ -164,8 +174,9 @@ rhel9:
   - dhcp-client
   - efibootmgr
   - grub2
-  - grub2-efi-x64-modules
+  - grub2-efi
   - lrzsz
+  - lvm2
   - nfs-utils
   - open-vm-tools
   - shim
@@ -182,6 +193,7 @@ rocky:
   - grub2
   - grub2-efi
   - lrzsz
+  - lvm2
   - nc
   - nfs-utils
   - nfsv4-client-utils
