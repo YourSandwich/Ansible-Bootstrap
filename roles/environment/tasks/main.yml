@@ -53,7 +53,7 @@
         state: latest
       loop:
         - { name: 'glibc' }
-        - { name: 'dnf', os: ['almalinux', 'rhel9', 'rhel8', 'rocky'] }
+        - { name: 'dnf', os: ['almalinux', 'fedora', 'rhel9', 'rhel8', 'rocky'] }
         - { name: 'debootstrap', os: ['debian11', 'debian12'] }
         - { name: 'debian-archive-keyring', os: ['debian11', 'debian12'] }
       when: "'os' not in item or os in item.os"
