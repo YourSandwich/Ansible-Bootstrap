@@ -1,11 +1,10 @@
----
 almalinux:
   - bind-utils
   - cloud-init
   - dhcp-client
   - efibootmgr
-  - glibc-langpack-en
   - glibc-langpack-de
+  - glibc-langpack-en
   - grub2
   - grub2-efi
   - lrzsz
@@ -56,13 +55,12 @@ debian11:
   base:
     - apparmor-utils
     - btrfs-progs
-    - xfsprogs
     - chrony
     - cron
+    - gnupg
     - grub-efi
     - grub-efi-amd64-signed
     - grub2-common
-    - gnupg
     - linux-image-amd64
     - locales
     - logrotate
@@ -71,67 +69,72 @@ debian11:
     - openssh-server
     - python3
     - sudo
+    - xfsprogs
+
   extra:
     - cloud-init
     - curl
     - firewalld
+    - fish
     - htop
-    - network-manager
-    - screen
-    - open-vm-tools
-    - python-is-python3
+    - libpam-pwquality
+    - lrzsz
     - ncdu
     - neofetch
-    - lrzsz
-    - libpam-pwquality
+    - network-manager
+    - open-vm-tools
+    - python-is-python3
     - rsync
+    - screen
     - software-properties-common
     - syslog-ng
     - tcpd
-    - fish
     - vim
     - wget
+    - zstd
 
 debian12:
   base:
     - btrfs-progs
-    - xfsprogs
     - cron
+    - gnupg
     - grub-efi
     - grub-efi-amd64-signed
     - grub2-common
-    - gnupg
     - linux-image-amd64
     - locales
+    - logrotate
     - lvm2
+    - xfsprogs
 
   extra:
-    - cloud-init
     - apparmor-utils
     - chrony
+    - cloud-init
     - curl
     - firewalld
     - fish
     - htop
-    - network-manager
-    - screen
-    - open-vm-tools
-    - python-is-python3
-    - ncdu
-    - neofetch
+    - libpam-pwquality
     - logrotate
     - lrzsz
-    - libpam-pwquality
+    - ncdu
+    - neofetch
+    - net-tools
+    - network-manager
+    - open-vm-tools
+    - openssh-server
+    - python-is-python3
+    - python3
     - rsync
+    - screen
     - software-properties-common
     - sudo
     - syslog-ng
     - tcpd
-    - net-tools
-    - openssh-server
-    - python3
     - vim
     - wget
+    - zstd
 
 fedora:
   - bind-utils
@@ -139,8 +142,8 @@ fedora:
   - cloud-init
   - dhcp-client
   - efibootmgr
-  - glibc-langpack-en
   - glibc-langpack-de
+  - glibc-langpack-en
   - grub2
   - grub2-efi
   - lrzsz
@@ -188,8 +191,8 @@ rocky:
   - cloud-init
   - dhcp-client
   - efibootmgr
-  - glibc-langpack-en
   - glibc-langpack-de
+  - glibc-langpack-en
   - grub2
   - grub2-efi
   - lrzsz
@@ -204,3 +207,91 @@ rocky:
   - vim
   - wget
   - zstd
+
+ubuntu:
+  base:
+    - btrfs-progs
+    - cron
+    - gnupg
+    - grub-efi
+    - grub-efi-amd64-signed
+    - grub2-common
+    - initramfs-tools
+    - linux-image-generic
+    - locales
+    - lvm2
+    - xfsprogs
+
+  extra:
+    - apparmor-utils
+    - bash-completion
+    - chrony
+    - cloud-init
+    - curl
+    - dnsutils
+    - firewalld
+    - fish
+    - htop
+    - libpam-pwquality
+    - logrotate
+    - lrzsz
+    - ncdu
+    - net-tools
+    - network-manager
+    - open-vm-tools
+    - openssh-server
+    - python-is-python3
+    - python3
+    - rsync
+    - screen
+    - software-properties-common
+    - sudo
+    - syslog-ng
+    - tcpd
+    - vim
+    - wget
+    - zstd
+
+ubuntu-lts:
+  base:
+    - btrfs-progs
+    - cron
+    - gnupg
+    - grub-efi
+    - grub-efi-amd64-signed
+    - grub2-common
+    - initramfs-tools
+    - linux-image-generic
+    - locales
+    - lvm2
+    - xfsprogs
+
+  extra:
+    - apparmor-utils
+    - bash-completion
+    - chrony
+    - cloud-init
+    - curl
+    - dnsutils
+    - firewalld
+    - fish
+    - htop
+    - libpam-pwquality
+    - logrotate
+    - lrzsz
+    - ncdu
+    - net-tools
+    - network-manager
+    - open-vm-tools
+    - openssh-server
+    - python-is-python3
+    - python3
+    - rsync
+    - screen
+    - software-properties-common
+    - sudo
+    - syslog-ng
+    - tcpd
+    - vim
+    - wget
+    - zstd

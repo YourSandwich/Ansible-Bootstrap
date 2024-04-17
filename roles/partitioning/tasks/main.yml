@@ -119,7 +119,7 @@
 
     - name: Mount boot filesystem
       mount:
-        path: /mnt/boot
+        path: "{{ '/mnt/boot/efi' if os | lower in ['ubuntu', 'ubuntu-lts'] else '/mnt/boot' }}"
         src: UUID={{ boot_uuid.stdout }}
         fstype: vfat
         state: mounted

@@ -13,7 +13,7 @@
     - { lv: var_log_audit }
 
 - name: Remove Unsupported features for older Systems
-  when: (os | lower in ['almalinux', 'debian11', 'rhel8', 'rhel9', 'rocky']) and (cis == true or item.lv not in ['var_log', 'var_log_audit'])
+  when: (os | lower in ['almalinux', 'debian11', 'rhel8', 'rhel9', 'rocky', 'ubuntu-lts']) and (cis == true or item.lv not in ['var_log', 'var_log_audit'])
   command: tune2fs -O "^orphan_file,^metadata_csum_seed" "/dev/sys/{{ item.lv }}"
   loop:
     - { lv: root }

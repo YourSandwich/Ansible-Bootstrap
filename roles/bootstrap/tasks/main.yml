@@ -18,6 +18,15 @@
         - arch-chroot /mnt apt install -y {{ role_packages[os].extra | join(' ') }}
         - arch-chroot /mnt apt remove -y libcups2 libavahi-common3 libavahi-common-data
 
+    - name: Bootstrap Ubuntu System
+      when: os | lower in ['ubuntu', 'ubuntu-lts']
+      shell: "{{ item }}"
+      with_items:
+        - debootstrap --include={{ role_packages[os].base | join(',') }} {{ 'mantic' if os == 'ubuntu' else 'jammy' }} /mnt http://archive.ubuntu.com/ubuntu/
+        - arch-chroot /mnt sed -i '1s|$| universe|' /etc/apt/sources.list
+        - arch-chroot /mnt apt update -y
+        - arch-chroot /mnt apt install -y {{ role_packages[os].extra | join(' ') }}
+
     - name: Bootstrap AlmaLinux 9
       when: os | lower == 'almalinux'
       shell: "{{ item }}"

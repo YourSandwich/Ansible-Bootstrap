@@ -54,8 +54,9 @@
       loop:
         - { name: 'glibc' }
         - { name: 'dnf', os: ['almalinux', 'fedora', 'rhel9', 'rhel8', 'rocky'] }
-        - { name: 'debootstrap', os: ['debian11', 'debian12'] }
+        - { name: 'debootstrap', os: ['debian11', 'debian12', 'ubuntu', 'ubuntu-lts'] }
         - { name: 'debian-archive-keyring', os: ['debian11', 'debian12'] }
+        - { name: 'ubuntu-keyring', os: ['ubuntu', 'ubuntu-lts'] }
       when: "'os' not in item or os in item.os"
       retries: 4
       delay: 15
