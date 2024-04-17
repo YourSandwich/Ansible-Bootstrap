@@ -52,7 +52,7 @@
 
         - name: Create vconsole.conf
           copy:
-            content: "KEYMAP=de-latin1-nodeadkeys"
+            content: "KEYMAP=us-intl"
             dest: /mnt/etc/vconsole.conf
 
         - name: Create locale.conf

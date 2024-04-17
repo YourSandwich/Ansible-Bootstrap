@@ -170,6 +170,8 @@ rocky:
   - cloud-init
   - dhcp-client
   - efibootmgr
+  - glibc-langpack-en
+  - glibc-langpack-de
   - grub2
   - grub2-efi
   - lrzsz
