@@ -16,7 +16,7 @@ This playbook supports multiple Linux distributions with specific versions tailo
 | `os`       | Distribution                       |
 |------------|------------------------------------|
 | archlinux  | ArchLinux (Latest rolling release) |
-| almalinux  | AlmaLinux 8.x, 9.x                 |
+| almalinux  | AlmaLinux 9.x                      |
 | debian11   | Debian 11 (Bullseye)               |
 | debian12   | Debian 12 (Bookworm)               |
 | fedora     | Fedora 40                          |
