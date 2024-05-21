@@ -32,11 +32,7 @@
       when: cis == true or item.subvol not in ['var_log', 'var_log_audit']
       command: btrfs qgroup limit {{ item.quota }} /mnt/{{ '@' if item.subvol == 'root' else '@' + item.subvol }}
       loop:
-        - { subvol: root, quota: '12G' }
         - { subvol: home, quota: '2G' }
-        - { subvol: var, quota: '2G' }
-        - { subvol: var_log, quota: '2G' }
-        - { subvol: var_log_audit, quota: '1536M' }
 
     - name: Unmount Partition
       mount:
