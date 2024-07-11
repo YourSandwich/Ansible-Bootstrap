@@ -81,7 +81,8 @@
         - var_log
         - var_log_audit
 
-    - ansible.builtin.set_fact:
+    - name: Assign UUIDs to Variables
+      ansible.builtin.set_fact:
         uuid_root: "{{ uuid_result.results[0].stdout_lines }}"
         uuid_home: "{{ uuid_result.results[1].stdout_lines }}"
         uuid_var: "{{ uuid_result.results[2].stdout_lines }}"
