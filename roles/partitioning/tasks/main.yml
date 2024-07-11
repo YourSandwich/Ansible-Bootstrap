@@ -54,7 +54,7 @@
         dev: '{{ install_drive }}{{ boot_partition_suffix }}'
         fstype: vfat
         opts: -F32
-        force: yes
+        force: true
 
     - name: Create filesystem
       include_tasks: "{{ filesystem }}.yml"

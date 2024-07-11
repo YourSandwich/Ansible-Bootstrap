@@ -155,7 +155,7 @@
             owner: 1000
             group: 1000
             mode: "0600"
-            create: yes
+            create: true
 
     - name: Give sudo access to wheel group
       copy:

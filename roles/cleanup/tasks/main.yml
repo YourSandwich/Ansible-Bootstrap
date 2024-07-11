@@ -24,7 +24,7 @@
     hostname: "{{ hypervisor_url }}"
     username: "{{ hypervisor_username }}"
     password: "{{ hypervisor_password }}"
-    validate_certs: no
+    validate_certs: false
     datacenter: "{{ hypervisor_cluster }}"
     name: "{{ hostname }}"
     cdrom:

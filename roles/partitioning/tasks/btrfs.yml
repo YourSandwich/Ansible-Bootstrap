@@ -5,7 +5,7 @@
       filesystem:
         dev: '{{ install_drive }}{{ main_partition_suffix }}'
         fstype: btrfs
-        force: yes
+        force: true
 
     - name: Prepare BTRFS Subvolume
       mount:

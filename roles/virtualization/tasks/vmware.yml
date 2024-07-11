@@ -4,7 +4,7 @@
     hostname: "{{ hypervisor_url }}"
     username: "{{ hypervisor_username }}"
     password: "{{ hypervisor_password }}"
-    validate_certs: no
+    validate_certs: false
     datacenter: "{{ hypervisor_cluster }}"
     cluster: "{{ hypervisor_node }}"
     folder: "{{ vm_path }}"
@@ -30,4 +30,4 @@
     networks:
       - vlan: "{{ vlan_name }}"
         type: dhcp
-  ignore_errors: yes
+  ignore_errors: true

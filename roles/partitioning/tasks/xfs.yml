@@ -4,7 +4,7 @@
   filesystem:
     dev: '/dev/sys/{{ item.lv }}'
     fstype: xfs
-    force: yes
+    force: true
   loop:
     - { lv: root }
     - { lv: home }
