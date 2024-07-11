@@ -1,48 +1,49 @@
+---
 - name: Deploy VM on Proxmox
   delegate_to: localhost
-  proxmox_kvm:
+  community.general.proxmox_kvm:
     api_host: "{{ hypervisor_url }}"
     api_user: "{{ hypervisor_username }}"
     api_password: "{{ hypervisor_password }}"
     ciuser: "{{ user_name }}"
     cipassword: "{{ user_password }}"
-    node: "{{ hypervisor_node }}"  # Proxmox node name
-    vmid: "{{ vm_id }}"  # Unique ID for the VM
-    name: "{{ hostname }}"  # Name of the VM
-    cpu: "host"
-    cores: "{{ vm_cpus }}"  # Number of CPU cores
-    memory: "{{ vm_memory }}"  # Memory size in MB
+    node: "{{ hypervisor_node }}" # Proxmox node name
+    vmid: "{{ vm_id }}" # Unique ID for the VM
+    name: "{{ hostname }}" # Name of the VM
+    cpu: host
+    cores: "{{ vm_cpus }}" # Number of CPU cores
+    memory: "{{ vm_memory }}" # Memory size in MB
     balloon: "{{ vm_ballo | default(omit) }}" # Minimum Memory size in MB
     numa_enabled: true
-    hotplug: "network,disk"
+    hotplug: network,disk
     bios: ovmf
-    boot: "ac"
-    scsihw: "virtio-scsi-single"
+    boot: ac
+    scsihw: virtio-scsi-single
     scsi:
-      scsi0: "{{ hypervisor_storage }}:{{ vm_size }}"  # Disk configuration
+      scsi0: "{{ hypervisor_storage }}:{{ vm_size }}" # Disk configuration
     efidisk0:
-      efitype: "4m"
-      format: "raw"
+      efitype: 4m
+      format: raw
       pre_enrolled_keys: false
       storage: "{{ hypervisor_storage }}"
     ide:
       ide0: "{{ boot_iso }},media=cdrom"
       ide1: "{{ hypervisor_storage }}:cloudinit"
     net:
-      net0: "virtio,bridge={{ vm_nif }}{% if vlan_name is defined and vlan_name %},tag={{ vlan_name }}{% endif %}"
+      net0: virtio,bridge={{ vm_nif }}{% if vlan_name is defined and vlan_name %},tag={{ vlan_name }}{% endif %}
     ipconfig:
-      ipconfig0: "ip={{ vm_ip }},gw={{ vm_gw }}"
+      ipconfig0: ip={{ vm_ip }},gw={{ vm_gw }}
     nameservers: "{{ vm_dns }}"
-    onboot: true  # Start the VM on boot
-    state: present  # Ensure the VM is present
+    onboot: true # Start the VM on boot
+    state: present # Ensure the VM is present
 
 - name: Start VM on Proxmox
   delegate_to: localhost
-  proxmox_kvm:
+  community.general.proxmox_kvm:
     api_host: "{{ hypervisor_url }}"
     api_user: "{{ hypervisor_username }}"
     api_password: "{{ hypervisor_password }}"
     node: "{{ hypervisor_node }}"
     name: "{{ hostname }}"
     vmid: "{{ vm_id }}"
-    state: started  # Ensure the VM is present
+    state: started # Ensure the VM is present

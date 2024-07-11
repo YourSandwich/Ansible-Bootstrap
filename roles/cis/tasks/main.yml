@@ -1,7 +1,8 @@
+---
 - name: Configurationg System for CIS conformity
   block:
     - name: Disable Kernel Modules
-      copy:
+      ansible.builtin.copy:
         dest: /mnt/etc/modprobe.d/cis.conf
         content: |
           CIS LVL 3 Restrictions
@@ -19,7 +20,7 @@
           install tipc            /bin/true
 
     - name: Create USB Rules
-      copy:
+      ansible.builtin.copy:
         dest: /mnt/etc/udev/rules.d/10-cis_usb_devices.sh
         content: |
           By default, disable all.
@@ -35,7 +36,7 @@
           ACTION=="add", ATTR{product}=="*Thinnet TM*", TEST=="authorized", ATTR{authorized}="1"
 
     - name: Create a consolidated sysctl configuration file
-      copy:
+      ansible.builtin.copy:
         dest: /mnt/etc/sysctl.d/10-cis.conf
         content: |
           ## CIS Sysctl configurations
@@ -66,10 +67,10 @@
     #     - { regexp: '^UMASK.*', replace: 'UMASK           027' }
 
     - name: Ensure files exist
-      file:
+      ansible.builtin.file:
         path: "{{ item }}"
         state: touch
-        mode: '0600'
+        mode: "0600"
       loop:
         - /mnt/etc/at.allow
         - /mnt/etc/cron.allow
@@ -77,82 +78,87 @@
         - /mnt/etc/hosts.deny
 
     - name: Add Security related lines into config files
-      lineinfile:
+      ansible.builtin.lineinfile:
         path: "{{ item.path }}"
         line: "{{ item.content }}"
       loop:
-        - { path: '/mnt/etc/security/limits.conf', content: '* hard core 0' }
-        - { path: '/mnt/etc/security/pwquality.conf', content: 'minlen = 14' }
-        - { path: '/mnt/etc/security/pwquality.conf', content: 'dcredit = -1' }
-        - { path: '/mnt/etc/security/pwquality.conf', content: 'ucredit = -1' }
-        - { path: '/mnt/etc/security/pwquality.conf', content: 'ocredit = -1' }
-        - { path: '/mnt/etc/security/pwquality.conf', content: 'lcredit = -1' }
-        - { path: '/mnt/etc/{{ "bashrc" if os in ["almalinux", "fedora", "rocky"] else "bash.bashrc" }}', content: 'umask 077' }
-        - { path: '/mnt/etc/{{ "bashrc" if os in ["almalinux", "fedora", "rocky"] else "bash.bashrc" }}', content: 'export TMOUT=3000' }
-        - { path: '/mnt/{{ "usr/lib/systemd/journald.conf" if os == "fedora" else "etc/systemd/journald.conf" }}', content: 'Storage=persistent' }
-        - { path: '/mnt/etc/sudoers', content: 'Defaults        logfile="/var/log/sudo.log"' }
-        - { path: '/mnt/etc/pam.d/su', content: 'auth required pam_wheel.so' }
-        - { path: '/mnt/etc/{{ "pam.d/common-auth" if os in ["debian11", "debian12", "ubuntu", "ubuntu-lts"] else "authselect/system-auth" if os == "fedora" else "pam.d/system-auth" }}', content: 'auth required pam_faillock.so onerr=fail audit silent deny=5 unlock_time=900' }
-        - { path: '/mnt/etc/{{ "pam.d/common-account" if os in ["debian11", "debian12", "ubuntu", "ubuntu-lts"] else "authselect/system-auth" if os == "fedora" else "pam.d/system-auth" }}', content: 'account required pam_faillock.so' }
-        - { path: '/mnt/etc/pam.d/{{ "common-password" if os in ["debian11", "debian12", "ubuntu", "ubuntu-lts"] else "passwd" }}', content: 'password [success=1 default=ignore] pam_unix.so obscure sha512 remember=5' }
-        - { path: '/mnt/etc/hosts.deny', content: 'ALL: ALL' }
-        - { path: '/mnt/etc/hosts.allow', content: 'sshd: ALL' }
+        - { path: /mnt/etc/security/limits.conf, content: "* hard core 0" }
+        - { path: /mnt/etc/security/pwquality.conf, content: minlen = 14 }
+        - { path: /mnt/etc/security/pwquality.conf, content: dcredit = -1 }
+        - { path: /mnt/etc/security/pwquality.conf, content: ucredit = -1 }
+        - { path: /mnt/etc/security/pwquality.conf, content: ocredit = -1 }
+        - { path: /mnt/etc/security/pwquality.conf, content: lcredit = -1 }
+        - { path: '/mnt/etc/{{ "bashrc" if os in ["almalinux", "fedora", "rocky"] else "bash.bashrc" }}', content: umask 077 }
+        - { path: '/mnt/etc/{{ "bashrc" if os in ["almalinux", "fedora", "rocky"] else "bash.bashrc" }}', content: export TMOUT=3000 }
+        - { path: '/mnt/{{ "usr/lib/systemd/journald.conf" if os == "fedora" else "etc/systemd/journald.conf" }}', content: Storage=persistent }
+        - { path: /mnt/etc/sudoers, content: Defaults        logfile="/var/log/sudo.log" }
+        - { path: /mnt/etc/pam.d/su, content: auth required pam_wheel.so }
+        - path: /mnt/etc/{{ "pam.d/common-auth" if os in ["debian11", "debian12", "ubuntu", "ubuntu-lts"] else "authselect/system-auth" if os == "fedora" else "pam.d/system-auth"
+            }}
+          content: auth required pam_faillock.so onerr=fail audit silent deny=5 unlock_time=900
+        - path: /mnt/etc/{{ "pam.d/common-account" if os in ["debian11", "debian12", "ubuntu", "ubuntu-lts"] else "authselect/system-auth" if os == "fedora" else
+            "pam.d/system-auth" }}
+          content: account required pam_faillock.so
+        - path: /mnt/etc/pam.d/{{ "common-password" if os in ["debian11", "debian12", "ubuntu", "ubuntu-lts"] else "passwd" }}
+          content: password [success=1 default=ignore] pam_unix.so obscure sha512 remember=5
+        - { path: /mnt/etc/hosts.deny, content: "ALL: ALL" }
+        - { path: /mnt/etc/hosts.allow, content: "sshd: ALL" }
 
     - name: Set permissions for various files and directories
-      file:
+      ansible.builtin.file:
         path: "{{ item.path }}"
         owner: "{{ item.owner | default(omit) }}"
         group: "{{ item.group | default(omit) }}"
         mode: "{{ item.mode }}"
       loop:
-        - { path: '/mnt/etc/ssh/sshd_config', mode: '0600' }
-        - { path: '/mnt/etc/cron.hourly', mode: '0700' }
-        - { path: '/mnt/etc/cron.daily', mode: '0700' }
-        - { path: '/mnt/etc/cron.weekly', mode: '0700' }
-        - { path: '/mnt/etc/cron.monthly', mode: '0700' }
-        - { path: '/mnt/etc/cron.d', mode: '0700' }
-        - { path: '/mnt/etc/crontab', mode: '0600' }
-        - { path: '/mnt/etc/logrotate.conf', mode: '0644' }
-        - { path: '/mnt/usr/sbin/pppd', mode: '754' }
-        - { path: '/mnt/usr/bin/{{ "fusermount3" if os in ["archlinux", "debian12", "fedora"] else "fusermount" }}', mode: '755' }
-        - { path: '/mnt/usr/bin/{{ "write.ul" if os == "debian11" else "write" }}', mode: '755' }
+        - { path: /mnt/etc/ssh/sshd_config, mode: "0600" }
+        - { path: /mnt/etc/cron.hourly, mode: "0700" }
+        - { path: /mnt/etc/cron.daily, mode: "0700" }
+        - { path: /mnt/etc/cron.weekly, mode: "0700" }
+        - { path: /mnt/etc/cron.monthly, mode: "0700" }
+        - { path: /mnt/etc/cron.d, mode: "0700" }
+        - { path: /mnt/etc/crontab, mode: "0600" }
+        - { path: /mnt/etc/logrotate.conf, mode: "0644" }
+        - { path: /mnt/usr/sbin/pppd, mode: "754" }
+        - { path: '/mnt/usr/bin/{{ "fusermount3" if os in ["archlinux", "debian12", "fedora"] else "fusermount" }}', mode: "755" }
+        - { path: '/mnt/usr/bin/{{ "write.ul" if os == "debian11" else "write" }}', mode: "755" }
 
     - name: Adjust SSHD config
-      lineinfile:
+      ansible.builtin.lineinfile:
         path: /mnt/etc/ssh/sshd_config
-        regexp: '^\s*#?{{ item.option }}\s+.*$'
-        line: '{{ item.option }} {{ item.value }}'
+        regexp: ^\s*#?{{ item.option }}\s+.*$
+        line: "{{ item.option }} {{ item.value }}"
       with_items:
-        - {option: 'LogLevel', value: 'VERBOSE'}
-        - {option: 'LoginGraceTime', value: '60'}
-        - {option: 'PermitRootLogin', value: 'no'}
-        - {option: 'StrictModes', value: 'yes'}
-        - {option: 'MaxAuthTries', value: '4'}
-        - {option: 'MaxSessions', value: '10'}
-        - {option: 'MaxStartups', value: '10:30:60'}
-        - {option: 'PubkeyAuthentication', value: 'yes'}
-        - {option: 'HostbasedAuthentication', value: 'no'}
-        - {option: 'IgnoreRhosts', value: 'yes'}
-        - {option: 'PasswordAuthentication', value: 'no'}
-        - {option: 'PermitEmptyPasswords', value: 'no'}
-        - {option: 'KerberosAuthentication', value: 'no'}
-        - {option: 'GSSAPIAuthentication', value: 'no'}
-        - {option: 'GSSAPIKeyExchange', value: 'no'}
-        - {option: 'AllowAgentForwarding', value: 'no'}
-        - {option: 'AllowTcpForwarding', value: 'no'}
-        - {option: 'ChallengeResponseAuthentication', value: 'no'}
-        - {option: 'GatewayPorts', value: 'no'}
-        - {option: 'X11Forwarding', value: 'no'}
-        - {option: 'PermitUserEnvironment', value: 'no'}
-        - {option: 'ClientAliveInterval', value: '300'}
-        - {option: 'ClientAliveCountMax', value: '0'}
-        - {option: 'PermitTunnel', value: 'no'}
-        - {option: 'Banner', value: '/etc/issue.net'}
+        - { option: LogLevel, value: VERBOSE }
+        - { option: LoginGraceTime, value: "60" }
+        - { option: PermitRootLogin, value: "no" }
+        - { option: StrictModes, value: "yes" }
+        - { option: MaxAuthTries, value: "4" }
+        - { option: MaxSessions, value: "10" }
+        - { option: MaxStartups, value: 10:30:60 }
+        - { option: PubkeyAuthentication, value: "yes" }
+        - { option: HostbasedAuthentication, value: "no" }
+        - { option: IgnoreRhosts, value: "yes" }
+        - { option: PasswordAuthentication, value: "no" }
+        - { option: PermitEmptyPasswords, value: "no" }
+        - { option: KerberosAuthentication, value: "no" }
+        - { option: GSSAPIAuthentication, value: "no" }
+        - { option: GSSAPIKeyExchange, value: "no" }
+        - { option: AllowAgentForwarding, value: "no" }
+        - { option: AllowTcpForwarding, value: "no" }
+        - { option: ChallengeResponseAuthentication, value: "no" }
+        - { option: GatewayPorts, value: "no" }
+        - { option: X11Forwarding, value: "no" }
+        - { option: PermitUserEnvironment, value: "no" }
+        - { option: ClientAliveInterval, value: "300" }
+        - { option: ClientAliveCountMax, value: "0" }
+        - { option: PermitTunnel, value: "no" }
+        - { option: Banner, value: /etc/issue.net }
 
     - name: Append CIS Specific configurations to sshd_config
-      lineinfile:
+      ansible.builtin.lineinfile:
         path: /mnt/etc/ssh/sshd_config
-        line: |
+        line: |2-
 
           ## CIS Specific
           Protocol 2

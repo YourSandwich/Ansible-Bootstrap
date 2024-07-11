@@ -1,8 +1,8 @@
 ---
 - name: Create and format ext4 logical volumes
   when: cis == true or item.lv not in ['var_log', 'var_log_audit']
-  filesystem:
-    dev: '/dev/sys/{{ item.lv }}'
+  community.general.filesystem:
+    dev: /dev/sys/{{ item.lv }}
     fstype: ext4
     force: true
   loop:
@@ -14,7 +14,7 @@
 
 - name: Remove Unsupported features for older Systems
   when: (os | lower in ['almalinux', 'debian11', 'rhel8', 'rhel9', 'rocky', 'ubuntu-lts']) and (cis == true or item.lv not in ['var_log', 'var_log_audit'])
-  command: tune2fs -O "^orphan_file,^metadata_csum_seed" "/dev/sys/{{ item.lv }}"
+  ansible.builtin.command: tune2fs -O "^orphan_file,^metadata_csum_seed" "/dev/sys/{{ item.lv }}"
   loop:
     - { lv: root }
     - { lv: home }

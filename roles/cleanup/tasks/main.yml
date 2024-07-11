@@ -1,3 +1,4 @@
+---
 - name: Setup Cleanup
   when: hypervisor == "proxmox"
   delegate_to: localhost
@@ -20,7 +21,7 @@
   when: hypervisor == "vmware"
   delegate_to: localhost
   ignore_errors: true
-  vmware_guest:
+  community.vmware.vmware_guest:
     hostname: "{{ hypervisor_url }}"
     username: "{{ hypervisor_username }}"
     password: "{{ hypervisor_password }}"
@@ -30,7 +31,7 @@
     cdrom:
       - controller_number: 0
         unit_number: 0
-        controller_type: "sata"
+        controller_type: sata
         type: iso
         iso_path: "{{ boot_iso }}"
         state: absent
@@ -46,22 +47,22 @@
         state: shutdown
 
     - name: Remove cloud-init disk
-      file:
+      ansible.builtin.file:
         path: "{{ vm_path | default('/var/lib/libvirt/images/') }}{{ hostname }}-cloudinit.iso"
         state: absent
 
     - name: Get list of CD-ROM devices
-      shell: virsh --connect qemu:///system domblklist {{ hostname }} --details | grep 'cdrom' | awk '{print $3}'
+      ansible.builtin.shell: virsh --connect qemu:///system domblklist {{ hostname }} --details | grep 'cdrom' | awk '{print $3}'
       changed_when: false
       register: cdrom_devices
 
     - name: Wait for VM to spin down
-      wait_for:
+      ansible.builtin.wait_for:
         timeout: 15
 
     - name: Remove CD-ROM devices
       when: cdrom_devices.stdout_lines | length > 0
-      command: virsh --connect qemu:///system detach-disk {{ hostname }} {{ item }} --persistent
+      ansible.builtin.command: virsh --connect qemu:///system detach-disk {{ hostname }} {{ item }} --persistent
       with_items: "{{ cdrom_devices.stdout_lines }}"
 
     - name: Start the VM
@@ -71,5 +72,5 @@
 
     - name: Wait for VM to boot up
       delegate_to: "{{ inventory_hostname }}"
-      wait_for_connection:
+      ansible.builtin.wait_for_connection:
         timeout: 300

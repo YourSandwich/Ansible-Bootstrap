@@ -1,62 +1,60 @@
+---
 - name: Configre work environment
   become: true
   block:
     - name: Wait for connection
-      wait_for_connection:
+      ansible.builtin.wait_for_connection:
         timeout: 300
         delay: 5
 
     - name: Gather facts
-      setup:
+      ansible.builtin.setup:
 
     - name: Check if host is booted from the Arch install media
-      stat:
+      ansible.builtin.stat:
         path: /run/archiso
       register: archiso_stat
 
     - name: Abort if the host is not booted from the Arch install media
-      fail:
-        msg: "This host is not booted from the Arch install media!"
+      ansible.builtin.fail:
+        msg: This host is not booted from the Arch install media!
       when: not archiso_stat.stat.exists
 
     - name: Setect Interface
       when: hypervisor == "vmware"
-      shell: "ip l | awk -F': ' '!/lo/{print $2; exit}'"
+      ansible.builtin.shell: "ip l | awk -F': ' '!/lo/{print $2; exit}'"
       register: interface_name
 
     - name: Set IP-Address
       when: hypervisor == "vmware"
-      command: ip addr replace {{ ansible_host }}/24 dev {{ interface_name.stdout }}
-
+      ansible.builtin.command: ip addr replace {{ ansible_host }}/24 dev {{ interface_name.stdout }}
     - name: Set Default Gateway
       when: hypervisor == "vmware"
-      command: ip route replace default via {{ vm_gw }}
-
+      ansible.builtin.command: ip route replace default via {{ vm_gw }}
     - name: Synchronize clock via NTP
-      command: timedatectl set-ntp true
-
+      ansible.builtin.command: timedatectl set-ntp true
     - name: Speed-up Bootstrap process
-      lineinfile:
+      ansible.builtin.lineinfile:
         path: /etc/pacman.conf
-        regexp: '^#ParallelDownloads ='
-        line: 'ParallelDownloads = 20'
+        regexp: ^#ParallelDownloads =
+        line: ParallelDownloads = 20
 
     - name: Wait for Pacman
-      wait_for:
+      ansible.builtin.wait_for:
         timeout: 15
 
     - name: Setup Pacman
-      pacman:
+      community.general.pacman:
         update_cache: true
         force: true
         name: "{{ item.name }}"
         state: latest
       loop:
-        - { name: 'glibc' }
-        - { name: 'dnf', os: ['almalinux', 'fedora', 'rhel9', 'rhel8', 'rocky'] }
-        - { name: 'debootstrap', os: ['debian11', 'debian12', 'ubuntu', 'ubuntu-lts'] }
-        - { name: 'debian-archive-keyring', os: ['debian11', 'debian12'] }
-        - { name: 'ubuntu-keyring', os: ['ubuntu', 'ubuntu-lts'] }
+        - { name: glibc }
+        - { name: dnf, os: [almalinux, fedora, rhel9, rhel8, rocky] }
+        - { name: debootstrap, os: [debian11, debian12, ubuntu, ubuntu-lts] }
+        - { name: debian-archive-keyring, os: [debian11, debian12] }
+        - { name: ubuntu-keyring, os: [ubuntu, ubuntu-lts] }
       when: "'os' not in item or os in item.os"
       retries: 4
       delay: 15
@@ -64,12 +62,12 @@
     - name: Configure RHEL Repos for installation
       when: os | lower in ["almalinux", "fedora", "rocky"]
       block:
-      - name: Create directories for repository files and RPM GPG keys
-        file:
-          path: /etc/yum.repos.d
-          state: directory
+        - name: Create directories for repository files and RPM GPG keys
+          ansible.builtin.file:
+            path: /etc/yum.repos.d
+            state: directory
 
-      - name: Create RHEL repository file
-        template:
-          src: '{{ os | lower }}.repo.j2'
-          dest: '/etc/yum.repos.d/{{ os | lower }}.repo'
+        - name: Create RHEL repository file
+          ansible.builtin.template:
+            src: "{{ os | lower }}.repo.j2"
+            dest: /etc/yum.repos.d/{{ os | lower }}.repo

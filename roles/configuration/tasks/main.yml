@@ -1,22 +1,22 @@
+---
 - name: Configuration
   block:
     - name: Generate fstab
-      shell: genfstab -LU /mnt > /mnt/etc/fstab
-
+      ansible.builtin.shell: genfstab -LU /mnt > /mnt/etc/fstab
     - name: Append TempFS to fstab
-      lineinfile:
+      ansible.builtin.lineinfile:
         path: /mnt/etc/fstab
         line: "{{ item }}"
         insertafter: EOF
       with_items:
         - ""
         - "# TempFS"
-        - "tmpfs           /tmp            tmpfs           defaults,nosuid,nodev,noexec    0 0"
-        - "tmpfs           /var/tmp        tmpfs           defaults,nosuid,nodev,noexec    0 0"
-        - "tmpfs           /dev/shm        tmpfs           defaults,noexec    0 0"
+        - tmpfs           /tmp            tmpfs           defaults,nosuid,nodev,noexec    0 0
+        - tmpfs           /var/tmp        tmpfs           defaults,nosuid,nodev,noexec    0 0
+        - tmpfs           /dev/shm        tmpfs           defaults,noexec    0 0
 
     - name: Set local timezone
-      command: '{{ item }}'
+      ansible.builtin.command: "{{ item }}"
       with_items:
         - systemctl daemon-reload
         - arch-chroot /mnt ln -sf /usr/share/zoneinfo/Europe/Vienna /etc/localtime
@@ -25,132 +25,134 @@
       block:
         - name: Configure locale.gen
           when: os | lower not in ['almalinux', 'fedora', 'rhel8', 'rhel9', 'rocky']
-          lineinfile:
+          ansible.builtin.lineinfile:
             dest: /mnt/etc/locale.gen
-            regexp: '{{ item.regex }}'
-            line: '{{ item.line }}'
+            regexp: "{{ item.regex }}"
+            line: "{{ item.line }}"
           loop:
-            - {regex: en_US\.UTF-8 UTF-8, line: en_US.UTF-8 UTF-8}
+            - { regex: en_US\.UTF-8 UTF-8, line: en_US.UTF-8 UTF-8 }
 
         - name: Generate locales\
           when: os | lower not in ['almalinux', 'fedora', 'rhel8', 'rhel9', 'rocky']
-          command: arch-chroot /mnt /usr/sbin/locale-gen
-
+          ansible.builtin.command: arch-chroot /mnt /usr/sbin/locale-gen
         - name: Set hostname
-          copy:
+          ansible.builtin.copy:
             content: "{{ hostname }}"
             dest: /mnt/etc/hostname
 
         - name: Add host entry to /etc/hosts
-          lineinfile:
+          ansible.builtin.lineinfile:
             path: /mnt/etc/hosts
             line: "{{ ansible_host }}    {{ hostname }}"
             state: present
 
         - name: Create vconsole.conf
-          copy:
-            content: "KEYMAP=us-intl"
+          ansible.builtin.copy:
+            content: KEYMAP=us-intl
             dest: /mnt/etc/vconsole.conf
 
         - name: Create locale.conf
-          copy:
-            content: "LANG=en_US.UTF-8"
+          ansible.builtin.copy:
+            content: LANG=en_US.UTF-8
             dest: /mnt/etc/locale.conf
 
         - name: SSH permit Password
-          replace:
+          ansible.builtin.replace:
             path: /mnt/etc/ssh/sshd_config
-            regexp: '#PasswordAuthentication yes'
-            replace: 'PasswordAuthentication yes'
+            regexp: "#PasswordAuthentication yes"
+            replace: PasswordAuthentication yes
 
     - name: Enable Systemd Services
       block:
-      - name: Enable sshd
-        when: os | lower == "archlinux"
-        command: arch-chroot /mnt systemctl enable sshd logrotate systemd-resolved systemd-timesyncd NetworkManager
-
+        - name: Enable sshd
+          when: os | lower == "archlinux"
+          ansible.builtin.command: arch-chroot /mnt systemctl enable sshd logrotate systemd-resolved systemd-timesyncd NetworkManager
     - name: Configure grub
       when: os | lower not in ['almalinux', 'fedora', 'rhel8', 'rhel9', 'rocky']
       block:
         - name: Add commandline information to grub config
-          lineinfile:
+          ansible.builtin.lineinfile:
             dest: /mnt/etc/default/grub
             regexp: ^GRUB_CMDLINE_LINUX_DEFAULT=
-            line: 'GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3"'
+            line: GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3"
 
         - name: Change Grub time
-          lineinfile:
+          ansible.builtin.lineinfile:
             dest: /mnt/etc/default/grub
             regexp: ^GRUB_TIMEOUT=
-            line: 'GRUB_TIMEOUT=1'
+            line: GRUB_TIMEOUT=1
 
     - name: Configure Bootloader
       block:
         - name: Install Bootloader
-          command: arch-chroot /mnt {% if os | lower not in ["archlinux", "debian11", "debian12", "ubuntu", "ubuntu-lts"] %}/usr/sbin/efibootmgr -c -L '{{ os }}' -d "{{ install_drive }}" -p 1 -l '\efi\EFI\{{ os }}\shimx64.efi'{% else %}/usr/sbin/grub-install --target=x86_64-efi --efi-directory={{ "/boot/efi" if os | lower in ["ubuntu", "ubuntu-lts"] else "/boot" }} --bootloader-id={{ "ubuntu" if os | lower in ["ubuntu", "ubuntu-lts"] else os }}{% endif %}
-
+          ansible.builtin.command: arch-chroot /mnt {% if os | lower not in ["archlinux", "debian11", "debian12", "ubuntu", "ubuntu-lts"] %}/usr/sbin/efibootmgr -c
+            -L '{{ os }}' -d "{{ install_drive }}" -p 1 -l '\efi\EFI\{{ os }}\shimx64.efi'{% else %}/usr/sbin/grub-install --target=x86_64-efi --efi-directory={{
+            "/boot/efi" if os | lower in ["ubuntu", "ubuntu-lts"] else "/boot" }} --bootloader-id={{ "ubuntu" if os | lower in ["ubuntu", "ubuntu-lts"] else os }}{%
+            endif %}
         - name: Generate grub config
-          command: arch-chroot /mnt {% if os | lower not in ["archlinux", "debian11", "debian12", "ubuntu", "ubuntu-lts"] %}/usr/sbin/grub2-mkconfig -o /boot/efi/EFI/{{ os }}/grub.cfg{% else %}/usr/sbin/grub-mkconfig -o {{ "/boot/efi/EFI/ubuntu/grub.cfg" if os | lower in ["ubuntu", "ubuntu-lts"] else "/boot/grub/grub.cfg" }}{% endif %}
-
+          ansible.builtin.command: arch-chroot /mnt {% if os | lower not in ["archlinux", "debian11", "debian12", "ubuntu", "ubuntu-lts"] %}/usr/sbin/grub2-mkconfig
+            -o /boot/efi/EFI/{{ os }}/grub.cfg{% else %}/usr/sbin/grub-mkconfig -o {{ "/boot/efi/EFI/ubuntu/grub.cfg" if os | lower in ["ubuntu", "ubuntu-lts"] else
+            "/boot/grub/grub.cfg" }}{% endif %}
         - name: Regenerate initramfs
           when: os | lower not in ["debian11", "debian12", "ubuntu", "ubuntu-lts"]
-          command: arch-chroot /mnt {% if os | lower == "archlinux" %}/usr/sbin/mkinitcpio -P{% elif os | lower not in ["debian11", "debian12", "ubuntu", "ubuntu-lts", "archlinux"] %}/usr/bin/dracut --regenerate-all --force{% else %}echo "Skipping initramfs regeneration"{% endif %}
-
+          ansible.builtin.command: arch-chroot /mnt {% if os | lower == "archlinux" %}/usr/sbin/mkinitcpio -P{% elif os | lower not in ["debian11", "debian12", "ubuntu",
+            "ubuntu-lts", "archlinux"] %}/usr/bin/dracut --regenerate-all --force{% else %}echo "Skipping initramfs regeneration"{% endif %}
     - name: Extra Configuration
       block:
         - name: Append lines to vimrc
           ignore_errors: true
-          lineinfile:
+          ansible.builtin.lineinfile:
             path: "{{ '/mnt/etc/vim/vimrc' if os | lower in ['debian11', 'debian12', 'ubuntu', 'ubuntu-lts'] else '/mnt/etc/vimrc' }}"
             line: "{{ item }}"
             insertafter: EOF
           with_items:
-            - "set encoding=utf-8"
-            - "set number"
-            - "set autoindent"
-            - "set smartindent"
-            - "set mouse=a"
+            - set encoding=utf-8
+            - set number
+            - set autoindent
+            - set smartindent
+            - set mouse=a
 
         - name: Copy FirstRun Script
           when: os | lower != "archlinux"
-          template:
+          ansible.builtin.template:
             src: firstrun.sh.j2
             dest: /mnt/root/firstrun.sh
-            mode: '0755'
+            mode: "0755"
 
         - name: Copy Custom Shell config
-          template:
+          ansible.builtin.template:
             src: custom.sh.j2
             dest: /mnt/etc/profile.d/custom.sh
 
     - name: Setup Network
       block:
-      - name: Generate UUID for Network Profile
-        command: "uuidgen"
-        register: net_uuid
+        - name: Generate UUID for Network Profile
+          ansible.builtin.command: uuidgen
+          register: net_uuid
 
-      - name: Retrieve Network Interface Name
-        shell: "ip r | awk 'NR==1 {print $5}'"
-        register: net_inf
+        - name: Retrieve Network Interface Name
+          ansible.builtin.shell: ip r | awk 'NR==1 {print $5}'
+          register: net_inf
 
-      - name: Copy NetworkManager keyfile
-        template:
-          src: network.j2
-          dest: /mnt/etc/NetworkManager/system-connections/LAN.nmconnection
-          mode: '0600'
+        - name: Copy NetworkManager keyfile
+          ansible.builtin.template:
+            src: network.j2
+            dest: /mnt/etc/NetworkManager/system-connections/LAN.nmconnection
+            mode: "0600"
 
     - name: Setup user account
       block:
         - name: Create user account
-          command: '{{ item }}'
+          ansible.builtin.command: "{{ item }}"
           with_items:
-          - arch-chroot /mnt /usr/sbin/useradd --create-home --user-group --groups {{ "sudo" if os | lower in ["debian11", "debian12", "ubuntu", "ubuntu-lts"] else "wheel" }} {{ user_name }} --password {{ user_password | password_hash('sha512') }} --shell /bin/bash
-          - arch-chroot /mnt /usr/sbin/usermod --password '{{ root_password | password_hash('sha512') }}' root --shell /bin/bash
+            - arch-chroot /mnt /usr/sbin/useradd --create-home --user-group --groups {{ "sudo" if os | lower in ["debian11", "debian12", "ubuntu", "ubuntu-lts"] else
+              "wheel" }} {{ user_name }} --password {{ user_password | password_hash('sha512') }} --shell /bin/bash
+            - arch-chroot /mnt /usr/sbin/usermod --password '{{ root_password | password_hash('sha512') }}' root --shell /bin/bash
 
         - name: Add SSH public key to authorized_keys
           when: user_public_key is defined
-          lineinfile:
-            path: "/mnt/home/{{ user_name }}/.ssh/authorized_keys"
+          ansible.builtin.lineinfile:
+            path: /mnt/home/{{ user_name }}/.ssh/authorized_keys
             line: "{{ user_public_key }}"
             owner: 1000
             group: 1000
@@ -158,21 +160,20 @@
             create: true
 
     - name: Give sudo access to wheel group
-      copy:
+      ansible.builtin.copy:
         content: "{{ '%sudo ALL=(ALL) ALL' if os | lower in ['debian11', 'debian12', 'ubuntu', 'ubuntu-lts'] else '%wheel ALL=(ALL) ALL' }}"
         dest: /mnt/etc/sudoers.d/01-wheel
-        mode: 0440
+        mode: "0440"
         validate: /usr/sbin/visudo --check --file=%s
 
     - name: Fix SELinux
       block:
-       - name: Relabel the filesystem
-         when: os | lower in ['almalinux', 'rhel8', 'rhel9', 'rocky']
-         command: touch /mnt/.autorelabel
-
-       - name: Disable SELinux
-         when: os | lower == "fedora"
-         lineinfile:
-           path: /mnt/etc/selinux/config
-           regexp: '^SELINUX='
-           line: 'SELINUX=permissive'
+        - name: Relabel the filesystem
+          when: os | lower in ['almalinux', 'rhel8', 'rhel9', 'rocky']
+          ansible.builtin.command: touch /mnt/.autorelabel
+        - name: Disable SELinux
+          when: os | lower == "fedora"
+          ansible.builtin.lineinfile:
+            path: /mnt/etc/selinux/config
+            regexp: ^SELINUX=
+            line: SELINUX=permissive

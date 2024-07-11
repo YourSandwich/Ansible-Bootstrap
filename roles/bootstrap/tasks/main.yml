@@ -1,6 +1,6 @@
 ---
 - name: Include Packages
-  include_vars:
+  ansible.builtin.include_vars:
     file: packages.yml
     name: role_packages
 
@@ -8,11 +8,10 @@
   block:
     - name: Bootstrap ArchLinux
       when: os | lower == 'archlinux'
-      command: pacstrap /mnt {{ role_packages.archlinux | join(' ') }} --asexplicit
-
+      ansible.builtin.command: pacstrap /mnt {{ role_packages.archlinux | join(' ') }} --asexplicit
     - name: Bootstrap Debian System
       when: os | lower in ['debian11', 'debian12']
-      shell: "{{ item }}"
+      ansible.builtin.command: "{{ item }}"
       with_items:
         - debootstrap --include={{ role_packages[os].base | join(',') }} {{ 'bullseye' if os == 'debian11' else 'bookworm' }} /mnt http://deb.debian.org/debian/
         - arch-chroot /mnt apt install -y {{ role_packages[os].extra | join(' ') }}
@@ -20,7 +19,7 @@
 
     - name: Bootstrap Ubuntu System
       when: os | lower in ['ubuntu', 'ubuntu-lts']
-      shell: "{{ item }}"
+      ansible.builtin.command: "{{ item }}"
       with_items:
         - debootstrap --include={{ role_packages[os].base | join(',') }} {{ 'mantic' if os == 'ubuntu' else 'jammy' }} /mnt http://archive.ubuntu.com/ubuntu/
         - arch-chroot /mnt sed -i '1s|$| universe|' /etc/apt/sources.list
@@ -29,7 +28,7 @@
 
     - name: Bootstrap AlmaLinux 9
       when: os | lower == 'almalinux'
-      shell: "{{ item }}"
+      ansible.builtin.command: "{{ item }}"
       with_items:
         - dnf --releasever=9 --best --repo=alma-baseos --installroot=/mnt --setopt=install_weak_deps=False groupinstall -y base core
         - echo "nameserver 1.0.0.1" > /mnt/etc/resolv.conf
@@ -37,7 +36,7 @@
 
     - name: Bootstrap Fedora 40
       when: os | lower == 'fedora'
-      shell: "{{ item }}"
+      ansible.builtin.command: "{{ item }}"
       with_items:
         - dnf --releasever=40 --best --repo=fedora --repo=fedora-updates --installroot=/mnt --setopt=install_weak_deps=False groupinstall -y critical-path-base core
         - arch-chroot /mnt dnf --releasever=40 --setopt=install_weak_deps=False install -y {{ role_packages.fedora | join(' ') }}
@@ -45,7 +44,7 @@
 
     - name: Bootstrap RockyLinux 9
       when: os | lower == 'rocky'
-      shell: "{{ item }}"
+      ansible.builtin.command: "{{ item }}"
       with_items:
         - dnf --releasever=9 --best --repo=rocky-baseos --installroot=/mnt --setopt=install_weak_deps=False groupinstall -y base core
         - echo "nameserver 1.0.0.1" > /mnt/etc/resolv.conf
@@ -53,8 +52,8 @@
 
     - name: Bootstrap RHEL System
       when: os | lower in ['rhel8', 'rhel9']
-      shell: "{{ item }}"
+      ansible.builtin.command: "{{ item }}"
       with_items:
-        - "dnf --releasever={{ '8' if os == 'rhel8' else '9' }} --installroot=/mnt --setopt=install_weak_deps=False groupinstall -y base core"
-        - "echo 'nameserver 1.0.0.1' > /mnt/etc/resolv.conf"
-        - "arch-chroot /mnt dnf --releasever={{ '8' if os == 'rhel8' else '9' }} --setopt=install_weak_deps=False install -y {{ role_packages[os] | join(' ') }}"
+        - dnf --releasever={{ '8' if os == 'rhel8' else '9' }} --installroot=/mnt --setopt=install_weak_deps=False groupinstall -y base core
+        - echo 'nameserver 1.0.0.1' > /mnt/etc/resolv.conf
+        - arch-chroot /mnt dnf --releasever={{ '8' if os == 'rhel8' else '9' }} --setopt=install_weak_deps=False install -y {{ role_packages[os] | join(' ') }}

@@ -1,3 +1,4 @@
+---
 almalinux:
   - bind-utils
   - cloud-init
