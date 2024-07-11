@@ -31,4 +31,9 @@
     networks:
       - vlan: "{{ vlan_name }}"
         type: dhcp
-  ignore_errors: true
+  register: vmware_guest_result
+  failed_when:
+    - vmware_guest_result.failed
+    - "'error' in vmware_guest_result"
+    - "'failed' in vmware_guest_result"
+    - vmware_guest_result.rc is defined and vmware_guest_result.rc != 0
