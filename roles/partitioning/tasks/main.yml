@@ -96,7 +96,7 @@
       mount:
         path: "/mnt{{ item.path }}"
         src: "{{ 'UUID=' + (main_uuid.stdout if filesystem == 'btrfs' else item.uuid) }}"
-        fstype: "{{ filesystem  }}"
+        fstype: "{{ filesystem }}"
         opts: "{{ item.opts }}"
         state: mounted
       loop:

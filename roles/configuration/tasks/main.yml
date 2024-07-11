@@ -101,7 +101,7 @@
         - name: Append lines to vimrc
           ignore_errors: true
           lineinfile:
-            path: "{{ '/mnt/etc/vim/vimrc' if os|lower in ['debian11' ,'debian12', 'ubuntu', 'ubuntu-lts'] else '/mnt/etc/vimrc' }}"
+            path: "{{ '/mnt/etc/vim/vimrc' if os | lower in ['debian11', 'debian12', 'ubuntu', 'ubuntu-lts'] else '/mnt/etc/vimrc' }}"
             line: "{{ item }}"
             insertafter: EOF
           with_items:
@@ -144,7 +144,7 @@
         - name: Create user account
           command: '{{ item }}'
           with_items:
-          - arch-chroot /mnt /usr/sbin/useradd --create-home --user-group --groups {{ "sudo" if os|lower in ["debian11", "debian12", "ubuntu", "ubuntu-lts"] else "wheel" }} {{ user_name }} --password {{ user_password | password_hash('sha512') }} --shell /bin/bash
+          - arch-chroot /mnt /usr/sbin/useradd --create-home --user-group --groups {{ "sudo" if os | lower in ["debian11", "debian12", "ubuntu", "ubuntu-lts"] else "wheel" }} {{ user_name }} --password {{ user_password | password_hash('sha512') }} --shell /bin/bash
           - arch-chroot /mnt /usr/sbin/usermod --password '{{ root_password | password_hash('sha512') }}' root --shell /bin/bash
 
         - name: Add SSH public key to authorized_keys
@@ -159,7 +159,7 @@
 
     - name: Give sudo access to wheel group
       copy:
-        content: "{{ '%sudo ALL=(ALL) ALL' if os|lower in ['debian11', 'debian12', 'ubuntu', 'ubuntu-lts'] else '%wheel ALL=(ALL) ALL' }}"
+        content: "{{ '%sudo ALL=(ALL) ALL' if os | lower in ['debian11', 'debian12', 'ubuntu', 'ubuntu-lts'] else '%wheel ALL=(ALL) ALL' }}"
         dest: /mnt/etc/sudoers.d/01-wheel
         mode: 0440
         validate: /usr/sbin/visudo --check --file=%s
