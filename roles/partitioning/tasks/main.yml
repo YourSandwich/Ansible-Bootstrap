@@ -106,20 +106,20 @@
           opts: "{{ 'defaults' if filesystem != 'btrfs' else 'rw,relatime,compress=zstd:15,ssd,space_cache=v2,discard=async,subvol=@' }}"
         - path: /home
           uuid: "{{ uuid_home[0] | default(omit) }}"
-          opts: "{{ 'defaults,nosuid,nodev' if filesystem != 'btrfs' else 'rw,nosuid,nodev,relatime,compress=zstd:15,ssd,space_cache=v2,discard=async,subvol=@home'
-            }}"
+          opts: "{{ 'defaults,nosuid,nodev' if filesystem != 'btrfs'
+                else 'rw,nosuid,nodev,relatime,compress=zstd:15,ssd,space_cache=v2,discard=async,subvol=@home' }}"
         - path: /var
           uuid: "{{ uuid_var[0] | default(omit) }}"
-          opts: "{{ 'defaults,nosuid,nodev' if filesystem != 'btrfs' else 'rw,nosuid,nodev,relatime,compress=zstd:15,ssd,space_cache=v2,discard=async,subvol=@var'
-            }}"
+          opts: "{{ 'defaults,nosuid,nodev' if filesystem != 'btrfs'
+                else 'rw,nosuid,nodev,relatime,compress=zstd:15,ssd,space_cache=v2,discard=async,subvol=@var' }}"
         - path: /var/log
           uuid: "{{ uuid_var_log[0] | default(omit) }}"
-          opts: "{{ 'defaults,nosuid,nodev,noexec' if filesystem != 'btrfs' else 'rw,nosuid,nodev,noexec,relatime,compress=zstd:15,ssd,space_cache=v2,discard=async,subvol=@var_log'
-            }}"
+          opts: "{{ 'defaults,nosuid,nodev,noexec' if filesystem != 'btrfs'
+                else 'rw,nosuid,nodev,noexec,relatime,compress=zstd:15,ssd,space_cache=v2,discard=async,subvol=@var_log' }}"
         - path: /var/log/audit
           uuid: "{{ uuid_var_log_audit[0] | default(omit) }}"
-          opts: "{{ 'defaults,nosuid,nodev,noexec' if filesystem != 'btrfs' else 'rw,nosuid,nodev,noexec,relatime,compress=zstd:15,ssd,space_cache=v2,discard=async,subvol=@var_log_audit'
-            }}"
+          opts: "{{ 'defaults,nosuid,nodev,noexec' if filesystem != 'btrfs'
+                else 'rw,nosuid,nodev,noexec,relatime,compress=zstd:15,ssd,space_cache=v2,discard=async,subvol=@var_log_audit' }}"
 
     - name: Mount tmp and var_tmp filesystems
       ansible.posix.mount:

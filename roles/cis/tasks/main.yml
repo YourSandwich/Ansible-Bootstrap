@@ -93,14 +93,13 @@
         - { path: '/mnt/{{ "usr/lib/systemd/journald.conf" if os == "fedora" else "etc/systemd/journald.conf" }}', content: Storage=persistent }
         - { path: /mnt/etc/sudoers, content: Defaults        logfile="/var/log/sudo.log" }
         - { path: /mnt/etc/pam.d/su, content: auth required pam_wheel.so }
-        - path: /mnt/etc/{{ "pam.d/common-auth" if os in ["debian11", "debian12", "ubuntu", "ubuntu-lts"] else "authselect/system-auth" if os == "fedora" else "pam.d/system-auth"
-            }}
-          content: auth required pam_faillock.so onerr=fail audit silent deny=5 unlock_time=900
-        - path: /mnt/etc/{{ "pam.d/common-account" if os in ["debian11", "debian12", "ubuntu", "ubuntu-lts"] else "authselect/system-auth" if os == "fedora" else
-            "pam.d/system-auth" }}
-          content: account required pam_faillock.so
-        - path: /mnt/etc/pam.d/{{ "common-password" if os in ["debian11", "debian12", "ubuntu", "ubuntu-lts"] else "passwd" }}
-          content: password [success=1 default=ignore] pam_unix.so obscure sha512 remember=5
+        - { path: '/mnt/etc/{{ "pam.d/common-auth" if os in ["debian11", "debian12", "ubuntu", "ubuntu-lts"]
+            else "authselect/system-auth" if os == "fedora" else "pam.d/system-auth" }}',
+            content: auth required pam_faillock.so onerr=fail audit silent deny=5 unlock_time=900 }
+        - { path: '/mnt/etc/{{ "pam.d/common-account" if os in ["debian11", "debian12", "ubuntu", "ubuntu-lts"] else "authselect/system-auth"
+            if os == "fedora" else "pam.d/system-auth" }}', content: account required pam_faillock.so }
+        - { path: '/mnt/etc/pam.d/{{ "common-password" if os in ["debian11", "debian12", "ubuntu", "ubuntu-lts"] else "passwd" }}',
+            content: "password [success=1 default=ignore] pam_unix.so obscure sha512 remember=5" }
         - { path: /mnt/etc/hosts.deny, content: "ALL: ALL" }
         - { path: /mnt/etc/hosts.allow, content: "sshd: ALL" }
 
@@ -165,15 +164,20 @@
 
           ### Ciphers and keying ###
           RekeyLimit 512M 6h
-          KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org,diffie-hellman-group14-sha256,diffie-hellman-group16-sha512,diffie-hellman-group18-sha512,ecdh-sha2-nistp521,ecdh-sha2-nistp384,ecdh-sha2-nistp256,diffie-hellman-group-exchange-sha256
-          Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr
-          MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512,hmac-sha2-256
+          KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org,
+            diffie-hellman-group14-sha256,diffie-hellman-group16-sha512,
+            diffie-hellman-group18-sha512,ecdh-sha2-nistp521,ecdh-sha2-nistp384,
+            ecdh-sha2-nistp256,diffie-hellman-group-exchange-sha256
+          Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,
+            aes128-gcm@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr
+          MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,
+            hmac-sha2-512,hmac-sha2-256
           ###########################
 
           AllowStreamLocalForwarding no
           PermitUserRC no
 
-          AllowUsers svcansible
+          AllowUsers *
           AllowGroups *
           DenyUsers nobody
           DenyGroups nobody

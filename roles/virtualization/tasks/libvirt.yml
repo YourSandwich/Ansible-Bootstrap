@@ -27,8 +27,10 @@
 
 - name: Create cloud-init disk
   delegate_to: localhost
-  ansible.builtin.command: cloud-localds {{ vm_path | default('/var/lib/libvirt/images/') }}{{ hostname }}-cloudinit.iso /tmp/cloud-user-data-{{ hostname }}.yml -N
-    /tmp/cloud-network-config-{{ hostname }}.yml
+  ansible.builtin.command: cloud-localds
+    {{ vm_path | default('/var/lib/libvirt/images/') }}
+    {{ hostname }}-cloudinit.iso /tmp/cloud-user-data-{{ hostname }}.yml
+    -N /tmp/cloud-network-config-{{ hostname }}.yml
 
 - name: Create VM using libvirt
   delegate_to: localhost
