@@ -22,7 +22,7 @@
 
     - name: Setect Interface
       when: hypervisor == "vmware"
-      ansible.builtin.shell: "ip l | awk -F': ' '!/lo/{print $2; exit}'"
+      ansible.builtin.shell: "set -o pipefail && ip l | awk -F': ' '!/lo/{print $2; exit}'"
       register: interface_name
 
     - name: Set IP-Address

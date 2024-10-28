@@ -52,7 +52,7 @@
         state: absent
 
     - name: Get list of CD-ROM devices
-      ansible.builtin.shell: virsh --connect qemu:///system domblklist {{ hostname }} --details | grep 'cdrom' | awk '{print $3}'
+      ansible.builtin.shell: set -o pipefail && virsh --connect qemu:///system domblklist {{ hostname }} --details | grep 'cdrom' | awk '{print $3}'
       changed_when: false
       register: cdrom_devices
 

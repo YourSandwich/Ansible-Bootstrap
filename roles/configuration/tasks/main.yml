@@ -143,7 +143,7 @@
           register: net_uuid
 
         - name: Retrieve Network Interface Name
-          ansible.builtin.shell: ip r | awk 'NR==1 {print $5}'
+          ansible.builtin.shell: set -o pipefail && ip r | awk 'NR==1 {print $5}'
           register: net_inf
 
         - name: Copy NetworkManager keyfile
