@@ -33,6 +33,7 @@
         - |
           debootstrap --include={{ role_packages[os].base | join(',') }} {{ 'mantic' if os == 'ubuntu' else 'jammy' }} \
           /mnt http://archive.ubuntu.com/ubuntu/
+        - ln -sf /run/systemd/resolve/resolv.conf /mnt/etc/resolv.conf
         - arch-chroot /mnt sed -i '1s|$| universe|' /etc/apt/sources.list
         - arch-chroot /mnt apt update -y
         - arch-chroot /mnt apt install -y {{ role_packages[os].extra | join(' ') }}
@@ -44,7 +45,7 @@
       register: result
       with_items:
         - dnf --releasever=9 --best --repo=alma-baseos --installroot=/mnt --setopt=install_weak_deps=False groupinstall -y base core
-        - echo "nameserver 1.0.0.1" > /mnt/etc/resolv.conf
+        - ln -sf /run/systemd/resolve/resolv.conf /mnt/etc/resolv.conf
         - arch-chroot /mnt dnf --releasever=9 --setopt=install_weak_deps=False install -y {{ role_packages.almalinux | join(' ') }}
 
     - name: Bootstrap Fedora 40
@@ -56,6 +57,7 @@
         - |
           dnf --releasever=40 --best --repo=fedora --repo=fedora-updates \
           --installroot=/mnt --setopt=install_weak_deps=False groupinstall -y critical-path-base core
+        - ln -sf /run/systemd/resolve/resolv.conf /mnt/etc/resolv.conf
         - arch-chroot /mnt dnf --releasever=40 --setopt=install_weak_deps=False install -y {{ role_packages.fedora | join(' ') }}
         - arch-chroot /mnt dnf reinstall -y kernel-core
 
@@ -66,7 +68,7 @@
       register: result
       with_items:
         - dnf --releasever=9 --best --repo=rocky-baseos --installroot=/mnt --setopt=install_weak_deps=False groupinstall -y base core
-        - echo "nameserver 1.0.0.1" > /mnt/etc/resolv.conf
+        - ln -sf /run/systemd/resolve/resolv.conf /mnt/etc/resolv.conf
         - arch-chroot /mnt dnf --releasever=9 --setopt=install_weak_deps=False install -y {{ role_packages.rocky | join(' ') }}
 
     - name: Bootstrap RHEL System
@@ -76,5 +78,5 @@
       register: result
       with_items:
         - dnf --releasever={{ '8' if os == 'rhel8' else '9' }} --installroot=/mnt --setopt=install_weak_deps=False groupinstall -y base core
-        - echo 'nameserver 1.0.0.1' > /mnt/etc/resolv.conf
+        - ln -sf /run/systemd/resolve/resolv.conf /mnt/etc/resolv.conf
         - arch-chroot /mnt dnf --releasever={{ '8' if os == 'rhel8' else '9' }} --setopt=install_weak_deps=False install -y {{ role_packages[os] | join(' ') }}
