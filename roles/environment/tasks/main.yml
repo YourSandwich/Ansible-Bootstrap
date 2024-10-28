@@ -66,8 +66,10 @@
           ansible.builtin.file:
             path: /etc/yum.repos.d
             state: directory
+            mode: '0755'
 
         - name: Create RHEL repository file
           ansible.builtin.template:
             src: "{{ os | lower }}.repo.j2"
             dest: /etc/yum.repos.d/{{ os | lower }}.repo
+            mode: '0644'

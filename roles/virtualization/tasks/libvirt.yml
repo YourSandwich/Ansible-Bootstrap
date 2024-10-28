@@ -21,6 +21,7 @@
   ansible.builtin.template:
     src: "{{ item.src }}"
     dest: /tmp/{{ item.dest_prefix }}-{{ hostname }}.yml
+    mode: '0644'
   loop:
     - { src: cloud-user-data.yml.j2, dest_prefix: cloud-user-data }
     - { src: cloud-network-config.yml.j2, dest_prefix: cloud-network-config }

@@ -39,6 +39,7 @@
           ansible.builtin.copy:
             content: "{{ hostname }}"
             dest: /mnt/etc/hostname
+            mode: '0644'
 
         - name: Add host entry to /etc/hosts
           ansible.builtin.lineinfile:
@@ -48,13 +49,15 @@
 
         - name: Create vconsole.conf
           ansible.builtin.copy:
-            content: KEYMAP=us-intl
+            content: KEYMAP=us
             dest: /mnt/etc/vconsole.conf
+            mode: '0644'
 
         - name: Create locale.conf
           ansible.builtin.copy:
             content: LANG=en_US.UTF-8
             dest: /mnt/etc/locale.conf
+            mode: '0644'
 
         - name: SSH permit Password
           ansible.builtin.replace:
@@ -131,6 +134,7 @@
           ansible.builtin.template:
             src: custom.sh.j2
             dest: /mnt/etc/profile.d/custom.sh
+            mode: '0644'
 
     - name: Setup Network
       block:

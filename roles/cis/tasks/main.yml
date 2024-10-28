@@ -4,6 +4,7 @@
     - name: Disable Kernel Modules
       ansible.builtin.copy:
         dest: /mnt/etc/modprobe.d/cis.conf
+        mode: '0644'
         content: |
           CIS LVL 3 Restrictions
           install freevxfs        /bin/true
@@ -22,6 +23,7 @@
     - name: Create USB Rules
       ansible.builtin.copy:
         dest: /mnt/etc/udev/rules.d/10-cis_usb_devices.sh
+        mode: '0644'
         content: |
           By default, disable all.
           ACTION=="add", SUBSYSTEMS=="usb", TEST=="authorized_default", ATTR{authorized_default}="0"
@@ -38,6 +40,7 @@
     - name: Create a consolidated sysctl configuration file
       ansible.builtin.copy:
         dest: /mnt/etc/sysctl.d/10-cis.conf
+        mode: '0644'
         content: |
           ## CIS Sysctl configurations
           net.ipv4.conf.all.log_martians = 1
