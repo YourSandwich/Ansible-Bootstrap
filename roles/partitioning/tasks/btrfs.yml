@@ -19,7 +19,7 @@
       ansible.builtin.command: btrfs quota enable /mnt
 
     - name: Make root subvolumes
-      when: cis == true or item.subvol not in ['var_log', 'var_log_audit']
+      when: cis | bool or item.subvol not in ['var_log', 'var_log_audit']
       ansible.builtin.command: btrfs su cr /mnt/{{ '@' if item.subvol == 'root' else '@' + item.subvol }}
       loop:
         - { subvol: root }
@@ -29,7 +29,7 @@
         - { subvol: var_log_audit }
 
     - name: Set quotas for subvolumes
-      when: cis == true or item.subvol not in ['var_log', 'var_log_audit']
+      when: cis | bool or item.subvol not in ['var_log', 'var_log_audit']
       ansible.builtin.command: btrfs qgroup limit {{ item.quota }} /mnt/{{ '@' if item.subvol == 'root' else '@' + item.subvol }}
       loop:
         - { subvol: home, quota: 2G }

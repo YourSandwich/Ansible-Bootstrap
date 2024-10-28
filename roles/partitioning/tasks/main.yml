@@ -70,7 +70,7 @@
       register: main_uuid
 
     - name: Get UUIDs for LVM filesystems
-      when: filesystem != 'btrfs' and (cis == true or item not in ['var_log', 'var_log_audit'])
+      when: filesystem != 'btrfs' and (cis | bool or item not in ['var_log', 'var_log_audit'])
       ansible.builtin.command: blkid -s UUID -o value /dev/sys/{{ item }}
       changed_when: false
       register: uuid_result
@@ -93,7 +93,7 @@
 - name: Mount filesystems
   block:
     - name: Mount filesystems and subvolumes
-      when: cis or (not cis and item.path != '/var/log' and item.path != '/var/log/audit')
+      when: cis | bool or (not cis and item.path != '/var/log' and item.path != '/var/log/audit')
       ansible.posix.mount:
         path: /mnt{{ item.path }}
         src: "{{ 'UUID=' + (main_uuid.stdout if filesystem == 'btrfs' else item.uuid) }}"
