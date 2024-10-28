@@ -122,7 +122,7 @@
         - { path: /mnt/etc/crontab, mode: "0600" }
         - { path: /mnt/etc/logrotate.conf, mode: "0644" }
         - { path: /mnt/usr/sbin/pppd, mode: "754" }
-        - { path: '/mnt/usr/bin/{{ "fusermount3" if os in ["archlinux", "debian12", "fedora"] else "fusermount" }}', mode: "755" }
+        - { path: '/mnt/usr/bin/{{ "fusermount3" if os in ["archlinux", "debian12", "fedora", "rocky", "almalinux"] else "fusermount" }}', mode: "755" }
         - { path: '/mnt/usr/bin/{{ "write.ul" if os == "debian11" else "write" }}', mode: "755" }
 
     - name: Adjust SSHD config
