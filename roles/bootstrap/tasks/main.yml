@@ -9,9 +9,14 @@
     - name: Bootstrap ArchLinux
       when: os | lower == 'archlinux'
       ansible.builtin.command: pacstrap /mnt {{ role_packages.archlinux | join(' ') }} --asexplicit
+      changed_when: result.rc == 0
+      register: result
+
     - name: Bootstrap Debian System
       when: os | lower in ['debian11', 'debian12']
       ansible.builtin.command: "{{ item }}"
+      changed_when: result.rc == 0
+      register: result
       with_items:
         - |
           debootstrap --include={{ role_packages[os].base | join(',') }} {{ 'bullseye' if os == 'debian11' else 'bookworm' }} \
@@ -22,6 +27,8 @@
     - name: Bootstrap Ubuntu System
       when: os | lower in ['ubuntu', 'ubuntu-lts']
       ansible.builtin.command: "{{ item }}"
+      changed_when: result.rc == 0
+      register: result
       with_items:
         - |
           debootstrap --include={{ role_packages[os].base | join(',') }} {{ 'mantic' if os == 'ubuntu' else 'jammy' }} \
@@ -33,6 +40,8 @@
     - name: Bootstrap AlmaLinux 9
       when: os | lower == 'almalinux'
       ansible.builtin.command: "{{ item }}"
+      changed_when: result.rc == 0
+      register: result
       with_items:
         - dnf --releasever=9 --best --repo=alma-baseos --installroot=/mnt --setopt=install_weak_deps=False groupinstall -y base core
         - echo "nameserver 1.0.0.1" > /mnt/etc/resolv.conf
@@ -41,6 +50,8 @@
     - name: Bootstrap Fedora 40
       when: os | lower == 'fedora'
       ansible.builtin.command: "{{ item }}"
+      changed_when: result.rc == 0
+      register: result
       with_items:
         - |
           dnf --releasever=40 --best --repo=fedora --repo=fedora-updates \
@@ -51,6 +62,8 @@
     - name: Bootstrap RockyLinux 9
       when: os | lower == 'rocky'
       ansible.builtin.command: "{{ item }}"
+      changed_when: result.rc == 0
+      register: result
       with_items:
         - dnf --releasever=9 --best --repo=rocky-baseos --installroot=/mnt --setopt=install_weak_deps=False groupinstall -y base core
         - echo "nameserver 1.0.0.1" > /mnt/etc/resolv.conf
@@ -59,6 +72,8 @@
     - name: Bootstrap RHEL System
       when: os | lower in ['rhel8', 'rhel9']
       ansible.builtin.command: "{{ item }}"
+      changed_when: result.rc == 0
+      register: result
       with_items:
         - dnf --releasever={{ '8' if os == 'rhel8' else '9' }} --installroot=/mnt --setopt=install_weak_deps=False groupinstall -y base core
         - echo 'nameserver 1.0.0.1' > /mnt/etc/resolv.conf

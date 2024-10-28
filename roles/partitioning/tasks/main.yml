@@ -4,6 +4,8 @@
     - name: Prepare partitions
       failed_when: false
       ansible.builtin.command: "{{ item.cmd }}"
+      changed_when: result.rc == 0
+      register: result
       loop:
         - { cmd: umount -l /mnt }
         - { cmd: vgremove -f sys }

@@ -64,6 +64,8 @@
       when: cdrom_devices.stdout_lines | length > 0
       ansible.builtin.command: virsh --connect qemu:///system detach-disk {{ hostname }} {{ item }} --persistent
       with_items: "{{ cdrom_devices.stdout_lines }}"
+      changed_when: result.rc == 0
+      register: result
 
     - name: Start the VM
       community.libvirt.virt:

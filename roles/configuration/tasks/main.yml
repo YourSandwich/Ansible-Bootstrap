@@ -3,6 +3,9 @@
   block:
     - name: Generate fstab
       ansible.builtin.shell: genfstab -LU /mnt > /mnt/etc/fstab
+      changed_when: result.rc == 0
+      register: result
+
     - name: Append TempFS to fstab
       ansible.builtin.lineinfile:
         path: /mnt/etc/fstab
@@ -17,6 +20,8 @@
 
     - name: Set local timezone
       ansible.builtin.command: "{{ item }}"
+      changed_when: result.rc == 0
+      register: result
       with_items:
         - systemctl daemon-reload
         - arch-chroot /mnt ln -sf /usr/share/zoneinfo/Europe/Vienna /etc/localtime
@@ -32,9 +37,12 @@
           loop:
             - { regex: en_US\.UTF-8 UTF-8, line: en_US.UTF-8 UTF-8 }
 
-        - name: Generate locales\
+        - name: Generate locales
           when: os | lower not in ['almalinux', 'fedora', 'rhel8', 'rhel9', 'rocky']
           ansible.builtin.command: arch-chroot /mnt /usr/sbin/locale-gen
+          changed_when: result.rc == 0
+          register: result
+
         - name: Set hostname
           ansible.builtin.copy:
             content: "{{ hostname }}"
@@ -70,6 +78,9 @@
         - name: Enable sshd
           when: os | lower == "archlinux"
           ansible.builtin.command: arch-chroot /mnt systemctl enable sshd logrotate systemd-resolved systemd-timesyncd NetworkManager
+          changed_when: result.rc == 0
+          register: result
+
     - name: Configure grub
       when: os | lower not in ['almalinux', 'fedora', 'rhel8', 'rhel9', 'rocky']
       block:
@@ -94,6 +105,9 @@
             {% else %}/usr/sbin/grub-install --target=x86_64-efi --efi-directory={{ "/boot/efi" if os | lower in ["ubuntu", "ubuntu-lts"] else "/boot" }}
             --bootloader-id={{ "ubuntu" if os | lower in ["ubuntu", "ubuntu-lts"] else os }}
             {% endif %}
+          changed_when: result.rc == 0
+          register: result
+
         - name: Generate grub config
           ansible.builtin.command: arch-chroot /mnt
             {% if os | lower not in ["archlinux", "debian11", "debian12", "ubuntu", "ubuntu-lts"] %} /usr/sbin/grub2-mkconfig
@@ -101,6 +115,9 @@
             {% else %}/usr/sbin/grub-mkconfig -o
             {{ "/boot/efi/EFI/ubuntu/grub.cfg" if os | lower in ["ubuntu", "ubuntu-lts"] else "/boot/grub/grub.cfg" }}
             {% endif %}
+          changed_when: result.rc == 0
+          register: result
+
         - name: Regenerate initramfs
           when: os | lower not in ["debian11", "debian12", "ubuntu", "ubuntu-lts"]
           ansible.builtin.command: arch-chroot /mnt
@@ -108,6 +125,9 @@
             {% elif os | lower not in ["debian11", "debian12", "ubuntu", "ubuntu-lts", "archlinux"] %} /usr/bin/dracut --regenerate-all --force
             {% else %} echo "Skipping initramfs regeneration"
             {% endif %}
+          changed_when: result.rc == 0
+          register: result
+
     - name: Extra Configuration
       block:
         - name: Append lines to vimrc
@@ -140,10 +160,12 @@
       block:
         - name: Generate UUID for Network Profile
           ansible.builtin.command: uuidgen
+          changed_when: net_uuid.rc == 0
           register: net_uuid
 
         - name: Retrieve Network Interface Name
           ansible.builtin.shell: set -o pipefail && ip r | awk 'NR==1 {print $5}'
+          changed_when: net_inf.rc == 0
           register: net_inf
 
         - name: Copy NetworkManager keyfile
@@ -161,6 +183,8 @@
               {{ "sudo" if os | lower in ["debian11", "debian12", "ubuntu", "ubuntu-lts"] else "wheel" }}
               {{ user_name }} --password {{ user_password | password_hash('sha512') }} --shell /bin/bash
             - arch-chroot /mnt /usr/sbin/usermod --password '{{ root_password | password_hash('sha512') }}' root --shell /bin/bash
+          changed_when: result.rc == 0
+          register: result
 
         - name: Add SSH public key to authorized_keys
           when: user_public_key is defined
@@ -184,6 +208,9 @@
         - name: Relabel the filesystem
           when: os | lower in ['almalinux', 'rhel8', 'rhel9', 'rocky']
           ansible.builtin.command: touch /mnt/.autorelabel
+          changed_when: result.rc == 0
+          register: result
+
         - name: Disable SELinux
           when: os | lower == "fedora"
           ansible.builtin.lineinfile:

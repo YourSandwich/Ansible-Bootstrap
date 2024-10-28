@@ -23,16 +23,26 @@
     - name: Setect Interface
       when: hypervisor == "vmware"
       ansible.builtin.shell: "set -o pipefail && ip l | awk -F': ' '!/lo/{print $2; exit}'"
+      changed_when: interface_name.rc == 0
       register: interface_name
 
     - name: Set IP-Address
       when: hypervisor == "vmware"
       ansible.builtin.command: ip addr replace {{ ansible_host }}/24 dev {{ interface_name.stdout }}
+      changed_when: result.rc == 0
+      register: result
+
     - name: Set Default Gateway
       when: hypervisor == "vmware"
       ansible.builtin.command: ip route replace default via {{ vm_gw }}
+      changed_when: result.rc == 0
+      register: result
+
     - name: Synchronize clock via NTP
       ansible.builtin.command: timedatectl set-ntp true
+      changed_when: result.rc == 0
+      register: result
+
     - name: Speed-up Bootstrap process
       ansible.builtin.lineinfile:
         path: /etc/pacman.conf

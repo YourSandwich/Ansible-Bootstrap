@@ -88,3 +88,5 @@
       when: hypervisor != "libvirt"
       ansible.builtin.command: reboot
       failed_when: false
+      changed_when: result.rc == 0
+      register: result
