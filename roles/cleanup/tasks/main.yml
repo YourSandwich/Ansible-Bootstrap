@@ -20,7 +20,7 @@
 - name: Remove CD-ROM from VM in vCenter
   when: hypervisor == "vmware"
   delegate_to: localhost
-  ignore_errors: true
+  failed_when: false
   community.vmware.vmware_guest:
     hostname: "{{ hypervisor_url }}"
     username: "{{ hypervisor_username }}"

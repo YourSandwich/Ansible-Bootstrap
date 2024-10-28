@@ -2,7 +2,7 @@
 - name: Partition install drive
   block:
     - name: Prepare partitions
-      ignore_errors: true
+      failed_when: false
       ansible.builtin.command: "{{ item.cmd }}"
       loop:
         - { cmd: umount -l /mnt }

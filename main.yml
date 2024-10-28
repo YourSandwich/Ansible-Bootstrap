@@ -87,4 +87,4 @@
     - name: Reboot system
       when: hypervisor != "libvirt"
       ansible.builtin.command: reboot
-      ignore_errors: true
+      failed_when: false
