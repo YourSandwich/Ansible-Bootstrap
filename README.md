@@ -19,7 +19,7 @@ This playbook supports multiple Linux distributions with specific versions tailo
 | almalinux  | AlmaLinux 9.x                      |
 | debian11   | Debian 11 (Bullseye)               |
 | debian12   | Debian 12 (Bookworm)               |
-| fedora     | Fedora 40                          |
+| fedora     | Fedora 41                          |
 | rocky      | Rocky Linux 9.x                    |
 | ubuntu     | Ubuntu 23.10 (Mantic Minotaur)     |
 | ubuntu-lts | Ubuntu 22.04 LTS (Jammy Jellyfish) |
