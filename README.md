@@ -21,8 +21,8 @@ This playbook supports multiple Linux distributions with specific versions tailo
 | debian12   | Debian 12 (Bookworm)               |
 | fedora     | Fedora 41                          |
 | rocky      | Rocky Linux 9.x                    |
-| ubuntu     | Ubuntu 23.10 (Mantic Minotaur)     |
-| ubuntu-lts | Ubuntu 22.04 LTS (Jammy Jellyfish) |
+| ubuntu     | Ubuntu 24.10 (Oracular Oriole)     |
+| ubuntu-lts | Ubuntu 24.04 LTS (Noble Numbat)    |
 
 
 # Documentation
