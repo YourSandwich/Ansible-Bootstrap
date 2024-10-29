@@ -15,7 +15,7 @@
         state: absent
       loop:
         - ide0
-        - ide1
+        - ide2
 
 - name: Remove CD-ROM from VM in vCenter
   when: hypervisor == "vmware"
@@ -30,7 +30,7 @@
     name: "{{ hostname }}"
     cdrom:
       - controller_number: 0
-        unit_number: 0
+        unit_number: 1
         controller_type: sata
         type: iso
         iso_path: "{{ boot_iso }}"
@@ -63,7 +63,7 @@
     - name: Remove CD-ROM devices
       when: cdrom_devices.stdout_lines | length > 0
       ansible.builtin.command: virsh --connect qemu:///system detach-disk {{ hostname }} {{ item }} --persistent
-      with_items: "{{ cdrom_devices.stdout_lines }}"
+      with_items: "{{ cdrom_devices.stdout_lines | select('ne', 'sdc') | list }}"
       changed_when: result.rc == 0
       register: result
 

@@ -47,7 +47,8 @@
         that:
           - hypervisor in ["libvirt", "proxmox", "vmware", "none"]
           - filesystem in ["btrfs", "ext4", "xfs"]
-          - os in ["archlinux", "almalinux", "debian11", "debian12", "fedora", "rocky", "ubuntu", "ubuntu-lts"]
+          - os in ["archlinux", "almalinux", "debian11", "debian12", "fedora", "rhel8", "rhel9", "rocky", "ubuntu", "ubuntu-lts"]
+          - os not in ["rhel8", "rhel9"] or rhel_iso is defined
         fail_msg: Invalid input specified, please try again
 
     - name: Set connection

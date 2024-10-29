@@ -91,8 +91,8 @@
         - { path: /mnt/etc/security/pwquality.conf, content: ucredit = -1 }
         - { path: /mnt/etc/security/pwquality.conf, content: ocredit = -1 }
         - { path: /mnt/etc/security/pwquality.conf, content: lcredit = -1 }
-        - { path: '/mnt/etc/{{ "bashrc" if os in ["almalinux", "fedora", "rocky"] else "bash.bashrc" }}', content: umask 077 }
-        - { path: '/mnt/etc/{{ "bashrc" if os in ["almalinux", "fedora", "rocky"] else "bash.bashrc" }}', content: export TMOUT=3000 }
+        - { path: '/mnt/etc/{{ "bashrc" if os in ["almalinux", "fedora", "rhel8", "rhel9", "rocky"] else "bash.bashrc" }}', content: umask 077 }
+        - { path: '/mnt/etc/{{ "bashrc" if os in ["almalinux", "fedora", "rhel8", "rhel9", "rocky"] else "bash.bashrc" }}', content: export TMOUT=3000 }
         - { path: '/mnt/{{ "usr/lib/systemd/journald.conf" if os == "fedora" else "etc/systemd/journald.conf" }}', content: Storage=persistent }
         - { path: /mnt/etc/sudoers, content: Defaults        logfile="/var/log/sudo.log" }
         - { path: /mnt/etc/pam.d/su, content: auth required pam_wheel.so }
@@ -112,18 +112,21 @@
         owner: "{{ item.owner | default(omit) }}"
         group: "{{ item.group | default(omit) }}"
         mode: "{{ item.mode }}"
-      loop:
-        - { path: /mnt/etc/ssh/sshd_config, mode: "0600" }
-        - { path: /mnt/etc/cron.hourly, mode: "0700" }
-        - { path: /mnt/etc/cron.daily, mode: "0700" }
-        - { path: /mnt/etc/cron.weekly, mode: "0700" }
-        - { path: /mnt/etc/cron.monthly, mode: "0700" }
-        - { path: /mnt/etc/cron.d, mode: "0700" }
-        - { path: /mnt/etc/crontab, mode: "0600" }
-        - { path: /mnt/etc/logrotate.conf, mode: "0644" }
-        - { path: /mnt/usr/sbin/pppd, mode: "754" }
-        - { path: '/mnt/usr/bin/{{ "fusermount3" if os in ["archlinux", "debian12", "fedora", "rocky", "almalinux"] else "fusermount" }}', mode: "755" }
-        - { path: '/mnt/usr/bin/{{ "write.ul" if os == "debian11" else "write" }}', mode: "755" }
+      loop: >
+        {{ [
+          { "path": "/mnt/etc/ssh/sshd_config", "mode": "0600" },
+          { "path": "/mnt/etc/cron.hourly", "mode": "0700" },
+          { "path": "/mnt/etc/cron.daily", "mode": "0700" },
+          { "path": "/mnt/etc/cron.weekly", "mode": "0700" },
+          { "path": "/mnt/etc/cron.monthly", "mode": "0700" },
+          { "path": "/mnt/etc/cron.d", "mode": "0700" },
+          { "path": "/mnt/etc/crontab", "mode": "0600" },
+          { "path": "/mnt/etc/logrotate.conf", "mode": "0644" },
+          { "path": "/mnt/usr/sbin/pppd", "mode": "0754" } if os not in ["rhel8", "rhel9"] else None,
+          { "path": "/mnt/usr/bin/" + ("fusermount3" if os in ["almalinux", "archlinux", "debian12", "fedora", "rhel9", "rocky"]
+            else "fusermount"), "mode": "755" },
+          { "path": "/mnt/usr/bin/" + ("write.ul" if os == "debian11" else "write"), "mode": "755" }
+        ] | reject("none") }}
 
     - name: Adjust SSHD config
       ansible.builtin.lineinfile:

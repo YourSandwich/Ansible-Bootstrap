@@ -69,8 +69,25 @@
       retries: 4
       delay: 15
 
+    - name: Prepare /iso mount and repository for RHEL-based systems
+      when: os | lower in ["rhel8", "rhel9"]
+      block:
+        - name: Create /iso directory
+          ansible.builtin.file:
+            path: /usr/local/install/redhat/dvd
+            state: directory
+            mode: '0755'
+
+        - name: Mount RHEL ISO
+          ansible.posix.mount:
+            src: /dev/sr2
+            path: /usr/local/install/redhat/dvd
+            fstype: iso9660
+            opts: "ro,loop"
+            state: mounted
+
     - name: Configure RHEL Repos for installation
-      when: os | lower in ["almalinux", "fedora", "rocky"]
+      when: os | lower in ["almalinux", "fedora", "rhel8", "rhel9", "rocky"]
       block:
         - name: Create directories for repository files and RPM GPG keys
           ansible.builtin.file:

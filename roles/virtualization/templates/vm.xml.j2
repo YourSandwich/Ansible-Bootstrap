@@ -37,6 +37,13 @@
       <source file="{{ vm_path | default('/var/lib/libvirt/images/') }}{{ hostname }}-cloudinit.iso"/>
       <target dev="sdb" bus="sata"/>
     </disk>
+    {% if rhel_iso is defined %}
+    <disk type="file" device="cdrom">
+      <driver name="qemu" type="raw"/>
+      <source file="{{ rhel_iso }}"/>
+      <target dev="sdc" bus="sata"/>
+    </disk>
+    {% endif %}
     <interface type='network'>
       <mac address="{{ mac_address_output.stdout }}"/>
       <source network='default'/>

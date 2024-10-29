@@ -6,6 +6,22 @@
       changed_when: result.rc == 0
       register: result
 
+    - name: Remove depricated attr2 and disable large extent
+      when: os in ["almalinux", "rhel8", "rhel9", "rocky"] and filesystem == "xfs"
+      ansible.builtin.replace:
+        path: /mnt/etc/fstab
+        regexp: '(xfs.*?)(attr2)'
+        replace: '\1allocsize=64m'
+
+    - name: Replace ISO UUID entry with /dev/sr0 in fstab
+      when: os in ["rhel8", "rhel9"]
+      ansible.builtin.lineinfile:
+        path: /mnt/etc/fstab
+        regexp: '^.*\/dvd.*$'
+        line: "{{ '/dev/loop0' if hypervisor == 'vmware' else '/dev/sr0' }} /usr/local/install/redhat/dvd iso9660 ro,relatime,nojoliet,check=s,map=n 0 0"
+        state: present
+        backrefs: true
+
     - name: Append TempFS to fstab
       ansible.builtin.lineinfile:
         path: /mnt/etc/fstab
@@ -74,12 +90,18 @@
             replace: PasswordAuthentication yes
 
     - name: Enable Systemd Services
-      block:
-        - name: Enable sshd
-          when: os | lower == "archlinux"
-          ansible.builtin.command: arch-chroot /mnt systemctl enable sshd logrotate systemd-resolved systemd-timesyncd systemd-networkd NetworkManager
-          changed_when: result.rc == 0
-          register: result
+      ansible.builtin.command: >
+        arch-chroot /mnt systemctl enable NetworkManager
+        {{
+          ' ssh' if os | lower in ['ubuntu', 'ubuntu-lts'] else
+          (' sshd' if os | lower not in ['debian11', 'debian12'] else '')
+        }}
+        {{
+          'logrotate systemd-resolved systemd-timesyncd systemd-networkd'
+          if os | lower == 'archlinux' else ''
+        }}
+      changed_when: result.rc == 0
+      register: result
 
     - name: Configure grub
       when: os | lower not in ['almalinux', 'fedora', 'rhel8', 'rhel9', 'rocky']
@@ -101,7 +123,8 @@
         - name: Install Bootloader
           ansible.builtin.command: arch-chroot /mnt
             {% if os | lower not in ["archlinux", "debian11", "debian12", "ubuntu", "ubuntu-lts"] %} /usr/sbin/efibootmgr
-            -c -L '{{ os }}' -d "{{ install_drive }}" -p 1 -l '\efi\EFI\{{ os }}\shimx64.efi'
+            -c -L '{{ os }}' -d "{{ install_drive }}" -p 1
+            -l '\efi\EFI\{% if os | lower in ["rhel8", "rhel9"] %}redhat{% else %}{{ os | lower }}{% endif %}\shimx64.efi'
             {% else %}/usr/sbin/grub-install --target=x86_64-efi --efi-directory={{ "/boot/efi" if os | lower in ["ubuntu", "ubuntu-lts"] else "/boot" }}
             --bootloader-id={{ "ubuntu" if os | lower in ["ubuntu", "ubuntu-lts"] else os }}
             {% endif %}
@@ -110,10 +133,10 @@
 
         - name: Generate grub config
           ansible.builtin.command: arch-chroot /mnt
-            {% if os | lower not in ["archlinux", "debian11", "debian12", "ubuntu", "ubuntu-lts"] %} /usr/sbin/grub2-mkconfig
-            -o /boot/efi/EFI/{{ os }}/grub.cfg
-            {% else %}/usr/sbin/grub-mkconfig -o
-            {{ "/boot/efi/EFI/ubuntu/grub.cfg" if os | lower in ["ubuntu", "ubuntu-lts"] else "/boot/grub/grub.cfg" }}
+            {% if os | lower not in ["archlinux", "debian11", "debian12", "ubuntu", "ubuntu-lts"] %}
+            /usr/sbin/grub2-mkconfig -o /boot/efi/EFI/{% if os | lower in ["rhel8", "rhel9"] %}redhat{% else %}{{ os | lower }}{% endif %}/grub.cfg
+            {% else %}
+            /usr/sbin/grub-mkconfig -o {{ "/boot/efi/EFI/ubuntu/grub.cfg" if os | lower in ["ubuntu", "ubuntu-lts"] else "/boot/grub/grub.cfg" }}
             {% endif %}
           changed_when: result.rc == 0
           register: result
@@ -214,7 +237,7 @@
       block:
         - name: Relabel the filesystem
           when: os | lower in ['almalinux', 'rhel8', 'rhel9', 'rocky']
-          ansible.builtin.command: touch /mnt/.autorelabel
+          ansible.builtin.command: "arch-chroot /mnt /sbin/fixfiles onboot"
           changed_when: result.rc == 0
           register: result
 

@@ -55,7 +55,7 @@
       community.general.filesystem:
         dev: "{{ install_drive }}{{ boot_partition_suffix }}"
         fstype: vfat
-        opts: -F32
+        opts: -F32 -n BOOT
         force: true
 
     - name: Create filesystem
@@ -136,7 +136,7 @@
 
     - name: Mount boot filesystem
       ansible.posix.mount:
-        path: "{{ '/mnt/boot/efi' if os | lower in ['ubuntu', 'ubuntu-lts'] else '/mnt/boot' }}"
+        path: "{{ '/mnt/boot/efi' if os | lower in ['rhel8', 'ubuntu', 'ubuntu-lts'] else '/mnt/boot' }}"
         src: UUID={{ boot_uuid.stdout }}
         fstype: vfat
         state: mounted

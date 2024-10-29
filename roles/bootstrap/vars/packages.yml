@@ -172,7 +172,7 @@ rhel8:
   - dhcp-client
   - efibootmgr
   - grub2
-  - grub2-efi
+  - grub2-efi-x64
   - lrzsz
   - lvm2
   - nfs-utils

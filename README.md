@@ -6,8 +6,9 @@ An Ansible playbook for automating system bootstrap processes in an Infrastructu
 Most of the roles are adaptable for use with systems beyond ArchLinux, requiring only that the target system can install a necessary package manager, such as `dnf` for RHEL-based systems. Additionally, a replacement for the `arch-chroot` command may be required for these systems.
 
 **NOTE**:
-- RHEL Systems are not currently supported due to restricted access to their repositories.
-  A workaround could involve using an ISO as a local repository or setting up a proxy repository to facilitate access.
+- For RHEL 8 and RHEL 9, repository access requires the `rhel_iso` variable. This variable specifies a local ISO or proxy repository.
+- RHEL systems do not support `btrfs`. Use `ext4` or `xfs` as alternatives.
+- For RHEL 8, `xfs` may cause installation issues; `ext4` is recommended.
 
 # Supported Distributions
 
@@ -20,10 +21,11 @@ This playbook supports multiple Linux distributions with specific versions tailo
 | debian11   | Debian 11 (Bullseye)               |
 | debian12   | Debian 12 (Bookworm)               |
 | fedora     | Fedora 41                          |
+| rhel8      | Red Hat Enterprise Linux 8         |
+| rhel9      | Red Hat Enterprise Linux 9         |
 | rocky      | Rocky Linux 9.x                    |
 | ubuntu     | Ubuntu 24.10 (Oracular Oriole)     |
 | ubuntu-lts | Ubuntu 24.04 LTS (Noble Numbat)    |
-
 
 # Documentation
 
@@ -48,6 +50,7 @@ Global variables apply across your Ansible project and are loaded from `vars.yml
 | Variable              | Description                                                        | Example Value                           |
 |-----------------------|--------------------------------------------------------------------|-----------------------------------------|
 | `boot_iso`            | Path to the boot ISO image.                                        | `local-btrfs:iso/archlinux-x86_64.iso`  |
+| `rhel_iso`            | Path to the RHEL ISO file, required for RHEL 8 and RHEL 9.         |`local-btrfs:iso/rhel-9.4-x86_64-dvd.iso`|
 | `hypervisor`          | Type of hypervisor.                                                | `libvirt`, `proxmox`, `vmware`, `none`  |
 | `hypervisor_cluster`  | Name of the hypervisor cluster.                                    | `default-cluster`                       |
 | `hypervisor_node`     | Hypervisor node name.                                              | `node01`                                |
