@@ -49,7 +49,8 @@
           - filesystem in ["btrfs", "ext4", "xfs"]
           - os in ["archlinux", "almalinux", "debian11", "debian12", "fedora", "rhel8", "rhel9", "rocky", "ubuntu", "ubuntu-lts"]
           - os not in ["rhel8", "rhel9"] or rhel_iso is defined
-        fail_msg: Invalid input specified, please try again
+          - (filesystem == "btrfs" and (vm_size | int) >= 10) or (filesystem != "btrfs" and (vm_size | int) >= 20)
+        fail_msg: Invalid input specified, please try again.
 
     - name: Set connection
       when: hypervisor == "vmware"
