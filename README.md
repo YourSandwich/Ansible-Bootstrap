@@ -71,7 +71,7 @@ Inventory variables are defined for individual hosts or VMs in the inventory fil
 | `cis` (optional)        | Adjusts the installation to be CIS level 3 conformant.                            | `true`, `false`                                    |
 | `filesystem`            | Filesystem type for the VM's primary storage.                                     | `btrfs`, `ext4`, `xfs`                             |
 | `hostname`              | The hostname assigned to the virtual machine or system.                           | `vm01`                                             |
-| `os`                    | Operating system to be installed on the VM.                                       | `archlinux`, `almalinux`, `debian11`, `debian12`, `fedora`, `rocky`, `ubuntu`, `ubuntu-lts` |
+| `os`                    | Operating system to be installed on the VM.                                       | `archlinux`, `almalinux`, `debian11`, `debian12`, `fedora`, `rhel8`, `rhel9`, `rocky`, `ubuntu`, `ubuntu-lts` |
 | `root_password`         | Root password for the VM or system, used for initial setup or secure access.      | `SecurePass123`                                    |
 | `user_name`             | Username for a user account within the VM, often used with cloud-init.            | `adminuser`                                        |
 | `user_password`         | Password for the user account within the VM.                                      | `UserPass123`                                      |
