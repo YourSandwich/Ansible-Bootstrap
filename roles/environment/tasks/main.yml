@@ -108,7 +108,7 @@
 
         - name: Mount RHEL ISO
           ansible.posix.mount:
-            src: /dev/sr2
+            src: "{{ '/dev/sr1' if hypervisor == 'vmware' else '/dev/sr2' }}"
             path: /usr/local/install/redhat/dvd
             fstype: iso9660
             opts: "ro,loop"

@@ -18,7 +18,7 @@
       ansible.builtin.lineinfile:
         path: /mnt/etc/fstab
         regexp: '^.*\/dvd.*$'
-        line: "{{ '/dev/loop0' if hypervisor == 'vmware' else '/dev/sr0' }} /usr/local/install/redhat/dvd iso9660 ro,relatime,nojoliet,check=s,map=n 0 0"
+        line: "/dev/sr0 /usr/local/install/redhat/dvd iso9660 ro,relatime,nojoliet,check=s,map=n 0 0"
         state: present
         backrefs: true
 
