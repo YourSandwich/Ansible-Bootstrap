@@ -28,13 +28,13 @@
 
     - name: Set IP-Address
       when: hypervisor == "vmware"
-      ansible.builtin.command: ip addr replace {{ ansible_host }}/24 dev {{ interface_name.stdout }}
+      ansible.builtin.command: "ip addr replace {{ ansible_host }}/{{ vm_nms | default(24) }} dev {{ interface_name.stdout }}"
       changed_when: result.rc == 0
       register: result
 
     - name: Set Default Gateway
       when: hypervisor == "vmware"
-      ansible.builtin.command: ip route replace default via {{ vm_gw }}
+      ansible.builtin.command: "ip route replace default via {{ vm_gw }}"
       changed_when: result.rc == 0
       register: result
 
