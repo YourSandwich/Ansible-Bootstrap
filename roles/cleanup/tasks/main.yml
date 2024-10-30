@@ -30,10 +30,16 @@
     name: "{{ hostname }}"
     cdrom:
       - controller_number: 0
-        unit_number: 1
+        unit_number: 0
         controller_type: sata
         type: iso
         iso_path: "{{ boot_iso }}"
+        state: absent
+      - controller_number: 0
+        unit_number: 1
+        controller_type: sata
+        type: iso
+        iso_path: "{{ rhel_iso | default(omit) }}"
         state: absent
 
 - name: Remove Archiso and cloud-init disks

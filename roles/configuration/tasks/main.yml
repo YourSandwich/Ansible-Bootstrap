@@ -18,9 +18,17 @@
       ansible.builtin.lineinfile:
         path: /mnt/etc/fstab
         regexp: '^.*\/dvd.*$'
-        line: "/dev/sr0 /usr/local/install/redhat/dvd iso9660 ro,relatime,nojoliet,check=s,map=n 0 0"
+        line: "{{ '/usr/local/install/redhat/rhel.iso /usr/local/install/redhat/dvd iso9660 loop,nofail 0 0' if hypervisor == 'vmware'
+              else '/dev/sr0 /usr/local/install/redhat/dvd iso9660 ro,relatime,nojoliet,check=s,map=n,nofail 0 0' }}"
         state: present
         backrefs: true
+
+    - name: Write image from RHEL ISO to the target machine
+      ansible.builtin.command: >
+        "dd if={{ '/dev/sr1' if hypervisor == 'vmware' else '/dev/sr2' }}
+        of=/mnt/usr/local/install/redhat/rhel.iso bs=4M status=progress"
+      changed_when: result.rc == 0
+      register: result
 
     - name: Append TempFS to fstab
       ansible.builtin.lineinfile:
