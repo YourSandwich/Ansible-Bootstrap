@@ -34,7 +34,8 @@
         type: iso
         iso_path: "{{ boot_iso }}"
     networks:
-      - vlan: "{{ vlan_name }}"
+      - name: "{{ vm_nif }}"
+        vlan: "{{ vlan_name | default(omit) }}"
         type: static
         ip: "{{ inventory_hostname }}"
         netmask: "{{ vm_nm | default('255.255.255.0') }}"
