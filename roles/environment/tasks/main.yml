@@ -43,6 +43,15 @@
       changed_when: result.rc == 0
       register: result
 
+    - name: Set connection back to SSH
+      when: hypervisor == "vmware" and vmware_ssh | bool
+      ansible.builtin.set_fact:
+        ansible_connection: ssh
+        ansible_user: "root"
+        ansible_password: ""
+        ansible_become_password: ""
+        ansible_ssh_extra_args: '-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'
+
     - name: Speed-up Bootstrap process
       ansible.builtin.lineinfile:
         path: /etc/pacman.conf

@@ -18,3 +18,4 @@ ansible_vmware_guest_path: "/{{ hypervisor_cluster }}/vm{{ vm_path }}/{{ hostnam
 ansible_vmware_validate_certs: no 
 ansible_vmware_tools_user: "root"
 ansible_vmware_tools_password: ""
+vmware_ssh: true
