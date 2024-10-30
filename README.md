@@ -62,6 +62,8 @@ Global variables apply across your Ansible project and are loaded from `vars.yml
 | `install_type`        | Type of installation.                                              | `virtual`, `physical`                   |
 | `vlan_name` (optional)| VLAN for the VM's network interface.                               | `vlan100`                               |
 
+To protect sensitive information, such as passwords, API keys, and other confidential variables (e.g., `hypervisor_password`), **it is recommended to use Ansible Vault**.
+
 ## 3. Inventory Variables
 
 Inventory variables are defined for individual hosts or VMs in the inventory file, allowing customization of settings such as the operating system, filesystem, and compliance with CIS benchmarks. These variables can be set globally and overridden for specific hosts or VMs.
