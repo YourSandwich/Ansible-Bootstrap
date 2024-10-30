@@ -9,3 +9,12 @@ hypervisor_node:     "NodeName"
 hypervisor_storage:  "local-btrfs"
 boot_iso: "local-btrfs:iso/archlinux-x86_64.iso"
 rhel_iso: "local-btrfs:rhel-9.4-x86_64-dvd.iso"
+
+# For VMware-Tools
+ansible_vmware_host: "{{ hypervisor_url }}"
+ansible_vmware_user: "{{ hypervisor_username }}"
+ansible_vmware_password: "{{ hypervisor_password }}"
+ansible_vmware_guest_path: "/{{ hypervisor_cluster }}/vm{{ vm_path }}/{{ hostname }}"
+ansible_vmware_validate_certs: no 
+ansible_vmware_tools_user: "root"
+ansible_vmware_tools_password: ""

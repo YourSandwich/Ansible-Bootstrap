@@ -23,15 +23,19 @@
   vars:
     hypervisor: "vmware"
     install_drive: "/dev/sda"
-    ansible_user: "{{ user_name }}"
-    ansible_password: "{{ user_password }}"
-    ansible_become_password: "{{ user_password }}"
-    ansible_ssh_extra_args: '-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'
   pre_tasks:
     - name: Set ansible_python_interpreter
       when: os | lower in ["almalinux", "rhel9", "rhel8", "rocky"]
       ansible.builtin.set_fact:
         ansible_python_interpreter: /usr/bin/python3
+
+    - name: Set SSH Access
+      when: hypervisor != "vmware"
+      ansible.builtin.set_fact:
+        ansible_user: "{{ user_name }}"
+        ansible_password: "{{ user_password }}"
+        ansible_become_password: "{{ user_password }}"
+        ansible_ssh_extra_args: '-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'
 
     - name: Validate variables
       ansible.builtin.assert:
