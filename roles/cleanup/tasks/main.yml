@@ -1,4 +1,9 @@
 ---
+- name: Unmount /mnt recursively
+  ansible.builtin.command: umount -l /mnt
+  changed_when: result.rc == 0
+  register: result
+
 - name: Setup Cleanup
   when: hypervisor == "proxmox"
   delegate_to: localhost
