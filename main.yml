@@ -22,6 +22,7 @@
   vars_files: vars.yml
   vars:
     hypervisor: "vmware"
+    cis: false
     install_drive: "/dev/sda"
   pre_tasks:
     - name: Set ansible_python_interpreter
