@@ -26,13 +26,13 @@
         controller_type: sata
         state: present
         type: iso
-        iso_path: "{{ rhel_iso | default(omit) }}"
+        iso_path: "{{ boot_iso }}"
       - controller_number: 0
         unit_number: 1
         controller_type: sata
         state: present
         type: iso
-        iso_path: "{{ boot_iso }}"
+        iso_path: "{{ rhel_iso | default(omit) }}"
     networks:
       - name: "{{ vm_nif }}"
         vlan: "{{ vlan_name | default(omit) }}"
