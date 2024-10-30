@@ -43,14 +43,33 @@
       changed_when: result.rc == 0
       register: result
 
-    - name: Set connection back to SSH
+    - name: Configure SSH for root login
       when: hypervisor == "vmware" and vmware_ssh | bool
-      ansible.builtin.set_fact:
-        ansible_connection: ssh
-        ansible_user: "root"
-        ansible_password: ""
-        ansible_become_password: ""
-        ansible_ssh_extra_args: '-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'
+      block:
+        - name: Allow empty passwords temporarily
+          ansible.builtin.replace:
+            path: /etc/ssh/sshd_config
+            regexp: "^#?PermitEmptyPasswords.*"
+            replace: "PermitEmptyPasswords yes"
+
+        - name: Allow root login
+          ansible.builtin.replace:
+            path: /etc/ssh/sshd_config
+            regexp: "^#?PermitRootLogin.*"
+            replace: "PermitRootLogin yes"
+
+        - name: Reload SSH service to apply changes
+          ansible.builtin.service:
+            name: sshd
+            state: reloaded
+
+        - name: Set connection back to SSH
+          ansible.builtin.set_fact:
+            ansible_connection: ssh
+            ansible_user: "root"
+            ansible_password: ""
+            ansible_become_password: ""
+            ansible_ssh_extra_args: '-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'
 
     - name: Speed-up Bootstrap process
       ansible.builtin.lineinfile:
