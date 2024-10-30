@@ -205,7 +205,7 @@
           register: net_inf
 
         - name: Register MAC Address of the Network Interface
-          ansible.builtin.shell: ip link show "{{ net_inf.stdout }}" | awk '/link\/ether/ {print $2}' | tr '[:lower:]' '[:upper:]'
+          ansible.builtin.shell: set -o pipefail && ip link show "{{ net_inf.stdout }}" | awk '/link\/ether/ {print $2}' | tr '[:lower:]' '[:upper:]'
           register: net_mac
           changed_when: net_mac.rc == 0
 
