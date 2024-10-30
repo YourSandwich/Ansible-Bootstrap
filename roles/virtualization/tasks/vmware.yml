@@ -35,7 +35,9 @@
         iso_path: "{{ boot_iso }}"
     networks:
       - vlan: "{{ vlan_name }}"
-        type: dhcp
+        type: static
+        ip: "{{ inventory_hostname }}"
+        netmask: "{{ vm_mask | default('255.255.255.0') }}"
   register: vmware_guest_result
   failed_when:
     - vmware_guest_result.failed is defined and vmware_guest_result.failed

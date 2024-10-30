@@ -1,4 +1,4 @@
-vm_ip: "{{ inventory_hostname }}/24"
+vm_ip: "{{ inventory_hostname }}/{{ vm_nms }}"
 install_type: "virtual"
 cis: false
 
