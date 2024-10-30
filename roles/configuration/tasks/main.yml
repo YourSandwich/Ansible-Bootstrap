@@ -89,6 +89,12 @@
             regexp: "#PasswordAuthentication yes"
             replace: PasswordAuthentication yes
 
+        - name: SSH permit root login
+          ansible.builtin.replace:
+            path: /mnt/etc/ssh/sshd_config
+            regexp: "^#?PermitRootLogin.*"
+            replace: "PermitRootLogin yes"
+
     - name: Enable Systemd Services
       ansible.builtin.command: >
         arch-chroot /mnt systemctl enable NetworkManager
