@@ -1,3 +1,4 @@
+vm_ip: "{{ inventory_hostname }}/24"
 install_type: "virtual"
 cis: false
 

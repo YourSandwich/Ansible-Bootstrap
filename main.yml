@@ -41,7 +41,6 @@
     ansible_password: "{{ user_password }}"
     ansible_become_password: "{{ user_password }}"
     ansible_ssh_extra_args: '-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'
-    vm_ip: "{{ inventory_hostname }}/24"
   pre_tasks:
     - name: Set ansible_python_interpreter
       when: os | lower in ["almalinux", "rhel9", "rhel8", "rocky"]
