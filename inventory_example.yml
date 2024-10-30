@@ -2,6 +2,7 @@ all:
   vars:
     hypervisor: 'proxmox'
     install_drive: '/dev/sda'
+    cis: true
   children:
       promox-kvm:
         hosts:

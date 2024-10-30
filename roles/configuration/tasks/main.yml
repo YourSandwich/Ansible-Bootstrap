@@ -24,9 +24,8 @@
         backrefs: true
 
     - name: Write image from RHEL ISO to the target machine
-      ansible.builtin.command: >
-        "dd if={{ '/dev/sr1' if hypervisor == 'vmware' else '/dev/sr2' }}
-        of=/mnt/usr/local/install/redhat/rhel.iso bs=4M status=progress"
+      when: os in ["rhel8", "rhel9"] and hypervisor == 'vmware'
+      ansible.builtin.command: dd if=/dev/sr1 of=/mnt/usr/local/install/redhat/rhel.iso bs=4M
       changed_when: result.rc == 0
       register: result
 

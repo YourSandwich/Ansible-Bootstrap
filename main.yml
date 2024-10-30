@@ -20,10 +20,6 @@
         What is your root password?
       confirm: true
   vars_files: vars.yml
-  vars:
-    hypervisor: "vmware"
-    cis: false
-    install_drive: "/dev/sda"
   pre_tasks:
     - name: Set ansible_python_interpreter
       when: os | lower in ["almalinux", "rhel9", "rhel8", "rocky"]
@@ -43,6 +39,7 @@
         that:
           - hypervisor in ["libvirt", "proxmox", "vmware", "none"]
           - filesystem in ["btrfs", "ext4", "xfs"]
+          - install_drive is defined
           - os in ["archlinux", "almalinux", "debian11", "debian12", "fedora", "rhel8", "rhel9", "rocky", "ubuntu", "ubuntu-lts"]
           - os not in ["rhel8", "rhel9"] or rhel_iso is defined
           - (filesystem == "btrfs" and (vm_size | int) >= 10) or (filesystem != "btrfs" and (vm_size | int) >= 20)
@@ -74,7 +71,7 @@
     - role: configuration
 
     - role: cis
-      when: cis == true
+      when: cis | bool
 
     - role: cleanup
       when: install_type == "virtual"

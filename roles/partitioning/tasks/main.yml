@@ -36,7 +36,7 @@
         pvs: "{{ install_drive }}{{ main_partition_suffix }}"
 
     - name: Create LVM logical volumes
-      when: cis or (not cis and item.lv != 'var_log' and item.lv != 'var_log_audit')
+      when: cis | bool or item.lv not in ['var_log', 'var_log_audit']
       community.general.lvol:
         vg: sys
         lv: "{{ item.lv }}"

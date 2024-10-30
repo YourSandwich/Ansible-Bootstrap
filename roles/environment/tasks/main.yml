@@ -4,7 +4,7 @@
   block:
     - name: Wait for connection
       ansible.builtin.wait_for_connection:
-        timeout: 30
+        timeout: 60
         delay: 5
 
     - name: Gather facts
