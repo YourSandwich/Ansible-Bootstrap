@@ -21,8 +21,8 @@
       confirm: true
   vars_files: vars.yml
   vars:
-    hypervisor: "{{ hypervisor }} | default('vmware')"
-    install_drive: "{{ install_drive }} | default('/dev/sda')"
+    hypervisor: "{{ hypervisor | default('vmware') }}"
+    install_drive: "{{ install_drive | default('/dev/sda') }}"
     ansible_user: "{{ user_name }}"
     ansible_password: "{{ user_password }}"
     ansible_become_password: "{{ user_password }}"
