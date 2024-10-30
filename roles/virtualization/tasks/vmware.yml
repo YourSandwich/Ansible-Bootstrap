@@ -28,7 +28,7 @@
         type: iso
         iso_path: "{{ boot_iso }}"
       - controller_number: 0
-        unit_number: 1
+        unit_number: 2
         controller_type: sata
         state: present
         type: iso
