@@ -1,4 +1,7 @@
 all:
+  vars:
+    hypervisor: 'proxmox'
+    install_drive: '/dev/sda'
   children:
       promox-kvm:
         hosts:

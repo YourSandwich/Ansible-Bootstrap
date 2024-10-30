@@ -19,24 +19,10 @@
       prompt: |
         What is your root password?
       confirm: true
-
-    - name: hypervisor
-      prompt: |
-        Select an Hypervisor:
-        - libvirt
-        - proxmox
-        - vmware
-      private: false
-      default: proxmox
-
-    - name: install_drive
-      prompt: |
-        "Enter the drive to install the system (default: /dev/sda)"
-      confirm: true
-      private: false
-      default: /dev/sda
   vars_files: vars.yml
   vars:
+    hypervisor: "{{ hypervisor }} | default('vmware')"
+    install_drive: "{{ install_drive }} | default('/dev/sda')"
     ansible_user: "{{ user_name }}"
     ansible_password: "{{ user_password }}"
     ansible_become_password: "{{ user_password }}"
