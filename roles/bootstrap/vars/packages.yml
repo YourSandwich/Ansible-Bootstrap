@@ -179,6 +179,7 @@ rhel8:
   - open-vm-tools
   - shim
   - telnet
+  - vim
   - zstd
 
 rhel9:
@@ -193,6 +194,7 @@ rhel9:
   - open-vm-tools
   - shim
   - telnet
+  - vim
   - zstd
 
 rocky:

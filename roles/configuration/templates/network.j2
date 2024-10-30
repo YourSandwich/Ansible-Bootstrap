@@ -5,6 +5,7 @@ type=ethernet
 interface-name={{ net_inf.stdout }}
 
 [ethernet]
+mac-address={{ net_mac.stdout }}
 
 [ipv4]
 address={{ vm_ip }},{{ vm_gw }}
@@ -12,7 +13,7 @@ dns={{ vm_dns }}
 method=manual
 
 [ipv6]
-addr-gen-mode=default
+addr-gen-mode=stable-privacy
 method=disabled
 
 [proxy]

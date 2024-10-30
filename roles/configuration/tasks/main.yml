@@ -204,6 +204,11 @@
           changed_when: net_inf.rc == 0
           register: net_inf
 
+        - name: Register MAC Address of the Network Interface
+          ansible.builtin.shell: ip link show "{{ net_inf.stdout }}" | awk '/link\/ether/ {print $2}' | tr '[:lower:]' '[:upper:]'
+          register: net_mac
+          changed_when: net_mac.rc == 0
+
         - name: Copy NetworkManager keyfile
           ansible.builtin.template:
             src: network.j2
