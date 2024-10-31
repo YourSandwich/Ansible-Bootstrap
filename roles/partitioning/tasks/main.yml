@@ -43,7 +43,8 @@
         size: "{{ item.size }}"
         state: present
       loop:
-        - { lv: root, size: 12G }
+        - { lv: root, size: "{{ '12G' if (vm_size | int * 0.4) < 12
+            else (vm_size | int * 0.4) | round(0, 'ceil') | int | string + 'G' }}" }
         - { lv: home, size: 2G }
         - { lv: var, size: 2G }
         - { lv: var_log, size: 2G }
