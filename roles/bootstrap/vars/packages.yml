@@ -72,6 +72,7 @@ debian11:
     - openssh-server
     - python3
     - sudo
+    - systemd-zram-generator
     - xfsprogs
 
   extra:
@@ -131,6 +132,7 @@ debian12:
     - screen
     - software-properties-common
     - sudo
+    - systemd-zram-generator
     - syslog-ng
     - tcpd
     - vim
@@ -160,6 +162,7 @@ fedora:
   - telnet
   - vim-default-editor
   - wget
+  - zram-generator
   - zstd
 
 rhel8:
@@ -174,6 +177,7 @@ rhel8:
   - shim
   - telnet
   - vim
+  - zram-generator
   - zstd
 
 rhel9:
@@ -188,6 +192,7 @@ rhel9:
   - shim
   - telnet
   - vim
+  - zram-generator
   - zstd
 
 rocky:
@@ -211,6 +216,7 @@ rocky:
   - util-linux-core
   - vim
   - wget
+  - zram-generator
   - zstd
 
 ubuntu:
@@ -225,6 +231,7 @@ ubuntu:
     - linux-image-generic
     - locales
     - lvm2
+    - systemd-zram-generator
     - xfsprogs
 
   extra:
@@ -268,6 +275,7 @@ ubuntu-lts:
     - linux-image-generic
     - locales
     - lvm2
+    - systemd-zram-generator
     - xfsprogs
 
   extra:
