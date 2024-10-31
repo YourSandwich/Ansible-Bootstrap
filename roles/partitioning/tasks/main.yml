@@ -43,15 +43,43 @@
         size: "{{ item.size }}"
         state: present
       loop:
-        - { lv: root, size: "{{ [(vm_size | float) - 0.5 - (((vm_memory | float / 1024) >= 16.0)
-          | ternary((vm_memory | float / 1024 / 2) | int, 4)) - 7.5, 1] | max | float
-          | round(1) | string + 'G' }}" }
-        - { lv: swap, size: "{{ ((vm_memory | float / 1024 >= 16.0) | ternary((vm_memory | float / 2048)
-          | int, [vm_memory | float / 1024, 4.0] | max)) | string + 'G' }}" }
-        - { lv: home, size: "2G" }
-        - { lv: var, size: "2G" }
-        - { lv: var_log, size: "2G" }
-        - { lv: var_log_audit, size: "1.5G" }
+        - lv: root
+          size: >-
+            {{ ((cis | lower == 'true') | ternary(
+                (((vm_size | float - ((vm_memory | float / 1024 >= 16.0) | ternary(
+                    (vm_memory | float / 2048) | int,
+                    [vm_memory | float / 1024, 4.0] | max
+                )) - 0.5 - 7.5) > 12.0) | ternary(
+                    (vm_size | float * 0.4) | round(0, 'ceil'),
+                    vm_size | float - ((vm_memory | float / 1024 >= 16.0) | ternary(
+                        (vm_memory | float / 2048) | int,
+                        [vm_memory | float / 1024, 4.0] | max
+                    )) - 0.5 - 7.5
+                )),
+                vm_size | float - ((vm_memory | float / 1024 >= 16.0) | ternary(
+                    (vm_memory | float / 2048) | int,
+                    [vm_memory | float / 1024, 4.0] | max
+                )) - 0.5
+            )) | string + 'G' }}
+
+        - lv: swap
+          size: >-
+            {{ ((vm_memory | float / 1024 >= 16.0) | ternary(
+                (vm_memory | float / 2048) | int,
+                [vm_memory | float / 1024, 4.0] | max
+            )) | string + 'G' }}
+
+        - lv: home
+          size: "2G"
+
+        - lv: var
+          size: "2G"
+
+        - lv: var_log
+          size: "2G"
+
+        - lv: var_log_audit
+          size: "1.5G"
 
 - name: Create filesystems
   block:
