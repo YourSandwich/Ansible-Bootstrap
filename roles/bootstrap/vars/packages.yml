@@ -232,7 +232,6 @@ ubuntu:
     - linux-image-generic
     - locales
     - lvm2
-    - systemd-zram-generator
     - xfsprogs
 
   extra:
@@ -259,6 +258,7 @@ ubuntu:
     - software-properties-common
     - sudo
     - syslog-ng
+    - systemd-zram-generator
     - tcpd
     - vim
     - wget
@@ -276,7 +276,6 @@ ubuntu-lts:
     - linux-image-generic
     - locales
     - lvm2
-    - systemd-zram-generator
     - xfsprogs
 
   extra:
@@ -303,6 +302,7 @@ ubuntu-lts:
     - software-properties-common
     - sudo
     - syslog-ng
+    - systemd-zram-generator
     - tcpd
     - vim
     - wget
