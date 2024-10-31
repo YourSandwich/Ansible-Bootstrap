@@ -166,18 +166,32 @@
 
     - name: Extra Configuration
       block:
-        - name: Append lines to vimrc
+        - name: Append vim configurations to vimrc
           failed_when: false
-          ansible.builtin.lineinfile:
-            path: "{{ '/mnt/etc/vim/vimrc' if os | lower in ['debian11', 'debian12', 'ubuntu', 'ubuntu-lts'] else '/mnt/etc/vimrc' }}"
-            line: "{{ item }}"
+          ansible.builtin.blockinfile:
+            path: "{{ '/mnt/etc/vim/vimrc' if os | lower in ['debian11', 'debian12', 'ubuntu', 'ubuntu-lts']
+                  else '/mnt/etc/vimrc' }}"
+            block: |
+              set encoding=utf-8
+              set number
+              set autoindent
+              set smartindent
+              set mouse=a
             insertafter: EOF
-          with_items:
-            - set encoding=utf-8
-            - set number
-            - set autoindent
-            - set smartindent
-            - set mouse=a
+            marker: ""
+
+        - name: Add memory tuning parameters
+          ansible.builtin.blockinfile:
+            path: /mnt/etc/sysctl.d/90-memory.conf
+            create: true
+            block: |
+              vm.swappiness=10
+              vm.vfs_cache_pressure=50
+              vm.dirty_background_ratio=1
+              vm.dirty_ratio=10
+              vm.page-cluster=10
+            marker: ""
+            mode: '0644'
 
         - name: Copy FirstRun Script
           when: os | lower != "archlinux"
