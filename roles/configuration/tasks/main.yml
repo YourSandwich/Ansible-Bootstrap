@@ -202,6 +202,7 @@
             mode: '0644'
 
         - name: Create zram config
+          when: os != 'rhel8'
           ansible.builtin.copy:
             dest: /mnt/etc/systemd/zram-generator.conf
             content: |

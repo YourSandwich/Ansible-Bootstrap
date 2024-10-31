@@ -178,7 +178,6 @@ rhel8:
   - shim
   - telnet
   - vim
-  - zram-generator
   - zstd
 
 rhel9:
