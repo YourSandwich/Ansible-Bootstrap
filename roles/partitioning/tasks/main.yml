@@ -45,22 +45,23 @@
       loop:
         - lv: root
           size: >-
-            {{ ((cis | lower == 'true') | ternary(
-                (((vm_size | float - ((vm_memory | float / 1024 >= 16.0) | ternary(
+            {{ (
+                (vm_size | float -
+                 ((vm_memory | float / 1024 >= 16.0) | ternary(
                     (vm_memory | float / 2048) | int,
                     [vm_memory | float / 1024, 4.0] | max
-                )) - 0.5 - 7.5) > 12.0) | ternary(
-                    (vm_size | float * 0.4) | round(0, 'ceil'),
-                    vm_size | float - ((vm_memory | float / 1024 >= 16.0) | ternary(
-                        (vm_memory | float / 2048) | int,
-                        [vm_memory | float / 1024, 4.0] | max
-                    )) - 0.5 - 7.5
-                )),
-                vm_size | float - ((vm_memory | float / 1024 >= 16.0) | ternary(
+                 )) - 0.5 -
+                 (cis | bool | ternary(0, 7.5))
+                ) > 12.0
+            ) | ternary(
+                (vm_size | float * 0.4) | round(0, 'ceil'),
+                vm_size | float -
+                ((vm_memory | float / 1024 >= 16.0) | ternary(
                     (vm_memory | float / 2048) | int,
                     [vm_memory | float / 1024, 4.0] | max
-                )) - 0.5
-            )) | string + 'G' }}
+                )) - 0.5 -
+                (cis | bool | ternary(7.5, 0))
+            ) | string + 'G' }}
 
         - lv: swap
           size: >-
