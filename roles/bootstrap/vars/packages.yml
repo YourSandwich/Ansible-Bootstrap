@@ -53,6 +53,7 @@ archlinux:
   - sudo
   - vim
   - wireguard-tools
+  - zram-generator
 
 debian11:
   base:

@@ -154,6 +154,14 @@
           changed_when: result.rc == 0
           register: result
 
+        - name: Ensure lvm2 for non btrfs filesystems
+          when: os | lower == "archlinux" and filesystem != "btrfs"
+          ansible.builtin.lineinfile:
+            path: /mnt/etc/mkinitcpio.conf
+            regexp: '^(HOOKS=.*block)(?!.*lvm2)(.*)'
+            line: '\1 lvm2\2'
+            backrefs: true
+
         - name: Regenerate initramfs
           when: os | lower not in ["debian11", "debian12", "ubuntu", "ubuntu-lts"]
           ansible.builtin.command: arch-chroot /mnt

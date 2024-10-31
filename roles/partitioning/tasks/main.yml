@@ -36,19 +36,22 @@
         pvs: "{{ install_drive }}{{ main_partition_suffix }}"
 
     - name: Create LVM logical volumes
-      when: cis | bool or item.lv not in ['var_log', 'var_log_audit']
+      when: cis | bool or item.lv not in ['home', 'var', 'var_log', 'var_log_audit']
       community.general.lvol:
         vg: sys
         lv: "{{ item.lv }}"
         size: "{{ item.size }}"
         state: present
       loop:
-        - { lv: root, size: "{{ '12G' if (vm_size | int * 0.4) < 12
-            else (vm_size | int * 0.4) | round(0, 'ceil') | int | string + 'G' }}" }
-        - { lv: home, size: 2G }
-        - { lv: var, size: 2G }
-        - { lv: var_log, size: 2G }
-        - { lv: var_log_audit, size: 1.5G }
+        - { lv: root, size: "{{ [(vm_size | float) - 0.5 - (((vm_memory | float / 1024) >= 16.0)
+          | ternary((vm_memory | float / 1024 / 2) | int, 4)) - 7.5, 1] | max | float
+          | round(1) | string + 'G' }}" }
+        - { lv: swap, size: "{{ ((vm_memory | float / 1024 >= 16.0) | ternary((vm_memory | float / 2048)
+          | int, [vm_memory | float / 1024, 4.0] | max)) | string + 'G' }}" }
+        - { lv: home, size: "2G" }
+        - { lv: var, size: "2G" }
+        - { lv: var_log, size: "2G" }
+        - { lv: var_log_audit, size: "1.5G" }
 
 - name: Create filesystems
   block:
@@ -58,6 +61,12 @@
         fstype: vfat
         opts: -F32 -n BOOT
         force: true
+
+    - name: Create swap filesystem
+      when: filesystem != 'btrfs'
+      community.general.filesystem:
+        fstype: swap
+        dev: /dev/sys/swap
 
     - name: Create filesystem
       ansible.builtin.include_tasks: "{{ filesystem }}.yml"
@@ -73,30 +82,35 @@
       register: main_uuid
 
     - name: Get UUIDs for LVM filesystems
-      when: filesystem != 'btrfs' and (cis | bool or item not in ['var_log', 'var_log_audit'])
+      when: filesystem != 'btrfs' and (cis | bool or item not in ['home', 'var', 'var_log', 'var_log_audit'])
       ansible.builtin.command: blkid -s UUID -o value /dev/sys/{{ item }}
       changed_when: false
       register: uuid_result
       loop:
         - root
+        - swap
         - home
         - var
         - var_log
         - var_log_audit
 
     - name: Assign UUIDs to Variables
+      when: filesystem != 'btrfs'
       ansible.builtin.set_fact:
         uuid_root: "{{ uuid_result.results[0].stdout_lines }}"
-        uuid_home: "{{ uuid_result.results[1].stdout_lines }}"
-        uuid_var: "{{ uuid_result.results[2].stdout_lines }}"
-        uuid_var_log: "{{ uuid_result.results[3].stdout_lines if cis == true else '' }}"
-        uuid_var_log_audit: "{{ uuid_result.results[4].stdout_lines if cis == true else '' }}"
-      when: filesystem != 'btrfs'
+        uuid_swap: "{{ uuid_result.results[1].stdout_lines }}"
+        uuid_home: "{{ uuid_result.results[2].stdout_lines if cis | bool else '' }}"
+        uuid_var: "{{ uuid_result.results[3].stdout_lines if cis | bool else '' }}"
+        uuid_var_log: "{{ uuid_result.results[4].stdout_lines if cis | bool else '' }}"
+        uuid_var_log_audit: "{{ uuid_result.results[5].stdout_lines if cis | bool else '' }}"
 
 - name: Mount filesystems
   block:
     - name: Mount filesystems and subvolumes
-      when: cis | bool or (not cis and item.path != '/var/log' and item.path != '/var/log/audit')
+      when: 
+        - cis | bool or (not cis and (item.path == '/var/log' and filesystem == 'btrfs')
+          or (item.path not in ['/home', '/var', '/var/log', '/var/log/audit']))
+        - not (item.path == '/swap' and filesystem != 'btrfs')  
       ansible.posix.mount:
         path: /mnt{{ item.path }}
         src: "{{ 'UUID=' + (main_uuid.stdout if filesystem == 'btrfs' else item.uuid) }}"
@@ -107,6 +121,8 @@
         - path: ""
           uuid: "{{ uuid_root[0] | default(omit) }}"
           opts: "{{ 'defaults' if filesystem != 'btrfs' else 'rw,relatime,compress=zstd:15,ssd,space_cache=v2,discard=async,subvol=@' }}"
+        - path: /swap
+          opts: "rw,nosuid,nodev,relatime,compress=zstd:15,ssd,space_cache=v2,discard=async,subvol=@swap"
         - path: /home
           uuid: "{{ uuid_home[0] | default(omit) }}"
           opts: "{{ 'defaults,nosuid,nodev' if filesystem != 'btrfs'
@@ -141,3 +157,8 @@
         src: UUID={{ boot_uuid.stdout }}
         fstype: vfat
         state: mounted
+
+    - name: Activate swap
+      ansible.builtin.command: "{{ 'swapon /mnt/swap/swapfile' if filesystem == 'btrfs' else 'swapon -U ' + uuid_swap[0] }}"
+      changed_when: result.rc == 0
+      register: result

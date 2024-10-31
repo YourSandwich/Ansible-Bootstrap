@@ -21,24 +21,32 @@
       register: result
 
     - name: Make root subvolumes
-      when: cis | bool or item.subvol not in ['var_log', 'var_log_audit']
+      when: cis | bool or item.subvol not in ['var_log_audit']
       ansible.builtin.command: btrfs su cr /mnt/{{ '@' if item.subvol == 'root' else '@' + item.subvol }}
       changed_when: result.rc == 0
       register: result
       loop:
         - { subvol: root }
+        - { subvol: swap }
         - { subvol: home }
         - { subvol: var }
         - { subvol: var_log }
         - { subvol: var_log_audit }
 
     - name: Set quotas for subvolumes
-      when: cis | bool or item.subvol not in ['var_log', 'var_log_audit']
+      when: cis | bool or item.subvol not in ['var_log_audit']
       ansible.builtin.command: btrfs qgroup limit {{ item.quota }} /mnt/{{ '@' if item.subvol == 'root' else '@' + item.subvol }}
       changed_when: result.rc == 0
       register: result
       loop:
         - { subvol: home, quota: 2G }
+
+    - name: Create a Btrfs swap file
+      ansible.builtin.command: >-
+        btrfs filesystem mkswapfile --size {{ ((vm_memory | float / 1024 >= 16.0) | ternary((vm_memory
+        | float / 2048) | int, [vm_memory | float / 1024, 4.0] | max) | int) }}g --uuid clear /mnt/@swap/swapfile
+      changed_when: result.rc == 0
+      register: result
 
     - name: Unmount Partition
       ansible.posix.mount:
