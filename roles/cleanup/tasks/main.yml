@@ -1,4 +1,7 @@
 ---
+- name: Shutdown the VM
+  community.general.shutdown:
+
 - name: Setup Cleanup
   when: hypervisor == "proxmox"
   delegate_to: localhost
@@ -17,22 +20,16 @@
         - ide0
         - ide2
 
+    - name: Reboot system
+      ansible.builtin.command: reboot
+      failed_when: false
+      changed_when: false
+
 - name: Clean vCenter VM
   when: hypervisor == "vmware"
   delegate_to: localhost
   become: false
   block:
-    - name: Shutdown VM in vCenter
-      when: hypervisor == "vmware"
-      community.vmware.vmware_guest_powerstate:
-        hostname: "{{ hypervisor_url }}"
-        username: "{{ hypervisor_username }}"
-        password: "{{ hypervisor_password }}"
-        validate_certs: false
-        datacenter: "{{ hypervisor_cluster }}"
-        name: "{{ hostname }}"
-        state: powered-off
-
     - name: Remove CD-ROM from VM in vCenter
       when: hypervisor == "vmware"
       failed_when: false
@@ -73,11 +70,6 @@
   delegate_to: localhost
   become: false
   block:
-    - name: Stop the VM
-      community.libvirt.virt:
-        name: "{{ hostname }}"
-        state: shutdown
-
     - name: Remove cloud-init disk
       ansible.builtin.file:
         path: "{{ vm_path | default('/var/lib/libvirt/images/') }}{{ hostname }}-cloudinit.iso"

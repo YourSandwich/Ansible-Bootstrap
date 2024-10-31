@@ -78,11 +78,3 @@
       when: install_type == "virtual"
       vars:
         ansible_connection: local
-
-  tasks:
-    - name: Reboot system
-      when: hypervisor == "proxmox"
-      ansible.builtin.command: reboot
-      failed_when: false
-      changed_when: result.rc == 0
-      register: result
