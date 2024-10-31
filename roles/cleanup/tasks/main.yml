@@ -1,7 +1,8 @@
 ---
 - name: Unmount /mnt recursively
   when: os not in ['rhel8', 'rhel9']
-  ansible.builtin.command: umount -R /mnt
+  become: false
+  ansible.builtin.command: umount -l /mnt
   changed_when: result.rc == 0
   register: result
 
