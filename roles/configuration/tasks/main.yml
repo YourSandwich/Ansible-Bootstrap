@@ -193,6 +193,17 @@
             marker: ""
             mode: '0644'
 
+        - name: Create zram config
+          ansible.builtin.copy:
+            dest: /mnt/etc/systemd/zram-generator.conf
+            content: |
+              [zram0]
+              zram-size  = ram / 2
+              compression-algorithm = zstd
+              swap-priority = 100
+              fs-type = swap
+            mode: '0644'
+
         - name: Copy FirstRun Script
           when: os | lower != "archlinux"
           ansible.builtin.template:
