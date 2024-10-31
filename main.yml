@@ -80,7 +80,7 @@
 
   tasks:
     - name: Reboot system
-      when: hypervisor != "libvirt"
+      when: hypervisor == "proxmox"
       ansible.builtin.command: reboot
       failed_when: false
       changed_when: result.rc == 0

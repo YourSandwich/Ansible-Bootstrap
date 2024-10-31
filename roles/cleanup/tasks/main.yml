@@ -22,31 +22,56 @@
         - ide0
         - ide2
 
-- name: Remove CD-ROM from VM in vCenter
+- name: Clean vCenter VM
   when: hypervisor == "vmware"
   delegate_to: localhost
   become: false
-  failed_when: false
-  community.vmware.vmware_guest:
-    hostname: "{{ hypervisor_url }}"
-    username: "{{ hypervisor_username }}"
-    password: "{{ hypervisor_password }}"
-    validate_certs: false
-    datacenter: "{{ hypervisor_cluster }}"
-    name: "{{ hostname }}"
-    cdrom:
-      - controller_number: 0
-        unit_number: 0
-        controller_type: sata
-        type: iso
-        iso_path: "{{ boot_iso }}"
-        state: absent
-      - controller_number: 0
-        unit_number: 1
-        controller_type: sata
-        type: iso
-        iso_path: "{{ rhel_iso | default(omit) }}"
-        state: absent
+  block:
+    - name: Shutdown VM in vCenter
+      when: hypervisor == "vmware"
+      community.vmware.vmware_guest_powerstate:
+        hostname: "{{ hypervisor_url }}"
+        username: "{{ hypervisor_username }}"
+        password: "{{ hypervisor_password }}"
+        validate_certs: false
+        datacenter: "{{ hypervisor_cluster }}"
+        name: "{{ hostname }}"
+        state: powered-off
+
+    - name: Remove CD-ROM from VM in vCenter
+      when: hypervisor == "vmware"
+      failed_when: false
+      community.vmware.vmware_guest:
+        hostname: "{{ hypervisor_url }}"
+        username: "{{ hypervisor_username }}"
+        password: "{{ hypervisor_password }}"
+        validate_certs: false
+        datacenter: "{{ hypervisor_cluster }}"
+        name: "{{ hostname }}"
+        cdrom:
+          - controller_number: 0
+            unit_number: 0
+            controller_type: sata
+            type: iso
+            iso_path: "{{ boot_iso }}"
+            state: absent
+          - controller_number: 0
+            unit_number: 1
+            controller_type: sata
+            type: iso
+            iso_path: "{{ rhel_iso | default(omit) }}"
+            state: absent
+
+    - name: Start VM in vCenter
+      when: hypervisor == "vmware"
+      community.vmware.vmware_guest_powerstate:
+        hostname: "{{ hypervisor_url }}"
+        username: "{{ hypervisor_username }}"
+        password: "{{ hypervisor_password }}"
+        validate_certs: false
+        datacenter: "{{ hypervisor_cluster }}"
+        name: "{{ hostname }}"
+        state: powered-on
 
 - name: Remove Archiso and cloud-init disks
   when: hypervisor == "libvirt"
