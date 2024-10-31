@@ -107,10 +107,10 @@
 - name: Mount filesystems
   block:
     - name: Mount filesystems and subvolumes
-      when: 
+      when:
         - cis | bool or (not cis and (item.path == '/var/log' and filesystem == 'btrfs')
           or (item.path not in ['/home', '/var', '/var/log', '/var/log/audit']))
-        - not (item.path == '/swap' and filesystem != 'btrfs')  
+        - not (item.path == '/swap' and filesystem != 'btrfs')
       ansible.posix.mount:
         path: /mnt{{ item.path }}
         src: "{{ 'UUID=' + (main_uuid.stdout if filesystem == 'btrfs' else item.uuid) }}"
