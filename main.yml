@@ -78,3 +78,15 @@
       when: install_type == "virtual"
       vars:
         ansible_connection: local
+
+  tasks:
+    - name: Set final SSH Credentials
+      when: hypervisor == 'vmware' and vmware_ssh | bool
+      ansible.builtin.set_fact:
+        ansible_user: "{{ user_name }}"
+        ansible_password: "{{ user_password }}"
+        ansible_become_password: "{{ user_password }}"
+
+    - name: Check if VM is back and running
+      ansible.builtin.wait_for_connection:
+        timeout: 300

@@ -1,6 +1,8 @@
 ---
 - name: Shutdown the VM
   community.general.shutdown:
+  vars:
+    ansible_connection: ssh
 
 - name: Setup Cleanup
   when: hypervisor == "proxmox"
