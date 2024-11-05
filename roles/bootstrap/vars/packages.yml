@@ -1,4 +1,3 @@
----
 almalinux:
   - bind-utils
   - dbus-daemon
@@ -13,12 +12,15 @@ almalinux:
   - nc
   - nfs-utils
   - nfsv4-client-utils
+  - mtr
   - open-vm-tools
   - ppp
   - shim
   - telnet
+  - tmux
   - vim
   - wget
+  - zram-generator
   - zstd
 
 archlinux:
@@ -29,6 +31,7 @@ archlinux:
   - efibootmgr
   - firewalld
   - fish
+  - fzf
   - grub
   - htop
   - libpwquality
@@ -41,8 +44,8 @@ archlinux:
   - neofetch
   - networkmanager
   - nfs-utils
-  - openssh
   - open-vm-tools
+  - openssh
   - ppp
   - prometheus-node-exporter
   - python-psycopg2
@@ -51,6 +54,7 @@ archlinux:
   - rsync
   - screen
   - sudo
+  - tldr
   - vim
   - wireguard-tools
   - zram-generator
@@ -76,22 +80,29 @@ debian11:
     - xfsprogs
 
   extra:
+    - bat
     - curl
+    - entr
     - firewalld
     - fish
+    - fzf
     - htop
+    - jq
     - libpam-pwquality
     - lrzsz
+    - mtr
     - ncdu
     - neofetch
     - network-manager
     - open-vm-tools
     - python-is-python3
+    - ripgrep
     - rsync
     - screen
     - software-properties-common
     - syslog-ng
     - tcpd
+    - tldr
     - vim
     - wget
     - zstd
@@ -112,14 +123,20 @@ debian12:
 
   extra:
     - apparmor-utils
+    - bat
     - chrony
     - curl
+    - duf
+    - entr
     - firewalld
     - fish
+    - fzf
     - htop
+    - jq
     - libpam-pwquality
     - logrotate
     - lrzsz
+    - mtr
     - ncdu
     - neofetch
     - net-tools
@@ -128,27 +145,38 @@ debian12:
     - openssh-server
     - python-is-python3
     - python3
+    - ripgrep
     - rsync
     - screen
     - software-properties-common
     - sudo
-    - systemd-zram-generator
     - syslog-ng
+    - systemd-zram-generator
     - tcpd
+    - tldr
     - vim
     - wget
     - zstd
 
 fedora:
+  - bat
   - bind-utils
   - btrfs-progs
   - cronie
   - dhcp-client
+  - duf
+  - dust
   - efibootmgr
+  - entr
+  - eza
+  - fish
+  - fzf
   - glibc-langpack-de
   - glibc-langpack-en
   - grub2
   - grub2-efi
+  - htop
+  - iperf3
   - logrotate
   - lrzsz
   - lvm2
@@ -158,10 +186,13 @@ fedora:
   - open-vm-tools
   - polkit
   - ppp
+  - ripgrep
   - shim
   - telnet
+  - tmux
   - vim-default-editor
   - wget
+  - zoxide
   - zram-generator
   - zstd
 
@@ -172,10 +203,12 @@ rhel8:
   - grub2-efi-x64
   - lrzsz
   - lvm2
+  - mtr
   - nfs-utils
   - open-vm-tools
   - shim
   - telnet
+  - tmux
   - vim
   - zstd
 
@@ -186,10 +219,12 @@ rhel9:
   - grub2-efi
   - lrzsz
   - lvm2
+  - mtr
   - nfs-utils
   - open-vm-tools
   - shim
   - telnet
+  - tmux
   - vim
   - zram-generator
   - zstd
@@ -205,6 +240,7 @@ rocky:
   - grub2-efi
   - lrzsz
   - lvm2
+  - mtr
   - nc
   - nfs-utils
   - nfsv4-client-utils
@@ -212,6 +248,7 @@ rocky:
   - ppp
   - shim
   - telnet
+  - tmux
   - util-linux-core
   - vim
   - wget
@@ -235,15 +272,23 @@ ubuntu:
   extra:
     - apparmor-utils
     - bash-completion
+    - bat
     - chrony
     - curl
     - dnsutils
+    - duf
+    - entr
+    - eza
+    - fdupes
+    - fio
     - firewalld
     - fish
     - htop
+    - jq
     - libpam-pwquality
     - logrotate
     - lrzsz
+    - mtr
     - ncdu
     - net-tools
     - network-manager
@@ -251,6 +296,7 @@ ubuntu:
     - openssh-server
     - python-is-python3
     - python3
+    - ripgrep
     - rsync
     - screen
     - software-properties-common
@@ -258,8 +304,13 @@ ubuntu:
     - syslog-ng
     - systemd-zram-generator
     - tcpd
+    - tldr
+    - tmux
+    - traceroute
     - vim
     - wget
+    - yq
+    - zoxide
     - zstd
 
 ubuntu-lts:
@@ -279,15 +330,23 @@ ubuntu-lts:
   extra:
     - apparmor-utils
     - bash-completion
+    - bat
     - chrony
     - curl
     - dnsutils
+    - duf
+    - entr
+    - eza
+    - fdupes
+    - fio
     - firewalld
     - fish
     - htop
+    - jq
     - libpam-pwquality
     - logrotate
     - lrzsz
+    - mtr
     - ncdu
     - net-tools
     - network-manager
@@ -295,6 +354,7 @@ ubuntu-lts:
     - openssh-server
     - python-is-python3
     - python3
+    - ripgrep
     - rsync
     - screen
     - software-properties-common
@@ -302,6 +362,11 @@ ubuntu-lts:
     - syslog-ng
     - systemd-zram-generator
     - tcpd
+    - tldr
+    - tmux
+    - traceroute
     - vim
     - wget
+    - yq
+    - zoxide
     - zstd

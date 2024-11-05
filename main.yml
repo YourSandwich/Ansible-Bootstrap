@@ -32,7 +32,7 @@
         ansible_user: "{{ user_name }}"
         ansible_password: "{{ user_password }}"
         ansible_become_password: "{{ user_password }}"
-        ansible_ssh_extra_args: '-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'
+        ansible_ssh_extra_args: "-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
 
     - name: Validate variables
       ansible.builtin.assert:
@@ -86,6 +86,7 @@
         ansible_user: "{{ user_name }}"
         ansible_password: "{{ user_password }}"
         ansible_become_password: "{{ user_password }}"
+        ansible_ssh_extra_args: "-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
 
     - name: Check if VM is back and running
       ansible.builtin.wait_for_connection:
