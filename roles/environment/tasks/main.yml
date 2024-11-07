@@ -21,19 +21,16 @@
       when: not archiso_stat.stat.exists
 
     - name: Setect Interface
-      when: hypervisor == "vmware"
       ansible.builtin.shell: "set -o pipefail && ip l | awk -F': ' '!/lo/{print $2; exit}'"
       changed_when: interface_name.rc == 0
       register: interface_name
 
     - name: Set IP-Address
-      when: hypervisor == "vmware"
       ansible.builtin.command: "ip addr replace {{ ansible_host }}/{{ vm_nms | default(24) }} dev {{ interface_name.stdout }}"
       changed_when: result.rc == 0
       register: result
 
     - name: Set Default Gateway
-      when: hypervisor == "vmware"
       ansible.builtin.command: "ip route replace default via {{ vm_gw }}"
       changed_when: result.rc == 0
       register: result
@@ -44,7 +41,7 @@
       register: result
 
     - name: Configure SSH for root login
-      when: hypervisor == "vmware" and vmware_ssh | bool
+      when: vmware_ssh | bool
       block:
         - name: Allow empty passwords temporarily
           ansible.builtin.replace:
@@ -85,15 +82,11 @@
       community.general.pacman:
         update_cache: true
         force: true
-        name: "{{ item.name }}"
+        name: "{{ item }}"
         state: latest
       loop:
-        - { name: glibc }
-        - { name: dnf, os: [almalinux, fedora, rhel9, rhel8, rocky] }
-        - { name: debootstrap, os: [debian11, debian12, ubuntu, ubuntu-lts] }
-        - { name: debian-archive-keyring, os: [debian11, debian12] }
-        - { name: ubuntu-keyring, os: [ubuntu, ubuntu-lts] }
-      when: "'os' not in item or os in item.os"
+        - glibc
+        - dnf
       retries: 4
       delay: 15
 
@@ -108,14 +101,13 @@
 
         - name: Mount RHEL ISO
           ansible.posix.mount:
-            src: "{{ '/dev/sr1' if hypervisor == 'vmware' else '/dev/sr2' }}"
+            src: "/dev/sr1"
             path: /usr/local/install/redhat/dvd
             fstype: iso9660
             opts: "ro,loop"
             state: mounted
 
     - name: Configure RHEL Repos for installation
-      when: os | lower in ["almalinux", "fedora", "rhel8", "rhel9", "rocky"]
       block:
         - name: Create directories for repository files and RPM GPG keys
           ansible.builtin.file:

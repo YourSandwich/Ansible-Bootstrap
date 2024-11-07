@@ -22,45 +22,33 @@
   vars_files: vars.yml
   pre_tasks:
     - name: Set ansible_python_interpreter
-      when: os | lower in ["almalinux", "rhel9", "rhel8", "rocky"]
+      when: os | lower in ["rhel9", "rhel8"]
       ansible.builtin.set_fact:
         ansible_python_interpreter: /usr/bin/python3
-
-    - name: Set SSH Access
-      when: hypervisor != "vmware"
-      ansible.builtin.set_fact:
-        ansible_user: "{{ user_name }}"
-        ansible_password: "{{ user_password }}"
-        ansible_become_password: "{{ user_password }}"
-        ansible_ssh_extra_args: "-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
 
     - name: Validate variables
       ansible.builtin.assert:
         that:
-          - hypervisor in ["libvirt", "proxmox", "vmware", "none"]
-          - filesystem in ["btrfs", "ext4", "xfs"]
+          - filesystem in ["ext4", "xfs"]
           - install_drive is defined
-          - os in ["archlinux", "almalinux", "debian11", "debian12", "fedora", "rhel8", "rhel9", "rocky", "ubuntu", "ubuntu-lts"]
-          - os not in ["rhel8", "rhel9"] or rhel_iso is defined
-          - (filesystem == "btrfs" and (vm_size | int) >= 10) or (filesystem != "btrfs" and (vm_size | int) >= 20)
+          - os in ["rhel8", "rhel9"]
+          - (vm_size | int) >= 20)
           - (vm_size | float) >= ((vm_memory | float / 1024 >= 16.0) | ternary((vm_memory | float / 2048), [vm_memory | float / 1024, 4.0] | max) + 16)
         fail_msg: Invalid input specified, please try again.
 
     - name: Set connection
-      when: hypervisor == "vmware"
       ansible.builtin.set_fact:
         ansible_connection: vmware_tools
 
   roles:
     - role: virtualization
-      when: install_type == "virtual"
       become: false
       vars:
         ansible_connection: local
 
     - role: environment
       vars:
-        ansible_connection: "{{ 'vmware_tools' if hypervisor == 'vmware' else 'ssh' }}"
+        ansible_connection: vmware
 
     - role: partitioning
       vars:
@@ -75,13 +63,12 @@
       when: cis | bool
 
     - role: cleanup
-      when: install_type == "virtual"
       vars:
         ansible_connection: local
 
   tasks:
     - name: Set final SSH Credentials
-      when: hypervisor == 'vmware' and vmware_ssh | bool
+      when: vmware_ssh | bool
       ansible.builtin.set_fact:
         ansible_user: "{{ user_name }}"
         ansible_password: "{{ user_password }}"

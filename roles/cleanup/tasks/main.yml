@@ -4,31 +4,7 @@
   vars:
     ansible_connection: ssh
 
-- name: Setup Cleanup
-  when: hypervisor == "proxmox"
-  delegate_to: localhost
-  become: false
-  block:
-    - name: Cleanup Setup Disks
-      community.general.proxmox_disk:
-        api_host: "{{ hypervisor_url }}"
-        api_user: "{{ hypervisor_username }}"
-        api_password: "{{ hypervisor_password }}"
-        name: "{{ hostname }}"
-        vmid: "{{ vm_id }}"
-        disk: "{{ item }}"
-        state: absent
-      loop:
-        - ide0
-        - ide2
-
-    - name: Reboot system
-      ansible.builtin.command: reboot
-      failed_when: false
-      changed_when: false
-
 - name: Clean vCenter VM
-  when: hypervisor == "vmware"
   delegate_to: localhost
   become: false
   block:
@@ -66,39 +42,3 @@
         datacenter: "{{ hypervisor_cluster }}"
         name: "{{ hostname }}"
         state: powered-on
-
-- name: Remove Archiso and cloud-init disks
-  when: hypervisor == "libvirt"
-  delegate_to: localhost
-  become: false
-  block:
-    - name: Remove cloud-init disk
-      ansible.builtin.file:
-        path: "{{ vm_path | default('/var/lib/libvirt/images/') }}{{ hostname }}-cloudinit.iso"
-        state: absent
-
-    - name: Get list of CD-ROM devices
-      ansible.builtin.shell: set -o pipefail && virsh --connect qemu:///system domblklist {{ hostname }} --details | grep 'cdrom' | awk '{print $3}'
-      changed_when: false
-      register: cdrom_devices
-
-    - name: Wait for VM to spin down
-      ansible.builtin.wait_for:
-        timeout: 15
-
-    - name: Remove CD-ROM devices
-      when: cdrom_devices.stdout_lines | length > 0
-      ansible.builtin.command: virsh --connect qemu:///system detach-disk {{ hostname }} {{ item }} --persistent
-      with_items: "{{ cdrom_devices.stdout_lines | select('ne', 'sdc') | list }}"
-      changed_when: result.rc == 0
-      register: result
-
-    - name: Start the VM
-      community.libvirt.virt:
-        name: "{{ hostname }}"
-        state: running
-
-    - name: Wait for VM to boot up
-      delegate_to: "{{ inventory_hostname }}"
-      ansible.builtin.wait_for_connection:
-        timeout: 300

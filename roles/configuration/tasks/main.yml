@@ -6,13 +6,6 @@
       changed_when: result.rc == 0
       register: result
 
-    - name: Remove depricated attr2 and disable large extent
-      when: os in ["almalinux", "rhel8", "rhel9", "rocky"] and filesystem == "xfs"
-      ansible.builtin.replace:
-        path: /mnt/etc/fstab
-        regexp: '(xfs.*?)(attr2)'
-        replace: '\1allocsize=64m'
-
     - name: Replace ISO UUID entry with /dev/sr0 in fstab
       when: os in ["rhel8", "rhel9"]
       ansible.builtin.lineinfile:
@@ -24,7 +17,6 @@
         backrefs: true
 
     - name: Write image from RHEL ISO to the target machine
-      when: os in ["rhel8", "rhel9"] and hypervisor == 'vmware'
       ansible.builtin.command: dd if=/dev/sr1 of=/mnt/usr/local/install/redhat/rhel.iso bs=4M
       changed_when: result.rc == 0
       register: result
@@ -51,21 +43,6 @@
 
     - name: Setup locales
       block:
-        - name: Configure locale.gen
-          when: os | lower not in ['almalinux', 'fedora', 'rhel8', 'rhel9', 'rocky']
-          ansible.builtin.lineinfile:
-            dest: /mnt/etc/locale.gen
-            regexp: "{{ item.regex }}"
-            line: "{{ item.line }}"
-          loop:
-            - { regex: en_US\.UTF-8 UTF-8, line: en_US.UTF-8 UTF-8 }
-
-        - name: Generate locales
-          when: os | lower not in ['almalinux', 'fedora', 'rhel8', 'rhel9', 'rocky']
-          ansible.builtin.command: arch-chroot /mnt /usr/sbin/locale-gen
-          changed_when: result.rc == 0
-          register: result
-
         - name: Set hostname
           ansible.builtin.copy:
             content: "{{ hostname }}"
@@ -103,72 +80,27 @@
             replace: "PermitRootLogin yes"
 
     - name: Enable Systemd Services
-      ansible.builtin.command: >
-        arch-chroot /mnt systemctl enable NetworkManager
-        {{
-          ' ssh' if os | lower in ['ubuntu', 'ubuntu-lts'] else
-          (' sshd' if os | lower not in ['debian11', 'debian12'] else '')
-        }}
-        {{
-          'logrotate systemd-resolved systemd-timesyncd systemd-networkd'
-          if os | lower == 'archlinux' else ''
-        }}
+      ansible.builtin.command: arch-chroot /mnt systemctl enable NetworkManager sshd
       changed_when: result.rc == 0
       register: result
-
-    - name: Configure grub
-      when: os | lower not in ['almalinux', 'fedora', 'rhel8', 'rhel9', 'rocky']
-      block:
-        - name: Add commandline information to grub config
-          ansible.builtin.lineinfile:
-            dest: /mnt/etc/default/grub
-            regexp: ^GRUB_CMDLINE_LINUX_DEFAULT=
-            line: GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3"
-
-        - name: Change Grub time
-          ansible.builtin.lineinfile:
-            dest: /mnt/etc/default/grub
-            regexp: ^GRUB_TIMEOUT=
-            line: GRUB_TIMEOUT=1
 
     - name: Configure Bootloader
       block:
         - name: Install Bootloader
-          ansible.builtin.command: arch-chroot /mnt
-            {% if os | lower not in ["archlinux", "debian11", "debian12", "ubuntu", "ubuntu-lts"] %} /usr/sbin/efibootmgr
-            -c -L '{{ os }}' -d "{{ install_drive }}" -p 1
-            -l '\efi\EFI\{% if os | lower in ["rhel8", "rhel9"] %}redhat{% else %}{{ os | lower }}{% endif %}\shimx64.efi'
-            {% else %}/usr/sbin/grub-install --target=x86_64-efi --efi-directory={{ "/boot/efi" if os | lower in ["ubuntu", "ubuntu-lts"] else "/boot" }}
-            --bootloader-id={{ "ubuntu" if os | lower in ["ubuntu", "ubuntu-lts"] else os }}
-            {% endif %}
+          ansible.builtin.command: arch-chroot /mnt /usr/sbin/efibootmgr -c -L '{{ os }}'
+            -d "{{ install_drive }}" -p 1
+            -l '\efi\EFI\redhat\shimx64.efi'
           changed_when: result.rc == 0
           register: result
 
         - name: Generate grub config
-          ansible.builtin.command: arch-chroot /mnt
-            {% if os | lower not in ["archlinux", "debian11", "debian12", "ubuntu", "ubuntu-lts"] %}
-            /usr/sbin/grub2-mkconfig -o /boot/efi/EFI/{% if os | lower in ["rhel8", "rhel9"] %}redhat{% else %}{{ os | lower }}{% endif %}/grub.cfg
-            {% else %}
-            /usr/sbin/grub-mkconfig -o {{ "/boot/efi/EFI/ubuntu/grub.cfg" if os | lower in ["ubuntu", "ubuntu-lts"] else "/boot/grub/grub.cfg" }}
-            {% endif %}
+          ansible.builtin.command: arch-chroot /mnt /usr/sbin/grub2-mkconfig -o /boot/efi/EFI/redhat/grub.cfg
           changed_when: result.rc == 0
           register: result
 
-        - name: Ensure lvm2 for non btrfs filesystems
-          when: os | lower == "archlinux" and filesystem != "btrfs"
-          ansible.builtin.lineinfile:
-            path: /mnt/etc/mkinitcpio.conf
-            regexp: '^(HOOKS=.*block)(?!.*lvm2)(.*)'
-            line: '\1 lvm2\2'
-            backrefs: true
-
         - name: Regenerate initramfs
           when: os | lower not in ["debian11", "debian12", "ubuntu", "ubuntu-lts"]
-          ansible.builtin.command: arch-chroot /mnt
-            {% if os | lower == "archlinux" %} /usr/sbin/mkinitcpio -P
-            {% elif os | lower not in ["debian11", "debian12", "ubuntu", "ubuntu-lts", "archlinux"] %} /usr/bin/dracut --regenerate-all --force
-            {% else %} echo "Skipping initramfs regeneration"
-            {% endif %}
+          ansible.builtin.command: arch-chroot /mnt /usr/bin/dracut --regenerate-all --force
           changed_when: result.rc == 0
           register: result
 
@@ -177,8 +109,7 @@
         - name: Append vim configurations to vimrc
           failed_when: false
           ansible.builtin.blockinfile:
-            path: "{{ '/mnt/etc/vim/vimrc' if os | lower in ['debian11', 'debian12', 'ubuntu', 'ubuntu-lts']
-                  else '/mnt/etc/vimrc' }}"
+            path: "/mnt/etc/vimrc"
             block: |
               set encoding=utf-8
               set number
@@ -202,7 +133,7 @@
             mode: '0644'
 
         - name: Create zram config
-          when: os not in ['debian11', 'rhel8']
+          when: os not in ['rhel8']
           ansible.builtin.copy:
             dest: /mnt/etc/systemd/zram-generator.conf
             content: |
@@ -214,7 +145,6 @@
             mode: '0644'
 
         - name: Copy FirstRun Script
-          when: os | lower != "archlinux"
           ansible.builtin.template:
             src: firstrun.sh.j2
             dest: /mnt/root/firstrun.sh
@@ -249,20 +179,12 @@
             dest: /mnt/etc/NetworkManager/system-connections/LAN.nmconnection
             mode: "0600"
 
-        - name: Fix Ubuntu unmanaged devices
-          when: os | lower in ["ubuntu", "ubuntu-lts"]
-          ansible.builtin.file:
-            path: /mnt/etc/NetworkManager/conf.d/10-globally-managed-devices.conf
-            state: touch
-            mode: '0644'
-
     - name: Setup user account
       block:
         - name: Create user account
           ansible.builtin.command: "{{ item }}"
           with_items:
-            - arch-chroot /mnt /usr/sbin/useradd --create-home --user-group --groups
-              {{ "sudo" if os | lower in ["debian11", "debian12", "ubuntu", "ubuntu-lts"] else "wheel" }}
+            - arch-chroot /mnt /usr/sbin/useradd --create-home --user-group --groups wheel
               {{ user_name }} --password {{ user_password | password_hash('sha512') }} --shell /bin/bash
             - arch-chroot /mnt /usr/sbin/usermod --password '{{ root_password | password_hash('sha512') }}' root --shell /bin/bash
           changed_when: result.rc == 0
@@ -280,22 +202,12 @@
 
     - name: Give sudo access to wheel group
       ansible.builtin.copy:
-        content: "{{ '%sudo ALL=(ALL) ALL' if os | lower in ['debian11', 'debian12', 'ubuntu', 'ubuntu-lts'] else '%wheel ALL=(ALL) ALL' }}"
+        content: "%wheel ALL=(ALL) ALL"
         dest: /mnt/etc/sudoers.d/01-wheel
         mode: "0440"
         validate: /usr/sbin/visudo --check --file=%s
 
     - name: Fix SELinux
-      block:
-        - name: Relabel the filesystem
-          when: os | lower in ['almalinux', 'rhel8', 'rhel9', 'rocky']
-          ansible.builtin.command: "arch-chroot /mnt /sbin/fixfiles onboot"
-          changed_when: result.rc == 0
-          register: result
-
-        - name: Disable SELinux
-          when: os | lower == "fedora"
-          ansible.builtin.lineinfile:
-            path: /mnt/etc/selinux/config
-            regexp: ^SELINUX=
-            line: SELINUX=permissive
+      ansible.builtin.command: "arch-chroot /mnt /sbin/fixfiles onboot"
+      changed_when: result.rc == 0
+      register: result
