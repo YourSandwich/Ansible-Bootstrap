@@ -7,8 +7,7 @@ hypervisor_username: "root@pam"
 hypervisor_password: "SomePassword"
 hypervisor_node:     "NodeName"
 hypervisor_storage:  "local-btrfs"
-boot_iso: "local-btrfs:iso/archlinux-x86_64.iso"
-rhel_iso: "local-btrfs:rhel-9.4-x86_64-dvd.iso"
+boot_iso: "local-btrfs:rhel-9.4-x86_64-dvd.iso"
 
 # For VMware-Tools
 ansible_vmware_host: "{{ hypervisor_url }}"
