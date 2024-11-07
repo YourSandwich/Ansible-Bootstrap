@@ -1,33 +1,56 @@
 all:
-  vars:
-    hypervisor: 'proxmox'
-    install_drive: '/dev/sda'
-    cis: true
   children:
-      promox-kvm:
+      first:
         hosts:
           192.168.122.10:
             hostname: proxy
-            vm_id: 100
-            os: archlinux
-            filesystem: btrfs
+            os: rhel8
+            filesystem: ext4
             vm_memory: "2048"
             vm_ballo: "1024"
             vm_cpus: "2"
             vm_size: "5"
-            vm_nif: vmbr1
             vm_gw: 192.168.122.1
             vm_dns: 1.1.1.1
           192.168.122.11:
             hostname: database
-            vm_id: 101
             os: rhel9
             filesystem: xfs
             vm_memory: "6144"
             vm_ballo: "3072"
             vm_cpus: "4"
             vm_size: "40"
-            vm_nif: vmbr1
             vm_gw: 192.168.122.1
             vm_dns: 1.1.1.1
-            rhel_iso: "local-btrfs:iso/rhel-9.4-x86_64-dvd.iso"
+          192.168.122.12:
+            hostname: storage
+            os: rhel9
+            filesystem: xfs
+            vm_memory: "2048"
+            vm_ballo: "1024"
+            vm_cpus: "2"
+            vm_size: "40"
+            vm_gw: 192.168.122.1
+            vm_dns: 1.1.1.1
+      second:
+        hosts:
+          192.168.122.13:
+            hostname: proxy02
+            os: rhel8
+            filesystem: ext4
+            vm_memory: "2048"
+            vm_ballo: "1024"
+            vm_cpus: "2"
+            vm_size: "5"
+            vm_gw: 192.168.122.1
+            vm_dns: 1.1.1.1
+          192.168.122.14:
+            hostname: database02
+            os: rhel9
+            filesystem: xfs
+            vm_memory: "6144"
+            vm_ballo: "3072"
+            vm_cpus: "4"
+            vm_size: "40"
+            vm_gw: 192.168.122.1
+            vm_dns: 1.1.1.1
