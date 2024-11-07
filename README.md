@@ -1,31 +1,18 @@
 # Ansible-Bootstrap
 
-An Ansible playbook for automating system bootstrap processes in an Infrastructure-as-Code manner, utilizing ArchISO as the foundational tool.
+An Ansible playbook for automating system bootstrap processes in an Infrastructure-as-Code manner.
 
 # Info
-Most of the roles are adaptable for use with systems beyond ArchLinux, requiring only that the target system can install a necessary package manager, such as `dnf` for RHEL-based systems. Additionally, a replacement for the `arch-chroot` command may be required for these systems.
-
-**NOTE**:
 - For RHEL 8 and RHEL 9, repository access requires the `rhel_iso` variable. This variable specifies a local ISO or proxy repository.
 - RHEL systems do not support `btrfs`. Use `ext4` or `xfs` as alternatives.
 - For RHEL 8, `xfs` may cause installation issues; `ext4` is recommended.
 
 # Supported Distributions
 
-This playbook supports multiple Linux distributions with specific versions tailored to each. Below is a list of supported distributions:
-
 | `os`       | Distribution                       |
 |------------|------------------------------------|
-| archlinux  | ArchLinux (Latest rolling release) |
-| almalinux  | AlmaLinux 9.x                      |
-| debian11   | Debian 11 (Bullseye)               |
-| debian12   | Debian 12 (Bookworm)               |
-| fedora     | Fedora 41                          |
 | rhel8      | Red Hat Enterprise Linux 8         |
 | rhel9      | Red Hat Enterprise Linux 9         |
-| rocky      | Rocky Linux 9.x                    |
-| ubuntu     | Ubuntu 24.10 (Oracular Oriole)     |
-| ubuntu-lts | Ubuntu 24.04 LTS (Noble Numbat)    |
 
 # Documentation
 
@@ -41,7 +28,7 @@ This playbook supports multiple Linux distributions with specific versions tailo
 
 ## 1. Overview
 
-The playbook uses the ArchLinux ISO as a foundational tool to provides an efficient and systematic method for the automatic deployment of a variety of Linux distributions on designated target systems. It ensures a standardized setup across different platforms, equipping each system with the essential configurations and software necessary for its designated role.
+The playbook uses the RHEL ISO to configure and bootstrap an RHEL system from the ground up.
 
 ## 2. Global Variables
 
@@ -51,7 +38,7 @@ Global variables apply across your Ansible project and are loaded from `vars.yml
 |-----------------------|--------------------------------------------------------------------|-----------------------------------------|
 | `boot_iso`            | Path to the boot ISO image.                                        | `local-btrfs:iso/archlinux-x86_64.iso`  |
 | `rhel_iso`            | Path to the RHEL ISO file, required for RHEL 8 and RHEL 9.         |`local-btrfs:iso/rhel-9.4-x86_64-dvd.iso`|
-| `hypervisor`          | Type of hypervisor.                                                | `libvirt`, `proxmox`, `vmware`, `none`  |
+| `hypervisor`          | Type of hypervisor.                                                | `vmware`                                |
 | `hypervisor_cluster`  | Name of the hypervisor cluster.                                    | `default-cluster`                       |
 | `hypervisor_node`     | Hypervisor node name.                                              | `node01`                                |
 | `hypervisor_password` | Password for hypervisor authentication.                            | `123456`                                |
@@ -59,7 +46,7 @@ Global variables apply across your Ansible project and are loaded from `vars.yml
 | `hypervisor_url`      | URL/IP address for the hypervisor interface.                       | `192.168.0.2`                           |
 | `hypervisor_username` | Username for hypervisor authentication.                            | `root@pam`                              |
 | `install_drive`       | Drive where the system will be installed.                          | `/dev/sda`                              |
-| `install_type`        | Type of installation.                                              | `virtual`, `physical`                   |
+| `install_type`        | Type of installation.                                              | `virtual`                               |
 | `vlan_name` (optional)| VLAN for the VM's network interface.                               | `vlan100`                               |
 
 To protect sensitive information, such as passwords, API keys, and other confidential variables (e.g., `hypervisor_password`), **it is recommended to use Ansible Vault**.
@@ -71,9 +58,9 @@ Inventory variables are defined for individual hosts or VMs in the inventory fil
 | Variable                | Description                                                                       | Example Value                                      |
 |-------------------------|-----------------------------------------------------------------------------------|----------------------------------------------------|
 | `cis` (optional)        | Adjusts the installation to be CIS level 3 conformant.                            | `true`, `false`                                    |
-| `filesystem`            | Filesystem type for the VM's primary storage.                                     | `btrfs`, `ext4`, `xfs`                             |
+| `filesystem`            | Filesystem type for the VM's primary storage.                                     | `ext4`, `xfs`                                      |
 | `hostname`              | The hostname assigned to the virtual machine or system.                           | `vm01`                                             |
-| `os`                    | Operating system to be installed on the VM.                                       | `archlinux`, `almalinux`, `debian11`, `debian12`, `fedora`, `rhel8`, `rhel9`, `rocky`, `ubuntu`, `ubuntu-lts` |
+| `os`                    | Operating system to be installed on the VM.                                       | `rhel8`, `rhel9`                                   |
 | `root_password`         | Root password for the VM or system, used for initial setup or secure access.      | `SecurePass123`                                    |
 | `user_name`             | Username for a user account within the VM, often used with cloud-init.            | `adminuser`                                        |
 | `user_password`         | Password for the user account within the VM.                                      | `UserPass123`                                      |
