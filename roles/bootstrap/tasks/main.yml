@@ -31,7 +31,7 @@
       with_items:
         - debootstrap --include={{ role_packages[os].base | join(',') }} {{ 'oracular' if os == 'ubuntu' else 'noble' }}
           /mnt http://archive.ubuntu.com/ubuntu/
-        - ln -sf /run/systemd/resolve/resolv.conf /mnt/etc/resolv.conf
+        - ln -sf /run/NetworkManager/resolv.conf /mnt/etc/resolv.conf
         - arch-chroot /mnt sed -i '1s|$| universe|' /etc/apt/sources.list
         - arch-chroot /mnt apt update -y
         - arch-chroot /mnt apt install -y {{ role_packages[os].extra | join(' ') }}
@@ -43,7 +43,7 @@
       register: result
       with_items:
         - dnf --releasever=9 --best --repo=alma-baseos --installroot=/mnt --setopt=install_weak_deps=False groupinstall -y base core
-        - ln -sf /run/systemd/resolve/resolv.conf /mnt/etc/resolv.conf
+        - ln -sf /run/NetworkManager/resolv.conf /mnt/etc/resolv.conf
         - arch-chroot /mnt dnf --releasever=9 --setopt=install_weak_deps=False install -y {{ role_packages.almalinux | join(' ') }}
 
     - name: Bootstrap Fedora 41
@@ -54,7 +54,7 @@
       with_items:
         - dnf --releasever=41 --best --repo=fedora --repo=fedora-updates
           --installroot=/mnt --setopt=install_weak_deps=False groupinstall -y critical-path-base core
-        - ln -sf /run/systemd/resolve/resolv.conf /mnt/etc/resolv.conf
+        - ln -sf /run/NetworkManager/resolv.conf /mnt/etc/resolv.conf
         - arch-chroot /mnt dnf --releasever=41 --setopt=install_weak_deps=False install -y {{ role_packages.fedora | join(' ') }}
         - arch-chroot /mnt dnf reinstall -y kernel-core
 
@@ -67,7 +67,7 @@
         - dnf --releasever=9 --best --repo=rocky-baseos --installroot=/mnt
           --setopt=install_weak_deps=False --setopt=optional_metadata_types=filelists
           groupinstall -y base core
-        - ln -sf /run/systemd/resolve/resolv.conf /mnt/etc/resolv.conf
+        - ln -sf /run/NetworkManager/resolv.conf /mnt/etc/resolv.conf
         - arch-chroot /mnt dnf --releasever=9 --setopt=install_weak_deps=False install -y {{ role_packages.rocky | join(' ') }}
 
     - name: Bootstrap RHEL System
@@ -84,7 +84,7 @@
 
         - name: Prepare chroot environment
           ansible.builtin.shell: |
-            ln -sf /run/systemd/resolve/resolv.conf /mnt/etc/resolv.conf
+            ln -sf /run/NetworkManager/resolv.conf /mnt/etc/resolv.conf
             mkdir -p /mnt/usr/local/install/redhat/dvd
             mount --bind /usr/local/install/redhat/dvd /mnt/usr/local/install/redhat/dvd
             arch-chroot /mnt rpm --rebuilddb
