@@ -94,7 +94,7 @@
         - name: Copy RHEL repo file into chroot environment
           ansible.builtin.copy:
             src: /etc/yum.repos.d/{{ os | lower }}.repo
-            dest: /mnt/etc/yum.repos.d/{{ os | lower }}.repo
+            dest: /mnt/etc/yum.repos.d/redhat.repo
             mode: '0644'
             remote_src: true
 
