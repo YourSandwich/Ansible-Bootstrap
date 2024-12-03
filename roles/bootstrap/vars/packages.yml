@@ -197,6 +197,7 @@ fedora:
   - zstd
 
 rhel8:
+  - bind-utils
   - dhcp-client
   - efibootmgr
   - grub2
@@ -214,6 +215,7 @@ rhel8:
   - zstd
 
 rhel9:
+  - bind-utils
   - dhcp-client
   - efibootmgr
   - grub2
