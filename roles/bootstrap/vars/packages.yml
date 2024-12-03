@@ -206,6 +206,7 @@ rhel8:
   - mtr
   - nfs-utils
   - open-vm-tools
+  - python
   - shim
   - telnet
   - tmux
@@ -222,6 +223,7 @@ rhel9:
   - mtr
   - nfs-utils
   - open-vm-tools
+  - python
   - shim
   - telnet
   - tmux
