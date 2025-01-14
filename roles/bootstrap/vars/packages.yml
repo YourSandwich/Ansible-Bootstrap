@@ -311,6 +311,7 @@ ubuntu:
     - tldr
     - tmux
     - traceroute
+    - util-linux-extra
     - vim
     - wget
     - yq
@@ -369,6 +370,7 @@ ubuntu-lts:
     - tldr
     - tmux
     - traceroute
+    - util-linux-extra
     - vim
     - wget
     - yq
