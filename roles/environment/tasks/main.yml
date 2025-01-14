@@ -44,7 +44,7 @@
       register: result
 
     - name: Configure SSH for root login
-      when: hypervisor == "vmware" and vmware_ssh | bool
+      when: hypervisor == "vmware" and (vmware_ssh is defined and vmware_ssh | bool)
       block:
         - name: Allow empty passwords temporarily
           ansible.builtin.replace:
