@@ -20,7 +20,7 @@
         msg: This host is not booted from the Arch install media!
       when: not archiso_stat.stat.exists
 
-    - name: Setect Interface
+    - name: Register Network Interface
       when: hypervisor == "vmware"
       ansible.builtin.shell: "set -o pipefail && ip l | awk -F': ' '!/lo/{print $2; exit}'"
       changed_when: interface_name.rc == 0
