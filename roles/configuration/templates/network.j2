@@ -5,7 +5,7 @@ type=ethernet
 interface-name={{ net_inf.stdout }}
 
 [ipv4]
-address={{ vm_ip }},{{ vm_gw }}
+address={{ vm_ip }}/{{ vm_nms | default (24) }},{{ vm_gw }}
 dns={{ vm_dns }}
 method=manual
 
