@@ -22,10 +22,14 @@
         - ide0
         - ide2
 
-    - name: Reboot system
-      ansible.builtin.command: reboot
-      failed_when: false
-      changed_when: false
+    - name: Start the VM
+      community.general.proxmox_kvm:
+        api_host: "{{ hypervisor_url }}"
+        api_user: "{{ hypervisor_username }}"
+        api_password: "{{ hypervisor_password }}"
+        node: "{{ hypervisor_node }}"
+        vmid: "{{ vm_id }}"
+        state: started
 
 - name: Clean vCenter VM
   when: hypervisor == "vmware"
