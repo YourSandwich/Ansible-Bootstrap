@@ -29,7 +29,7 @@
         api_password: "{{ hypervisor_password }}"
         node: "{{ hypervisor_node }}"
         vmid: "{{ vm_id }}"
-        state: started
+        state: restarted
 
 - name: Clean vCenter VM
   when: hypervisor == "vmware"

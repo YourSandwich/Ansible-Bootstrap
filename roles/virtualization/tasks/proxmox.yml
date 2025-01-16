@@ -34,7 +34,7 @@
     net:
       net0: virtio,bridge={{ vm_nif }}{% if vlan_name is defined and vlan_name %},tag={{ vlan_name }}{% endif %}
     ipconfig:
-      ipconfig0: ip={{ vm_ip }},gw={{ vm_gw }}
+      ipconfig0: ip={{ vm_ip }}/{{ vm_nms | default(24) }},gw={{ vm_gw }}
     nameservers: "{{ vm_dns }}"
     onboot: true
     state: present
