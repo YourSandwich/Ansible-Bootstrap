@@ -29,7 +29,7 @@
       storage: "{{ hypervisor_storage }}"
     ide:
       ide0: "{{ boot_iso }},media=cdrom"
-      ide1: "{{ rhel_iso | default(omit) }},media=cdrom"
+      ide1: "{{ rhel_iso + ',media=cdrom' if rhel_iso is defined else omit }}"
       ide2: "{{ hypervisor_storage }}:cloudinit"
     net:
       net0: virtio,bridge={{ vm_nif }}{% if vlan_name is defined and vlan_name %},tag={{ vlan_name }}{% endif %}
