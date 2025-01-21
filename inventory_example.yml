@@ -3,6 +3,7 @@ all:
     hypervisor: 'proxmox'
     install_drive: '/dev/sda'
     cis: true
+    boot_iso: "local-btrfs:iso/archlinux-x86_64.iso"
   children:
       promox-kvm:
         hosts:
