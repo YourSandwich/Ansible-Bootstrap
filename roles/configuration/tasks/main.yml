@@ -219,6 +219,22 @@
             dest: /mnt/etc/profile.d/custom.sh
             mode: '0644'
 
+        - name: Create login banner
+          ansible.builtin.copy:
+            dest: "{{ item }}"
+            content: |
+              **************************************************************
+              * WARNING: Unauthorized access to this system is prohibited. *
+              * All activities are monitored and logged.                   *
+              * Disconnect immediately if you are not an authorized user.  *
+              **************************************************************
+            owner: root
+            group: root
+            mode: '0644'
+          loop:
+            - /etc/issue
+            - /etc/issue.net
+
     - name: Setup Network
       block:
         - name: Generate UUID for Network Profile
