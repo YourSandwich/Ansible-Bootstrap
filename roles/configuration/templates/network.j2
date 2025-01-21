@@ -2,7 +2,9 @@
 id=LAN
 uuid={{ net_uuid.stdout }}
 type=ethernet
-interface-name={{ net_inf.stdout }}
+
+[ethernet]
+mac-address={{ net_mac.stdout }}
 
 [ipv4]
 address={{ vm_ip }}/{{ vm_nms | default (24) }},{{ vm_gw }}
