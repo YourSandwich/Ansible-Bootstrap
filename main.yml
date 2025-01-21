@@ -94,6 +94,7 @@
         ansible_ssh_extra_args: "-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
 
     - name: Check if VM is back and running
+      when: not (hypervisor == 'vmware' and cis | bool)
       ansible.builtin.wait_for_connection:
         timeout: 300
         
