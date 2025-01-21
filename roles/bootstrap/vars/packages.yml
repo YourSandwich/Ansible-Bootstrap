@@ -207,7 +207,7 @@ rhel8:
   - mtr
   - nfs-utils
   - open-vm-tools
-  - python
+  - python39
   - shim
   - tmux
   - vim
