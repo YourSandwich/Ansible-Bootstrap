@@ -95,7 +95,7 @@
         - /mnt/etc/pam.d/password-auth
 
     - name: Configure System Cryptography Policy
-      when: os in ["almalinux", "fedora", "rhel8", "rhel9", "rocky"]
+      when: os in ["almalinux", "rhel9", "rocky"]
       ansible.builtin.command:
         arch-chroot /mnt /usr/bin/update-crypto-policies --set DEFAULT:NO-SHA1
 

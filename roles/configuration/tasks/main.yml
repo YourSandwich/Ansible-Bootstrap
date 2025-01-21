@@ -232,8 +232,8 @@
             group: root
             mode: '0644'
           loop:
-            - /etc/issue
-            - /etc/issue.net
+            - /mnt/etc/issue
+            - /mnt/etc/issue.net
 
     - name: Setup Network
       block:
