@@ -9,6 +9,11 @@
       prompt: |
         What is your username?
       private: false
+    
+    - name: user_public_key
+      prompt: |
+        What is your ssh key?
+      private: false
 
     - name: user_password
       prompt: |
