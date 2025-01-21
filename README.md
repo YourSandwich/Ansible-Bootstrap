@@ -77,6 +77,7 @@ Inventory variables are defined for individual hosts or VMs in the inventory fil
 | `root_password`         | Root password for the VM or system, used for initial setup or secure access.      | `SecurePass123`                                    |
 | `user_name`             | Username for a user account within the VM, often used with cloud-init.            | `adminuser`                                        |
 | `user_password`         | Password for the user account within the VM.                                      | `UserPass123`                                      |
+| `user_public_key`       | SSH Key for the user account within the VM.                                       | `ssh-ed25519 AAAAC`                                |
 | `vm_ballo` (optional)   | Ballooning memory size for the VM, used to adjust memory allocation dynamically.  | `2048`                                             |
 | `vm_cpus`               | Number of CPU cores assigned to the virtual machine.                              | `4`                                                |
 | `vm_dns`                | DNS server IP address(es) for the virtual machine's network configuration.        | `1.0.0.1`, `1.1.1.1`                               |
@@ -84,7 +85,7 @@ Inventory variables are defined for individual hosts or VMs in the inventory fil
 | `vm_id`                 | Unique identifier for the virtual machine.                                        | `101`                                              |
 | `vm_ip`                 | IP address assigned to the virtual machine.                                       | `192.168.0.10`                                     |
 | `vm_nm` (optional)      | IP address netmask assigned to the virtual machine.                               | `255.255.255.0`                                    |
-| `vm_nms` (optional)     | IP address netmask assigned to the virtual machine.                               | `24`                                    |
+| `vm_nms` (optional)     | IP address netmask assigned to the virtual machine.                               | `24`                                               |
 | `vm_memory`             | Amount of memory (in MB) allocated to the virtual machine.                        | `2048`                                             |
 | `vm_nif`                | Network interface type or identifier for the VM's network connection.             | `vmbr0`                                            |
 | `vm_path (optional)`    | Path or folder where the VM configuration or related files will be stored.        | `/var/lib/libvirt/images/`                         |
