@@ -39,7 +39,7 @@
         - "# TempFS"
         - tmpfs           /tmp            tmpfs           defaults,nosuid,nodev,noexec    0 0
         - tmpfs           /var/tmp        tmpfs           defaults,nosuid,nodev,noexec    0 0
-        - tmpfs           /dev/shm        tmpfs           defaults,noexec    0 0
+        - tmpfs           /dev/shm        tmpfs           defaults,nosuid,nodev,noexec    0 0
 
     - name: Set local timezone
       ansible.builtin.command: "{{ item }}"
@@ -212,13 +212,6 @@
               swap-priority = 100
               fs-type = swap
             mode: '0644'
-
-        - name: Copy FirstRun Script
-          when: os | lower != "archlinux"
-          ansible.builtin.template:
-            src: firstrun.sh.j2
-            dest: /mnt/root/firstrun.sh
-            mode: "0755"
 
         - name: Copy Custom Shell config
           ansible.builtin.template:

@@ -7,18 +7,19 @@
         mode: '0644'
         content: |
           CIS LVL 3 Restrictions
-          install freevxfs        /bin/true
-          install jffs2           /bin/true
-          install hfs             /bin/true
-          install hfsplus         /bin/true
-          install squashfs        /bin/true
-          install udf             /bin/true
-          install usb-storage     /bin/true
+          install freevxfs        /bin/false
+          install jffs2           /bin/false
+          install hfs             /bin/false
+          install hfsplus         /bin/false
+          install cramfs          /bin/false
+          install squashfs        /bin/false
+          install udf             /bin/false
+          install usb-storage     /bin/false
 
-          install dccp            /bin/true
-          install sctp            /bin/true
-          install rds             /bin/true
-          install tipc            /bin/true
+          install dccp            /bin/false
+          install sctp            /bin/false
+          install rds             /bin/false
+          install tipc            /bin/false
 
     - name: Create USB Rules
       ansible.builtin.copy:
@@ -43,11 +44,20 @@
         mode: '0644'
         content: |
           ## CIS Sysctl configurations
+          kernel.yama.ptrace_scope=1
+          kernel.randomize_va_space=2
+
+          # Network
+          net.ipv4.ip_forward=0
+          net.ipv4.tcp_syncookies=1
+          net.ipv4.icmp_echo_ignore_broadcasts=1
+          net.ipv4.icmp_ignore_bogus_error_responses=1
           net.ipv4.conf.all.log_martians = 1
           net.ipv4.conf.all.rp_filter = 1
           net.ipv4.conf.all.secure_redirects = 0
           net.ipv4.conf.all.send_redirects = 0
           net.ipv4.conf.all.accept_redirects = 0
+          net.ipv4.conf.all.accept_source_route=0
           net.ipv4.conf.default.log_martians = 1
           net.ipv4.conf.default.rp_filter = 1
           net.ipv4.conf.default.secure_redirects = 0
@@ -59,6 +69,7 @@
           net.ipv6.conf.default.disable_ipv6 = 1
           net.ipv6.conf.lo.disable_ipv6 = 1
 
+
     # - name: Adjust login.defs
     #   replace:
     #     path: /mnt/etc/login.defs
@@ -68,6 +79,31 @@
     #     - { regexp: '^PASS_MAX_DAYS.*', replace: 'PASS_MAX_DAYS 90' }
     #     - { regexp: '^PASS_MIN_DAYS.*', replace: 'PASS_MIN_DAYS 7' }
     #     - { regexp: '^UMASK.*', replace: 'UMASK           027' }
+
+    - name: Ensure the Default UMASK is Set Correctly
+      ansible.builtin.lineinfile:
+        path: "/mnt/etc/profile"
+        regexp: "^(\\s*)umask\\s+\\d+"
+        line: "umask 027"
+
+    - name: Prevent Login to Accounts With Empty Password
+      ansible.builtin.replace:
+        dest: "{{ item }}"
+        regexp: "nullok"
+      loop:
+        - /mnt/etc/pam.d/system-auth
+        - /mnt/etc/pam.d/password-auth
+
+    - name: Configure System Cryptography Policy
+      when: os in ["almalinux", "fedora", "rhel8", "rhel9", "rocky"]
+      ansible.builtin.command:
+        arch-chroot /mnt /usr/bin/update-crypto-policies --set DEFAULT:NO-SHA1
+
+    - name: Mask Systemd Services
+      ansible.builtin.command: >
+        arch-chroot /mnt systemctl mask nftables bluetooth rpcbind
+      changed_when: result.rc == 0
+      register: result
 
     - name: Ensure files exist
       ansible.builtin.file:
@@ -79,6 +115,15 @@
         - /mnt/etc/cron.allow
         - /mnt/etc/hosts.allow
         - /mnt/etc/hosts.deny
+
+    - name: Ensure files do not exist
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: touch
+        mode: "0600"
+      loop:
+        - /mnt/etc/at.deny
+        - /mnt/etc/cron.deny
 
     - name: Add Security related lines into config files
       ansible.builtin.lineinfile:
@@ -155,7 +200,7 @@
         - { option: X11Forwarding, value: "no" }
         - { option: PermitUserEnvironment, value: "no" }
         - { option: ClientAliveInterval, value: "300" }
-        - { option: ClientAliveCountMax, value: "0" }
+        - { option: ClientAliveCountMax, value: "1" }
         - { option: PermitTunnel, value: "no" }
         - { option: Banner, value: /etc/issue.net }
 
@@ -169,9 +214,9 @@
 
           ### Ciphers and keying ###
           RekeyLimit 512M 6h
-          KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org,diffie-hellman-group14-sha256,diffie-hellman-group16-sha512,diffie-hellman-group18-sha512,ecdh-sha2-nistp521,ecdh-sha2-nistp384,ecdh-sha2-nistp256,diffie-hellman-group-exchange-sha256
+          KexAlgorithms -diffie-hellman-group1-sha1,diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha1
           Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr
-          MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512,hmac-sha2-256
+          MACs -hmac-md5,hmac-md5-96,hmac-ripemd160,hmac-sha1-96,umac-64@openssh.com,hmac-md5-etm@openssh.com,hmac-md5-96-etm@openssh.com,hmac-ripemd160-etm@openssh.com,hmac-sha1-96-etm@openssh.com,umac-64-etm@openssh.com
           ###########################
 
           AllowStreamLocalForwarding no

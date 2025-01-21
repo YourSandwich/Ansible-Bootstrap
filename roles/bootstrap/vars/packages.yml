@@ -16,7 +16,6 @@ almalinux:
   - open-vm-tools
   - ppp
   - shim
-  - telnet
   - tmux
   - vim
   - wget
@@ -188,7 +187,6 @@ fedora:
   - ppp
   - ripgrep
   - shim
-  - telnet
   - tmux
   - vim-default-editor
   - wget
@@ -200,6 +198,8 @@ rhel8:
   - bind-utils
   - dhcp-client
   - efibootmgr
+  - glibc-langpack-de
+  - glibc-langpack-en
   - grub2
   - grub2-efi-x64
   - lrzsz
@@ -209,7 +209,6 @@ rhel8:
   - open-vm-tools
   - python
   - shim
-  - telnet
   - tmux
   - vim
   - zstd
@@ -218,6 +217,8 @@ rhel9:
   - bind-utils
   - dhcp-client
   - efibootmgr
+  - glibc-langpack-de
+  - glibc-langpack-en
   - grub2
   - grub2-efi
   - lrzsz
@@ -227,7 +228,6 @@ rhel9:
   - open-vm-tools
   - python
   - shim
-  - telnet
   - tmux
   - vim
   - zram-generator
