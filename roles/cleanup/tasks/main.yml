@@ -69,7 +69,7 @@
         validate_certs: false
         datacenter: "{{ hypervisor_cluster }}"
         name: "{{ hostname }}"
-        state: powered-on
+        state: restarted
 
 - name: Remove Archiso and cloud-init disks
   when: hypervisor == "libvirt"
