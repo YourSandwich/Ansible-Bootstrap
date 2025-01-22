@@ -1,4 +1,23 @@
 ---
+- name: Unmount Disks
+  vars:
+    ansible_connection: ssh
+  block:
+    - name: Unmount /mnt if mounted
+      ansible.builtin.command: umount -R /mnt
+      register: unmount_result
+      changed_when: unmount_result.rc == 0
+
+    - name: Verify /mnt is no longer mounted
+      ansible.builtin.command: grep ' /mnt ' /proc/mounts
+      register: verify_unmount
+      retries: 5
+      delay: 5
+      until: verify_unmount.rc != 0
+      when: unmount_result.rc == 0
+      changed_when: false
+      failed_when: verify_unmount.rc not in [0, 1]
+
 - name: Shutdown the VM
   community.general.shutdown:
   vars:
