@@ -78,7 +78,7 @@
             dnf --releasever={{ '8' if os == 'rhel8' else '9' }} --repo={{ os | lower }}-baseos
             --installroot=/mnt
             --setopt=install_weak_deps=False --setopt=optional_metadata_types=filelists
-            groupinstall -y base core
+            groupinstall -y core base standard
           changed_when: result.rc == 0
           register: result
 
