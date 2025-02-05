@@ -233,7 +233,7 @@
             mode: '0644'
           loop:
             - /mnt/etc/issue
-            - /mnt/etc/issue.net
+            - /etc/issue.net
 
     - name: Setup Network
       block:
@@ -303,7 +303,7 @@
           register: result
 
         - name: Disable SELinux
-          when: os | lower == "fedora"
+          when: os | lower == "fedora" or not selinux | bool
           ansible.builtin.lineinfile:
             path: /mnt/etc/selinux/config
             regexp: ^SELINUX=
