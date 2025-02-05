@@ -235,6 +235,15 @@
             - /mnt/etc/issue
             - /etc/issue.net
 
+        - name: Remove motd files
+          when: os | lower in ["rhel8", "rhel9"]
+          ansible.builtin.file:
+            path: "{{ item }}"
+            state: absent
+          loop:
+            - /etc/motd.d/cockpit
+            - /etc/motd.d/insights-client
+
     - name: Setup Network
       block:
         - name: Generate UUID for Network Profile
@@ -295,9 +304,10 @@
         validate: /usr/sbin/visudo --check --file=%s
 
     - name: Fix SELinux
+      when: os | lower in ['almalinux', 'fedora', 'rhel8', 'rhel9', 'rocky']
       block:
         - name: Relabel the filesystem
-          when: os | lower in ['almalinux', 'rhel8', 'rhel9', 'rocky']
+          when: os | lower != "fedora" 
           ansible.builtin.command: "arch-chroot /mnt /sbin/fixfiles onboot"
           changed_when: result.rc == 0
           register: result
