@@ -313,7 +313,7 @@
           register: result
 
         - name: Disable SELinux
-          when: os | lower == "fedora" or not selinux | bool
+          when: os | lower == "fedora" or not (selinux | default(true) | bool)
           ansible.builtin.lineinfile:
             path: /mnt/etc/selinux/config
             regexp: ^SELINUX=
