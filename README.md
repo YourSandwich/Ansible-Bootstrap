@@ -82,6 +82,7 @@ Inventory variables are defined for individual hosts or VMs in the inventory fil
 | `vm_ballo` (optional)   | Ballooning memory size for the VM, used to adjust memory allocation dynamically.  | `2048`                                             |
 | `vm_cpus`               | Number of CPU cores assigned to the virtual machine.                              | `4`                                                |
 | `vm_dns`                | DNS server IP address(es) for the virtual machine's network configuration.        | `1.0.0.1`, `1.1.1.1`                               |
+| `vm_dns_search`         | DNS search zone for the virtual machine's network configuration.                  | `example.com`                               |
 | `vm_gw`                 | Default gateway IP address for the virtual machine's network configuration.       | `192.168.0.1`                                      |
 | `vm_id`                 | Unique identifier for the virtual machine.                                        | `101`                                              |
 | `vm_ip`                 | IP address assigned to the virtual machine.                                       | `192.168.0.10`                                     |

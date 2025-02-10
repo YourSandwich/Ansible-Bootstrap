@@ -19,6 +19,7 @@ all:
             vm_nif: vmbr1
             vm_gw: 192.168.122.1
             vm_dns: 1.1.1.1
+            vm_dns_search: "example.com"
           192.168.122.11:
             hostname: database
             vm_id: 101

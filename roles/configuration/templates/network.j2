@@ -9,6 +9,9 @@ mac-address={{ net_mac.stdout }}
 [ipv4]
 address={{ vm_ip }}/{{ vm_nms | default (24) }},{{ vm_gw }}
 dns={{ vm_dns }}
+{% if vm_dns_search is defined %}
+dns-search={{ vm_dns_search }}
+{% endif %}
 method=manual
 
 [ipv6]
