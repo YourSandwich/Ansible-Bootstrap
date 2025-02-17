@@ -9,7 +9,8 @@
     cluster: "{{ hypervisor_node }}"
     folder: "{{ vm_path }}"
     name: "{{ hostname }}"
-    guest_id: otherGuest64
+    annotation: |
+          {{ note | default('') }}
     state: poweredon
     disk:
       - size_gb: "{{ vm_size }}"
