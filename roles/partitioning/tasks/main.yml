@@ -45,42 +45,25 @@
       loop:
         - lv: root
           size: >-
-            {{ (
-                (vm_size | float -
-                 ((vm_memory | float / 1024 >= 16.0) | ternary(
-                    (vm_memory | float / 2048) | int,
-                    [vm_memory | float / 1024, 4.0] | max
-                 )) - 0.5 -
-                 (cis | bool | ternary(0, 7.5))
-                ) > 12.0
-            ) | ternary(
-                (vm_size | float * 0.4) | round(0, 'ceil'),
-                vm_size | float -
-                ((vm_memory | float / 1024 >= 16.0) | ternary(
-                    (vm_memory | float / 2048) | int,
-                    [vm_memory | float / 1024, 4.0] | max
-                )) - 0.5 -
-                (cis | bool | ternary(7.5, 0))
-            ) | string + 'G' }}
-
+            {{ [(((((vm_size | float) - 0.5 - ((cis | bool) | ternary(7.5, 0)) - (((vm_memory | float / 1024) > 16.0)
+                 | ternary(((vm_memory | float / 2048) | int), (vm_memory | float / 1024)))) < 4)
+                 | ternary(4,((((vm_size | float) - 0.5 - ((cis | bool) | ternary(7.5, 0)) -
+                (((vm_memory | float / 1024) > 16.0)| ternary(((vm_memory | float / 2048) | int), (vm_memory | float / 1024)))) > 12)
+                  | ternary(((vm_size | float) * 0.4) | round(0, 'ceil'),((vm_size | float) - 0.5 - ((cis | bool)
+                  | ternary(7.5, 0)) - (((vm_memory | float / 1024) > 16.0)
+                  | ternary(((vm_memory | float / 2048) | int), (vm_memory | float / 1024))))))))), 4 ] | max | string + 'G' }}
         - lv: swap
           size: >-
-            {{ ((vm_memory | float / 1024 >= 16.0) | ternary(
-                (vm_memory | float / 2048) | int,
-                [vm_memory | float / 1024, 4.0] | max
-            )) | string + 'G' }}
-
+            {{ ((((vm_size | float) - 0.5 - ((cis | bool) | ternary(7.5, 0))) - (((vm_memory | float / 1024) > 16.0)
+                | ternary(((vm_memory | float / 2048) | int), (vm_memory | float / 1024)))) < 4)
+                | ternary((((vm_size | float) - 0.5 - ((cis | bool) | ternary(7.5, 0))) - 4), (((vm_memory | float / 1024) > 16.0)
+                | ternary(((vm_memory | float / 2048) | int), (vm_memory | float / 1024)))) | string + 'G' }}
         - lv: home
-          size: "2G"
+          size: "{{ ([([(((vm_size | float) - 20) * 0.1), 2] | max), 10] | min) | string + 'G' }}"
 
-        - lv: var
-          size: "2G"
-
-        - lv: var_log
-          size: "2G"
-
-        - lv: var_log_audit
-          size: "1.5G"
+        - { lv: var, size: "2G" }
+        - { lv: var_log, size: "2G" }
+        - { lv: var_log_audit, size: "1.5G" }
 
 - name: Create filesystems
   block:
