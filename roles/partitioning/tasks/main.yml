@@ -59,7 +59,7 @@
                 | ternary((((vm_size | float) - 0.5 - ((cis | bool) | ternary(7.5, 0))) - 4), (((vm_memory | float / 1024) > 16.0)
                 | ternary(((vm_memory | float / 2048) | int), (vm_memory | float / 1024)))) | string + 'G' }}
         - lv: home
-          size: "{{ ([([(((vm_size | float) - 20) * 0.1), 2] | max), 10] | min) | string + 'G' }}"
+          size: "{{ ([([(((vm_size | float) - 20) * 0.1), 2] | max), 20] | min) | string + 'G' }}"
 
         - { lv: var, size: "2G" }
         - { lv: var_log, size: "2G" }
