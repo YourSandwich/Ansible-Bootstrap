@@ -22,19 +22,26 @@
       num_cpus: "{{ vm_cpus }}"
       boot_firmware: efi
       secure_boot: false
-    cdrom:
-      - controller_number: 0
-        unit_number: 0
-        controller_type: sata
-        state: present
-        type: iso
-        iso_path: "{{ boot_iso }}"
-      - controller_number: 0
-        unit_number: 1
-        controller_type: sata
-        state: present
-        type: iso
-        iso_path: "{{ rhel_iso | default(omit) }}"
+    cdrom: >-
+      {{
+        [ {
+            "controller_number": 0,
+            "unit_number": 0,
+            "controller_type": "sata",
+            "state": "present",
+            "type": "iso",
+            "iso_path": boot_iso
+          } ]
+        +
+        ( [ {
+            "controller_number": 0,
+            "unit_number": 1,
+            "controller_type": "sata",
+            "state": "present",
+            "type": "iso",
+            "iso_path": rhel_iso
+          } ] if rhel_iso is defined and rhel_iso|length > 0 else [] )
+      }}
     networks:
       - name: "{{ vm_nif }}"
         type: dhcp
