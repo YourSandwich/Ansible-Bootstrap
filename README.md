@@ -52,6 +52,7 @@ Global variables apply across your Ansible project and are loaded from `vars.yml
 | `boot_iso`            | Path to the boot ISO image.                                        | `local-btrfs:iso/archlinux-x86_64.iso`  |
 | `rhel_iso`            | Path to the RHEL ISO file, required for RHEL 8 and RHEL 9.         |`local-btrfs:iso/rhel-9.4-x86_64-dvd.iso`|
 | `hypervisor`          | Type of hypervisor.                                                | `libvirt`, `proxmox`, `vmware`, `none`  |
+| `vmware_ssh`          | If Ansible should use SSH after base VM setup on VMware.           | `true`, `false (default)`  |
 | `hypervisor_cluster`  | Name of the hypervisor cluster.                                    | `default-cluster`                       |
 | `hypervisor_node`     | Hypervisor node name.                                              | `node01`                                |
 | `hypervisor_password` | Password for hypervisor authentication.                            | `123456`                                |
@@ -91,7 +92,7 @@ Inventory variables are defined for individual hosts or VMs in the inventory fil
 | `vm_memory`             | Amount of memory (in MB) allocated to the virtual machine.                        | `2048`                                             |
 | `vm_nif`                | Network interface type or identifier for the VM's network connection.             | `vmbr0`                                            |
 | `vm_path (optional)`    | Path or folder where the VM configuration or related files will be stored.        | `/var/lib/libvirt/images/`                         |
-| `vm_size`               | Disk size allocated for the VM's primary storage (in GB).                         | `20`                                               |
+| `vm_size`               | Disk size allocated for the VM's primary storage (in GB).                         | `20`                                  |
 
 ## 4. How to Use the Playbook
 
