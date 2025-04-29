@@ -3,6 +3,11 @@
   vars:
     ansible_connection: ssh
   block:
+    - name: Disable Swap
+      ansible.builtin.command: swapoff -a
+      register: swapoff_result
+      changed_when: swapoff_result.rc == 0
+
     - name: Unmount /mnt if mounted
       ansible.builtin.command: umount -R /mnt
       register: unmount_result

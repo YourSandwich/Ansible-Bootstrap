@@ -28,6 +28,7 @@ archlinux:
   - cronie
   - dhcpcd
   - efibootmgr
+  - fastfetch
   - firewalld
   - fish
   - fzf
@@ -40,7 +41,6 @@ archlinux:
   - lsof
   - lvm2
   - ncdu
-  - neofetch
   - networkmanager
   - nfs-utils
   - open-vm-tools
@@ -51,9 +51,9 @@ archlinux:
   - qemu-guest-agent
   - reflector
   - rsync
-  - screen
   - sudo
   - tldr
+    tmux
   - vim
   - wireguard-tools
   - zram-generator
