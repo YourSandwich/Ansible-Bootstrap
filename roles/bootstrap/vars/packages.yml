@@ -53,7 +53,7 @@ archlinux:
   - rsync
   - sudo
   - tldr
-    tmux
+  - tmux
   - vim
   - wireguard-tools
   - zram-generator
