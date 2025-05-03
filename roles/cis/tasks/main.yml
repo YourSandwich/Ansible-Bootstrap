@@ -4,7 +4,7 @@
     - name: Disable Kernel Modules
       ansible.builtin.copy:
         dest: /mnt/etc/modprobe.d/cis.conf
-        mode: '0644'
+        mode: "0644"
         content: |
           CIS LVL 3 Restrictions
           install freevxfs        /bin/false
@@ -24,7 +24,7 @@
     - name: Create USB Rules
       ansible.builtin.copy:
         dest: /mnt/etc/udev/rules.d/10-cis_usb_devices.sh
-        mode: '0644'
+        mode: "0644"
         content: |
           By default, disable all.
           ACTION=="add", SUBSYSTEMS=="usb", TEST=="authorized_default", ATTR{authorized_default}="0"
@@ -41,7 +41,7 @@
     - name: Create a consolidated sysctl configuration file
       ansible.builtin.copy:
         dest: /mnt/etc/sysctl.d/10-cis.conf
-        mode: '0644'
+        mode: "0644"
         content: |
           ## CIS Sysctl configurations
           kernel.yama.ptrace_scope=1
@@ -69,7 +69,6 @@
           net.ipv6.conf.default.disable_ipv6 = 1
           net.ipv6.conf.lo.disable_ipv6 = 1
 
-
     # - name: Adjust login.defs
     #   replace:
     #     path: /mnt/etc/login.defs
@@ -96,8 +95,7 @@
 
     - name: Configure System Cryptography Policy
       when: os in ["almalinux", "rhel9", "rocky"]
-      ansible.builtin.command:
-        arch-chroot /mnt /usr/bin/update-crypto-policies --set DEFAULT:NO-SHA1
+      ansible.builtin.command: arch-chroot /mnt /usr/bin/update-crypto-policies --set DEFAULT:NO-SHA1
 
     - name: Mask Systemd Services
       ansible.builtin.command: >
@@ -136,18 +134,39 @@
         - { path: /mnt/etc/security/pwquality.conf, content: ucredit = -1 }
         - { path: /mnt/etc/security/pwquality.conf, content: ocredit = -1 }
         - { path: /mnt/etc/security/pwquality.conf, content: lcredit = -1 }
-        - { path: '/mnt/etc/{{ "bashrc" if os in ["almalinux", "fedora", "rhel8", "rhel9", "rocky"] else "bash.bashrc" }}', content: umask 077 }
-        - { path: '/mnt/etc/{{ "bashrc" if os in ["almalinux", "fedora", "rhel8", "rhel9", "rocky"] else "bash.bashrc" }}', content: export TMOUT=3000 }
-        - { path: '/mnt/{{ "usr/lib/systemd/journald.conf" if os == "fedora" else "etc/systemd/journald.conf" }}', content: Storage=persistent }
-        - { path: /mnt/etc/sudoers, content: Defaults        logfile="/var/log/sudo.log" }
+        - {
+            path: '/mnt/etc/{{ "bashrc" if os in ["almalinux", "fedora", "rhel8", "rhel9", "rocky"] else "bash.bashrc" }}',
+            content: umask 077,
+          }
+        - {
+            path: '/mnt/etc/{{ "bashrc" if os in ["almalinux", "fedora", "rhel8", "rhel9", "rocky"] else "bash.bashrc" }}',
+            content: export TMOUT=3000,
+          }
+        - {
+            path: '/mnt/{{ "usr/lib/systemd/journald.conf" if os == "fedora" else "etc/systemd/journald.conf" }}',
+            content: Storage=persistent,
+          }
+        - {
+            path: /mnt/etc/sudoers,
+            content: Defaults        logfile="/var/log/sudo.log",
+          }
         - { path: /mnt/etc/pam.d/su, content: auth required pam_wheel.so }
-        - { path: '/mnt/etc/{{ "pam.d/common-auth" if os in ["debian11", "debian12", "ubuntu", "ubuntu-lts"]
-            else "authselect/system-auth" if os == "fedora" else "pam.d/system-auth" }}',
-            content: auth required pam_faillock.so onerr=fail audit silent deny=5 unlock_time=900 }
-        - { path: '/mnt/etc/{{ "pam.d/common-account" if os in ["debian11", "debian12", "ubuntu", "ubuntu-lts"] else "authselect/system-auth"
-            if os == "fedora" else "pam.d/system-auth" }}', content: account required pam_faillock.so }
-        - { path: '/mnt/etc/pam.d/{{ "common-password" if os in ["debian11", "debian12", "ubuntu", "ubuntu-lts"] else "passwd" }}',
-            content: "password [success=1 default=ignore] pam_unix.so obscure sha512 remember=5" }
+        - {
+            path:
+              '/mnt/etc/{{ "pam.d/common-auth" if os in ["debian11", "debian12", "ubuntu", "ubuntu-lts"]
+              else "authselect/system-auth" if os == "fedora" else "pam.d/system-auth" }}',
+            content: auth required pam_faillock.so onerr=fail audit silent deny=5 unlock_time=900,
+          }
+        - {
+            path:
+              '/mnt/etc/{{ "pam.d/common-account" if os in ["debian11", "debian12", "ubuntu", "ubuntu-lts"] else "authselect/system-auth"
+              if os == "fedora" else "pam.d/system-auth" }}',
+            content: account required pam_faillock.so,
+          }
+        - {
+            path: '/mnt/etc/pam.d/{{ "common-password" if os in ["debian11", "debian12", "ubuntu", "ubuntu-lts"] else "passwd" }}',
+            content: "password [success=1 default=ignore] pam_unix.so obscure sha512 remember=5",
+          }
         - { path: /mnt/etc/hosts.deny, content: "ALL: ALL" }
         - { path: /mnt/etc/hosts.allow, content: "sshd: ALL" }
 
@@ -214,9 +233,10 @@
 
           ### Ciphers and keying ###
           RekeyLimit 512M 6h
-          KexAlgorithms -diffie-hellman-group1-sha1,diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha1
-          Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr
-          MACs -hmac-md5,hmac-md5-96,hmac-ripemd160,hmac-sha1-96,umac-64@openssh.com,hmac-md5-etm@openssh.com,hmac-md5-96-etm@openssh.com,hmac-ripemd160-etm@openssh.com,hmac-sha1-96-etm@openssh.com,umac-64-etm@openssh.com
+          KexAlgorithms  mlkem768x25519-sha256,curve25519-sha256@libssh.org,ecdh-sha2-nistp521,ecdh-sha2-nistp384,ecdh-sha2-nistp256
+          Ciphers        aes256-gcm@openssh.com,aes128-gcm@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr
+          MACs           hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,umac-128-etm@openssh.com
+
           ###########################
 
           AllowStreamLocalForwarding no
