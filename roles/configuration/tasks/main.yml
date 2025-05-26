@@ -10,7 +10,7 @@
       when: os in ["almalinux", "rhel8", "rhel9", "rocky"] and filesystem == "xfs"
       ansible.builtin.replace:
         path: /mnt/etc/fstab
-        regexp: '(xfs.*?)(attr2)'
+        regexp: "(xfs.*?)(attr2)"
         replace: '\1allocsize=64m'
 
     - name: Replace ISO UUID entry with /dev/sr0 in fstab
@@ -18,8 +18,9 @@
       ansible.builtin.lineinfile:
         path: /mnt/etc/fstab
         regexp: '^.*\/dvd.*$'
-        line: "{{ '/usr/local/install/redhat/rhel.iso /usr/local/install/redhat/dvd iso9660 loop,nofail 0 0' if hypervisor == 'vmware'
-              else '/dev/sr0 /usr/local/install/redhat/dvd iso9660 ro,relatime,nojoliet,check=s,map=n,nofail 0 0' }}"
+        line:
+          "{{ '/usr/local/install/redhat/rhel.iso /usr/local/install/redhat/dvd iso9660 loop,nofail 0 0' if hypervisor == 'vmware'
+          else '/dev/sr0 /usr/local/install/redhat/dvd iso9660 ro,relatime,nojoliet,check=s,map=n,nofail 0 0' }}"
         state: present
         backrefs: true
 
@@ -68,27 +69,27 @@
 
         - name: Set hostname
           ansible.builtin.copy:
-            content: "{{ hostname }}"
+            content: "{{ hostname }}{% if vm_dns_search is defined and vm_dns_search | length %}.{{ vm_dns_search }}{% endif %}"
             dest: /mnt/etc/hostname
-            mode: '0644'
+            mode: "0644"
 
         - name: Add host entry to /etc/hosts
           ansible.builtin.lineinfile:
             path: /mnt/etc/hosts
-            line: "{{ ansible_host }}    {{ hostname }}"
+            line: "{{ ansible_host }}    {{ hostname }}{% if vm_dns_search is defined and vm_dns_search | length %} {{ hostname }}.{{ vm_dns_search }}{% endif %}"
             state: present
 
         - name: Create vconsole.conf
           ansible.builtin.copy:
             content: KEYMAP=us
             dest: /mnt/etc/vconsole.conf
-            mode: '0644'
+            mode: "0644"
 
         - name: Create locale.conf
           ansible.builtin.copy:
             content: LANG=en_US.UTF-8
             dest: /mnt/etc/locale.conf
-            mode: '0644'
+            mode: "0644"
 
         - name: SSH permit Password
           ansible.builtin.replace:
@@ -158,7 +159,7 @@
           when: os | lower == "archlinux" and filesystem != "btrfs"
           ansible.builtin.lineinfile:
             path: /mnt/etc/mkinitcpio.conf
-            regexp: '^(HOOKS=.*block)(?!.*lvm2)(.*)'
+            regexp: "^(HOOKS=.*block)(?!.*lvm2)(.*)"
             line: '\1 lvm2\2'
             backrefs: true
 
@@ -177,8 +178,9 @@
         - name: Append vim configurations to vimrc
           failed_when: false
           ansible.builtin.blockinfile:
-            path: "{{ '/mnt/etc/vim/vimrc' if os | lower in ['debian11', 'debian12', 'ubuntu', 'ubuntu-lts']
-                  else '/mnt/etc/vimrc' }}"
+            path:
+              "{{ '/mnt/etc/vim/vimrc' if os | lower in ['debian11', 'debian12', 'ubuntu', 'ubuntu-lts']
+              else '/mnt/etc/vimrc' }}"
             block: |
               set encoding=utf-8
               set number
@@ -199,7 +201,7 @@
               vm.dirty_ratio=10
               vm.page-cluster=10
             marker: ""
-            mode: '0644'
+            mode: "0644"
 
         - name: Create zram config
           when: os not in ['debian11', 'rhel8']
@@ -211,13 +213,13 @@
               compression-algorithm = zstd
               swap-priority = 100
               fs-type = swap
-            mode: '0644'
+            mode: "0644"
 
         - name: Copy Custom Shell config
           ansible.builtin.template:
             src: custom.sh.j2
             dest: /mnt/etc/profile.d/custom.sh
-            mode: '0644'
+            mode: "0644"
 
         - name: Create login banner
           ansible.builtin.copy:
@@ -230,7 +232,7 @@
               **************************************************************
             owner: root
             group: root
-            mode: '0644'
+            mode: "0644"
           loop:
             - /mnt/etc/issue
             - /etc/issue.net
@@ -272,7 +274,7 @@
           ansible.builtin.file:
             path: /mnt/etc/NetworkManager/conf.d/10-globally-managed-devices.conf
             state: touch
-            mode: '0644'
+            mode: "0644"
 
     - name: Setup user account
       block:
@@ -307,7 +309,7 @@
       when: os | lower in ['almalinux', 'fedora', 'rhel8', 'rhel9', 'rocky']
       block:
         - name: Relabel the filesystem
-          when: os | lower != "fedora" 
+          when: os | lower != "fedora"
           ansible.builtin.command: "arch-chroot /mnt /sbin/fixfiles onboot"
           changed_when: result.rc == 0
           register: result
