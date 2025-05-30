@@ -296,6 +296,7 @@ ubuntu:
     - lrzsz
     - mtr
     - ncdu
+    - ncurses-term
     - net-tools
     - network-manager
     - open-vm-tools
@@ -355,6 +356,7 @@ ubuntu-lts:
     - lrzsz
     - mtr
     - ncdu
+    - ncurses-term
     - net-tools
     - network-manager
     - open-vm-tools
