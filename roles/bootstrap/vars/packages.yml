@@ -205,6 +205,7 @@ rhel8:
   - lrzsz
   - lvm2
   - mtr
+  - ncurses-term
   - nfs-utils
   - open-vm-tools
   - python39
@@ -224,6 +225,7 @@ rhel9:
   - lrzsz
   - lvm2
   - mtr
+  - ncurses-term
   - nfs-utils
   - open-vm-tools
   - python
