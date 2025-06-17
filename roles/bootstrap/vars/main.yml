@@ -202,12 +202,14 @@ rhel8:
   - glibc-langpack-en
   - grub2
   - grub2-efi-x64
+  - grub2-tools-extra
   - lrzsz
   - lvm2
   - mtr
   - ncurses-term
   - nfs-utils
   - open-vm-tools
+  - policycoreutils-python-utils
   - python39
   - shim
   - tmux
@@ -222,12 +224,36 @@ rhel9:
   - glibc-langpack-en
   - grub2
   - grub2-efi
+  - grub2-tools-extra
   - lrzsz
   - lvm2
   - mtr
   - ncurses-term
   - nfs-utils
   - open-vm-tools
+  - policycoreutils-python-utils
+  - python
+  - shim
+  - tmux
+  - vim
+  - zram-generator
+  - zstd
+
+rhel10:
+  - bind-utils
+  - efibootmgr
+  - glibc-langpack-de
+  - glibc-langpack-en
+  - grub2
+  - grub2-efi
+  - kernel
+  - lrzsz
+  - lvm2
+  - mtr
+  - ncurses-term
+  - nfs-utils
+  - open-vm-tools
+  - policycoreutils-python-utils
   - python
   - shim
   - tmux
