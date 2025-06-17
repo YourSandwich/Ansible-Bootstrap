@@ -24,7 +24,7 @@
       changed_when: result.rc == 0
       register: result
       with_items:
-        - debootstrap --include={{ vars[os].base | join(',') }} {{ 'oracular' if os == 'ubuntu' else 'noble' }}
+        - debootstrap --include={{ vars[os].base | join(',') }} {{ 'plucky' if os == 'ubuntu' else 'noble' }}
           /mnt http://archive.ubuntu.com/ubuntu/
         - ln -sf /run/NetworkManager/resolv.conf /mnt/etc/resolv.conf
         - arch-chroot /mnt sed -i '1s|$| universe|' /etc/apt/sources.list

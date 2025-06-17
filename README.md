@@ -27,7 +27,7 @@ This playbook supports multiple Linux distributions with specific versions tailo
 | rhel9      | Red Hat Enterprise Linux 9         |
 | rhel10     | Red Hat Enterprise Linux 10        |
 | rocky      | Rocky Linux 9.x                    |
-| ubuntu     | Ubuntu 24.10 (Oracular Oriole)     |
+| ubuntu     | Ubuntu 25.04 (Plucky Puffin)       |
 | ubuntu-lts | Ubuntu 24.04 LTS (Noble Numbat)    |
 
 # Documentation

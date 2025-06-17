@@ -81,6 +81,22 @@
       ansible.builtin.wait_for:
         timeout: 15
 
+    - name: Setup Pacman
+      community.general.pacman:
+        update_cache: true
+        force: true
+        name: "{{ item.name }}"
+        state: latest
+      loop:
+        - { name: glibc }
+        - { name: dnf, os: [almalinux, fedora, rhel8, rhel9, rhel10, rocky] }
+        - { name: debootstrap, os: [debian11, debian12, ubuntu, ubuntu-lts] }
+        - { name: debian-archive-keyring, os: [debian11, debian12] }
+        - { name: ubuntu-keyring, os: [ubuntu, ubuntu-lts] }
+      when: "'os' not in item or os in item.os"
+      retries: 4
+      delay: 15
+
     - name: Prepare /iso mount and repository for RHEL-based systems
       when: os | lower in ["rhel8", "rhel9", "rhel10"]
       block:
