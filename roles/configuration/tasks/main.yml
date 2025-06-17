@@ -7,14 +7,14 @@
       register: result
 
     - name: Remove depricated attr2 and disable large extent
-      when: os in ["almalinux", "rhel8", "rhel9", "rocky"] and filesystem == "xfs"
+      when: os in ["almalinux", "rhel8", "rhel9", "rhel10", "rocky"] and filesystem == "xfs"
       ansible.builtin.replace:
         path: /mnt/etc/fstab
         regexp: "(xfs.*?)(attr2)"
         replace: '\1allocsize=64m'
 
     - name: Replace ISO UUID entry with /dev/sr0 in fstab
-      when: os in ["rhel8", "rhel9"]
+      when: os in ["rhel8", "rhel9", "rhel10"]
       ansible.builtin.lineinfile:
         path: /mnt/etc/fstab
         regexp: '^.*\/dvd.*$'
@@ -25,7 +25,7 @@
         backrefs: true
 
     - name: Write image from RHEL ISO to the target machine
-      when: os in ["rhel8", "rhel9"] and hypervisor == 'vmware'
+      when: os in ["rhel8", "rhel9", "rhel10"] and hypervisor == 'vmware'
       ansible.builtin.command: dd if=/dev/sr1 of=/mnt/usr/local/install/redhat/rhel.iso bs=4M
       changed_when: result.rc == 0
       register: result
@@ -53,7 +53,7 @@
     - name: Setup locales
       block:
         - name: Configure locale.gen
-          when: os | lower not in ['almalinux', 'fedora', 'rhel8', 'rhel9', 'rocky']
+          when: os | lower not in ['almalinux', 'fedora', 'rhel8', 'rhel9', 'rhel10', 'rocky']
           ansible.builtin.lineinfile:
             dest: /mnt/etc/locale.gen
             regexp: "{{ item.regex }}"
@@ -62,7 +62,7 @@
             - { regex: en_US\.UTF-8 UTF-8, line: en_US.UTF-8 UTF-8 }
 
         - name: Generate locales
-          when: os | lower not in ['almalinux', 'fedora', 'rhel8', 'rhel9', 'rocky']
+          when: os | lower not in ['almalinux', 'fedora', 'rhel8', 'rhel9', 'rhel10', 'rocky']
           ansible.builtin.command: arch-chroot /mnt /usr/sbin/locale-gen
           changed_when: result.rc == 0
           register: result
@@ -118,7 +118,7 @@
       register: result
 
     - name: Configure grub
-      when: os | lower not in ['almalinux', 'fedora', 'rhel8', 'rhel9', 'rocky']
+      when: os | lower not in ['almalinux', 'fedora', 'rhel8', 'rhel9', 'rhel10', 'rocky']
       block:
         - name: Add commandline information to grub config
           ansible.builtin.lineinfile:
@@ -138,19 +138,9 @@
           ansible.builtin.command: arch-chroot /mnt
             {% if os | lower not in ["archlinux", "debian11", "debian12", "ubuntu", "ubuntu-lts"] %} /usr/sbin/efibootmgr
             -c -L '{{ os }}' -d "{{ install_drive }}" -p 1
-            -l '\efi\EFI\{% if os | lower in ["rhel8", "rhel9"] %}redhat{% else %}{{ os | lower }}{% endif %}\shimx64.efi'
+            -l '\efi\EFI\{% if os | lower in ["rhel8", "rhel9", "rhel10"] %}redhat{% else %}{{ os | lower }}{% endif %}\shimx64.efi'
             {% else %}/usr/sbin/grub-install --target=x86_64-efi --efi-directory={{ "/boot/efi" if os | lower in ["ubuntu", "ubuntu-lts"] else "/boot" }}
             --bootloader-id={{ "ubuntu" if os | lower in ["ubuntu", "ubuntu-lts"] else os }}
-            {% endif %}
-          changed_when: result.rc == 0
-          register: result
-
-        - name: Generate grub config
-          ansible.builtin.command: arch-chroot /mnt
-            {% if os | lower not in ["archlinux", "debian11", "debian12", "ubuntu", "ubuntu-lts"] %}
-            /usr/sbin/grub2-mkconfig -o /boot/efi/EFI/{% if os | lower in ["rhel8", "rhel9"] %}redhat{% else %}{{ os | lower }}{% endif %}/grub.cfg
-            {% else %}
-            /usr/sbin/grub-mkconfig -o {{ "/boot/efi/EFI/ubuntu/grub.cfg" if os | lower in ["ubuntu", "ubuntu-lts"] else "/boot/grub/grub.cfg" }}
             {% endif %}
           changed_when: result.rc == 0
           register: result
@@ -167,8 +157,17 @@
           when: os | lower not in ["debian11", "debian12", "ubuntu", "ubuntu-lts"]
           ansible.builtin.command: arch-chroot /mnt
             {% if os | lower == "archlinux" %} /usr/sbin/mkinitcpio -P
-            {% elif os | lower not in ["debian11", "debian12", "ubuntu", "ubuntu-lts", "archlinux"] %} /usr/bin/dracut --regenerate-all --force
-            {% else %} echo "Skipping initramfs regeneration"
+            {% else %} /usr/bin/dracut --regenerate-all --force
+            {% endif %}
+          changed_when: result.rc == 0
+          register: result
+
+        - name: Generate grub config
+          ansible.builtin.command: arch-chroot /mnt
+            {% if os | lower not in ["archlinux", "debian11", "debian12", "ubuntu", "ubuntu-lts"] %}
+            /usr/sbin/grub2-mkconfig -o /boot/efi/EFI/{% if os | lower in ["rhel8", "rhel9", "rhel10"] %}redhat{% else %}{{ os | lower }}{% endif %}/grub.cfg
+            {% else %}
+            /usr/sbin/grub-mkconfig -o {{ "/boot/efi/EFI/ubuntu/grub.cfg" if os | lower in ["ubuntu", "ubuntu-lts"] else "/boot/grub/grub.cfg" }}
             {% endif %}
           changed_when: result.rc == 0
           register: result
@@ -238,7 +237,7 @@
             - /etc/issue.net
 
         - name: Remove motd files
-          when: os | lower in ["rhel8", "rhel9"]
+          when: os | lower in ["rhel8", "rhel9", "rhel10"]
           ansible.builtin.file:
             path: "{{ item }}"
             state: absent
@@ -306,13 +305,16 @@
         validate: /usr/sbin/visudo --check --file=%s
 
     - name: Fix SELinux
-      when: os | lower in ['almalinux', 'fedora', 'rhel8', 'rhel9', 'rocky']
+      when: os | lower in ['almalinux', 'fedora', 'rhel8', 'rhel9', 'rhel10', 'rocky']
       block:
-        - name: Relabel the filesystem
-          when: os | lower != "fedora"
-          ansible.builtin.command: "arch-chroot /mnt /sbin/fixfiles onboot"
-          changed_when: result.rc == 0
-          register: result
+        - name: Fix SELinux by pre-labeling the filesystem before first boot
+          when: os | lower in ['almalinux', 'rhel8', 'rhel9', 'rhel10', 'rocky'] and (selinux | default(true) | bool)
+          ansible.builtin.command: >
+            arch-chroot /mnt /sbin/setfiles -v -F
+            -e /dev -e /proc -e /sys -e /run
+            /etc/selinux/targeted/contexts/files/file_contexts /
+          register: setfiles_result
+          changed_when: setfiles_result.rc == 0
 
         - name: Disable SELinux
           when: os | lower == "fedora" or not (selinux | default(true) | bool)

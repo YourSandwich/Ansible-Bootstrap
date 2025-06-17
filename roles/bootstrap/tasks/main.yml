@@ -1,14 +1,9 @@
 ---
-- name: Include Packages
-  ansible.builtin.include_vars:
-    file: packages.yml
-    name: role_packages
-
 - name: Run OS-specific bootstrap process
   block:
     - name: Bootstrap ArchLinux
       when: os | lower == 'archlinux'
-      ansible.builtin.command: pacstrap /mnt {{ role_packages.archlinux | join(' ') }} --asexplicit
+      ansible.builtin.command: pacstrap /mnt {{ archlinux | join(' ') }} --asexplicit
       changed_when: result.rc == 0
       register: result
 
@@ -18,9 +13,9 @@
       changed_when: result.rc == 0
       register: result
       with_items:
-        - debootstrap --include={{ role_packages[os].base | join(',') }} {{ 'bullseye' if os == 'debian11' else 'bookworm' }}
+        - debootstrap --include={{ vars[os].base | join(',') }} {{ 'bullseye' if os == 'debian11' else 'bookworm' }}
           /mnt http://deb.debian.org/debian/
-        - arch-chroot /mnt apt install -y {{ role_packages[os].extra | join(' ') }}
+        - arch-chroot /mnt apt install -y {{ vars[os].extra | join(' ') }}
         - arch-chroot /mnt apt remove -y libcups2 libavahi-common3 libavahi-common-data
 
     - name: Bootstrap Ubuntu System
@@ -29,12 +24,12 @@
       changed_when: result.rc == 0
       register: result
       with_items:
-        - debootstrap --include={{ role_packages[os].base | join(',') }} {{ 'oracular' if os == 'ubuntu' else 'noble' }}
+        - debootstrap --include={{ vars[os].base | join(',') }} {{ 'oracular' if os == 'ubuntu' else 'noble' }}
           /mnt http://archive.ubuntu.com/ubuntu/
         - ln -sf /run/NetworkManager/resolv.conf /mnt/etc/resolv.conf
         - arch-chroot /mnt sed -i '1s|$| universe|' /etc/apt/sources.list
         - arch-chroot /mnt apt update -y
-        - arch-chroot /mnt apt install -y {{ role_packages[os].extra | join(' ') }}
+        - arch-chroot /mnt apt install -y {{ vars[os].extra | join(' ') }}
 
     - name: Bootstrap AlmaLinux 9
       when: os | lower == 'almalinux'
@@ -44,7 +39,7 @@
       with_items:
         - dnf --releasever=9 --best --repo=alma-baseos --installroot=/mnt --setopt=install_weak_deps=False groupinstall -y base core
         - ln -sf /run/NetworkManager/resolv.conf /mnt/etc/resolv.conf
-        - arch-chroot /mnt dnf --releasever=9 --setopt=install_weak_deps=False install -y {{ role_packages.almalinux | join(' ') }}
+        - arch-chroot /mnt dnf --releasever=9 --setopt=install_weak_deps=False install -y {{ almalinux | join(' ') }}
 
     - name: Bootstrap Fedora 41
       when: os | lower == 'fedora'
@@ -55,7 +50,7 @@
         - dnf --releasever=41 --best --repo=fedora --repo=fedora-updates
           --installroot=/mnt --setopt=install_weak_deps=False groupinstall -y critical-path-base core
         - ln -sf /run/NetworkManager/resolv.conf /mnt/etc/resolv.conf
-        - arch-chroot /mnt dnf --releasever=41 --setopt=install_weak_deps=False install -y {{ role_packages.fedora | join(' ') }}
+        - arch-chroot /mnt dnf --releasever=41 --setopt=install_weak_deps=False install -y {{ fedora | join(' ') }}
         - arch-chroot /mnt dnf reinstall -y kernel-core
 
     - name: Bootstrap RockyLinux 9
@@ -68,14 +63,14 @@
           --setopt=install_weak_deps=False --setopt=optional_metadata_types=filelists
           groupinstall -y base core
         - ln -sf /run/NetworkManager/resolv.conf /mnt/etc/resolv.conf
-        - arch-chroot /mnt dnf --releasever=9 --setopt=install_weak_deps=False install -y {{ role_packages.rocky | join(' ') }}
+        - arch-chroot /mnt dnf --releasever=9 --setopt=install_weak_deps=False install -y {{ rocky | join(' ') }}
 
     - name: Bootstrap RHEL System
-      when: os | lower in ['rhel8', 'rhel9']
+      when: os | lower in ['rhel8', 'rhel9', 'rhel10']
       block:
         - name: Install base packages in chroot environment
           ansible.builtin.command: >-
-            dnf --releasever={{ '8' if os == 'rhel8' else '9' }} --repo={{ os | lower }}-baseos
+            dnf --releasever={{ os | lower | replace('rhel', '') }} --repo={{ os | lower }}-baseos
             --installroot=/mnt
             --setopt=install_weak_deps=False --setopt=optional_metadata_types=filelists
             groupinstall -y core base standard
@@ -95,12 +90,12 @@
           ansible.builtin.copy:
             src: /etc/yum.repos.d/{{ os | lower }}.repo
             dest: /mnt/etc/yum.repos.d/redhat.repo
-            mode: '0644'
+            mode: "0644"
             remote_src: true
 
         - name: Install additional packages in chroot
           ansible.builtin.command: >-
-            arch-chroot /mnt dnf --releasever={{ '8' if os == 'rhel8' else '9' }}
-            --setopt=install_weak_deps=False install -y {{ role_packages[os] | join(' ') }}
+            arch-chroot /mnt dnf --releasever={{ os | lower | replace('rhel', '') }}
+            --setopt=install_weak_deps=False install -y {{ vars[os] | join(' ') }}
           changed_when: result.rc == 0
           register: result

@@ -94,8 +94,10 @@
         - /mnt/etc/pam.d/password-auth
 
     - name: Configure System Cryptography Policy
-      when: os in ["almalinux", "rhel9", "rocky"]
+      when: os in ["almalinux", "rhel9", "rhel10", "rocky"]
       ansible.builtin.command: arch-chroot /mnt /usr/bin/update-crypto-policies --set DEFAULT:NO-SHA1
+      register: crypto_policy_result
+      changed_when: "'Setting system-wide crypto-policies to' in crypto_policy_result.stdout"
 
     - name: Mask Systemd Services
       ansible.builtin.command: >
@@ -135,11 +137,11 @@
         - { path: /mnt/etc/security/pwquality.conf, content: ocredit = -1 }
         - { path: /mnt/etc/security/pwquality.conf, content: lcredit = -1 }
         - {
-            path: '/mnt/etc/{{ "bashrc" if os in ["almalinux", "fedora", "rhel8", "rhel9", "rocky"] else "bash.bashrc" }}',
+            path: '/mnt/etc/{{ "bashrc" if os in ["almalinux", "fedora", "rhel8", "rhel9", "rhel10", "rocky"] else "bash.bashrc" }}',
             content: umask 077,
           }
         - {
-            path: '/mnt/etc/{{ "bashrc" if os in ["almalinux", "fedora", "rhel8", "rhel9", "rocky"] else "bash.bashrc" }}',
+            path: '/mnt/etc/{{ "bashrc" if os in ["almalinux", "fedora", "rhel8", "rhel9", "rhel10", "rocky"] else "bash.bashrc" }}',
             content: export TMOUT=3000,
           }
         - {
@@ -186,8 +188,8 @@
           { "path": "/mnt/etc/cron.d", "mode": "0700" },
           { "path": "/mnt/etc/crontab", "mode": "0600" },
           { "path": "/mnt/etc/logrotate.conf", "mode": "0644" },
-          { "path": "/mnt/usr/sbin/pppd", "mode": "0754" } if os not in ["rhel8", "rhel9"] else None,
-          { "path": "/mnt/usr/bin/" + ("fusermount3" if os in ["almalinux", "archlinux", "debian12", "fedora", "rhel9", "rocky"]
+          { "path": "/mnt/usr/sbin/pppd", "mode": "0754" } if os not in ["rhel8", "rhel9", "rhel10"] else None,
+          { "path": "/mnt/usr/bin/" + ("fusermount3" if os in ["almalinux", "archlinux", "debian12", "fedora", "rhel9", "rhel10", "rocky"]
             else "fusermount"), "mode": "755" },
           { "path": "/mnt/usr/bin/" + ("write.ul" if os == "debian11" else "write"), "mode": "755" }
         ] | reject("none") }}

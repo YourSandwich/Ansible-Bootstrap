@@ -3,9 +3,11 @@
 An Ansible playbook for automating system bootstrap processes in an Infrastructure-as-Code manner, utilizing ArchISO as the foundational tool.
 
 # Info
+
 Most of the roles are adaptable for use with systems beyond ArchLinux, requiring only that the target system can install a necessary package manager, such as `dnf` for RHEL-based systems. Additionally, a replacement for the `arch-chroot` command may be required for these systems.
 
 **NOTE**:
+
 - For RHEL 8 and RHEL 9, repository access requires the `rhel_iso` variable. This variable specifies a local ISO or proxy repository.
 - RHEL systems do not support `btrfs`. Use `ext4` or `xfs` as alternatives.
 - For RHEL 8, `xfs` may cause installation issues; `ext4` is recommended.
@@ -15,7 +17,7 @@ Most of the roles are adaptable for use with systems beyond ArchLinux, requiring
 This playbook supports multiple Linux distributions with specific versions tailored to each. Below is a list of supported distributions:
 
 | `os`       | Distribution                       |
-|------------|------------------------------------|
+| ---------- | ---------------------------------- |
 | archlinux  | ArchLinux (Latest rolling release) |
 | almalinux  | AlmaLinux 9.x                      |
 | debian11   | Debian 11 (Bullseye)               |
@@ -23,6 +25,7 @@ This playbook supports multiple Linux distributions with specific versions tailo
 | fedora     | Fedora 41                          |
 | rhel8      | Red Hat Enterprise Linux 8         |
 | rhel9      | Red Hat Enterprise Linux 9         |
+| rhel10     | Red Hat Enterprise Linux 10        |
 | rocky      | Rocky Linux 9.x                    |
 | ubuntu     | Ubuntu 24.10 (Oracular Oriole)     |
 | ubuntu-lts | Ubuntu 24.04 LTS (Noble Numbat)    |
@@ -47,21 +50,21 @@ The playbook uses the ArchLinux ISO as a foundational tool to provides an effici
 
 Global variables apply across your Ansible project and are loaded from `vars.yml` by default. These variables define common settings such as hypervisor connection details and the boot ISO path. They can be overridden by inventory variables for specific hosts or VMs if needed.
 
-| Variable              | Description                                                        | Example Value                           |
-|-----------------------|--------------------------------------------------------------------|-----------------------------------------|
-| `boot_iso`            | Path to the boot ISO image.                                        | `local-btrfs:iso/archlinux-x86_64.iso`  |
-| `rhel_iso`            | Path to the RHEL ISO file, required for RHEL 8 and RHEL 9.         |`local-btrfs:iso/rhel-9.4-x86_64-dvd.iso`|
-| `hypervisor`          | Type of hypervisor.                                                | `libvirt`, `proxmox`, `vmware`, `none`  |
-| `vmware_ssh`          | If Ansible should use SSH after base VM setup on VMware.           | `true`, `false (default)`  |
-| `hypervisor_cluster`  | Name of the hypervisor cluster.                                    | `default-cluster`                       |
-| `hypervisor_node`     | Hypervisor node name.                                              | `node01`                                |
-| `hypervisor_password` | Password for hypervisor authentication.                            | `123456`                                |
-| `hypervisor_storage`  | Storage identifier for VM disks.                                   | `local-btrfs`                           |
-| `hypervisor_url`      | URL/IP address for the hypervisor interface.                       | `192.168.0.2`                           |
-| `hypervisor_username` | Username for hypervisor authentication.                            | `root@pam`                              |
-| `install_drive`       | Drive where the system will be installed.                          | `/dev/sda`                              |
-| `install_type`        | Type of installation.                                              | `virtual`, `physical`                   |
-| `vlan_name` (optional)| VLAN for the VM's network interface.                               | `vlan100`                               |
+| Variable               | Description                                                | Example Value                             |
+| ---------------------- | ---------------------------------------------------------- | ----------------------------------------- |
+| `boot_iso`             | Path to the boot ISO image.                                | `local-btrfs:iso/archlinux-x86_64.iso`    |
+| `rhel_iso`             | Path to the RHEL ISO file, required for RHEL 8 and RHEL 9. | `local-btrfs:iso/rhel-9.4-x86_64-dvd.iso` |
+| `hypervisor`           | Type of hypervisor.                                        | `libvirt`, `proxmox`, `vmware`, `none`    |
+| `vmware_ssh`           | If Ansible should use SSH after base VM setup on VMware.   | `true`, `false (default)`                 |
+| `hypervisor_cluster`   | Name of the hypervisor cluster.                            | `default-cluster`                         |
+| `hypervisor_node`      | Hypervisor node name.                                      | `node01`                                  |
+| `hypervisor_password`  | Password for hypervisor authentication.                    | `123456`                                  |
+| `hypervisor_storage`   | Storage identifier for VM disks.                           | `local-btrfs`                             |
+| `hypervisor_url`       | URL/IP address for the hypervisor interface.               | `192.168.0.2`                             |
+| `hypervisor_username`  | Username for hypervisor authentication.                    | `root@pam`                                |
+| `install_drive`        | Drive where the system will be installed.                  | `/dev/sda`                                |
+| `install_type`         | Type of installation.                                      | `virtual`, `physical`                     |
+| `vlan_name` (optional) | VLAN for the VM's network interface.                       | `vlan100`                                 |
 
 To protect sensitive information, such as passwords, API keys, and other confidential variables (e.g., `hypervisor_password`), **it is recommended to use Ansible Vault**.
 
@@ -69,30 +72,30 @@ To protect sensitive information, such as passwords, API keys, and other confide
 
 Inventory variables are defined for individual hosts or VMs in the inventory file, allowing customization of settings such as the operating system, filesystem, and compliance with CIS benchmarks. These variables can be set globally and overridden for specific hosts or VMs.
 
-| Variable                | Description                                                                       | Example Value                                      |
-|-------------------------|-----------------------------------------------------------------------------------|----------------------------------------------------|
-| `cis` (optional)        | Adjusts the installation to be CIS level 3 conformant.                            | `true`, `false`                                    |
-| `selinux` (optional)    | Toggle SELinux, `false` means it should be disabled.`                             | `true`, `false`                                    |
-| `filesystem`            | Filesystem type for the VM's primary storage.                                     | `btrfs`, `ext4`, `xfs`                             |
-| `hostname`              | The hostname assigned to the virtual machine or system.                           | `vm01`                                             |
-| `os`                    | Operating system to be installed on the VM.                                       | `archlinux`, `almalinux`, `debian11`, `debian12`, `fedora`, `rhel8`, `rhel9`, `rocky`, `ubuntu`, `ubuntu-lts` |
-| `root_password`         | Root password for the VM or system, used for initial setup or secure access.      | `SecurePass123`                                    |
-| `user_name`             | Username for a user account within the VM, often used with cloud-init.            | `adminuser`                                        |
-| `user_password`         | Password for the user account within the VM.                                      | `UserPass123`                                      |
-| `user_public_key`       | SSH Key for the user account within the VM.                                       | `ssh-ed25519 AAAAC`                                |
-| `vm_ballo` (optional)   | Ballooning memory size for the VM, used to adjust memory allocation dynamically.  | `2048`                                             |
-| `vm_cpus`               | Number of CPU cores assigned to the virtual machine.                              | `4`                                                |
-| `vm_dns`                | DNS server IP address(es) for the virtual machine's network configuration.        | `1.0.0.1`, `1.1.1.1`                               |
-| `vm_dns_search`         | DNS search zone for the virtual machine's network configuration.                  | `example.com`                               |
-| `vm_gw`                 | Default gateway IP address for the virtual machine's network configuration.       | `192.168.0.1`                                      |
-| `vm_id`                 | Unique identifier for the virtual machine.                                        | `101`                                              |
-| `vm_ip`                 | IP address assigned to the virtual machine.                                       | `192.168.0.10`                                     |
-| `vm_nm` (optional)      | IP address netmask assigned to the virtual machine.                               | `255.255.255.0`                                    |
-| `vm_nms` (optional)     | IP address netmask assigned to the virtual machine.                               | `24`                                               |
-| `vm_memory`             | Amount of memory (in MB) allocated to the virtual machine.                        | `2048`                                             |
-| `vm_nif`                | Network interface type or identifier for the VM's network connection.             | `vmbr0`                                            |
-| `vm_path (optional)`    | Path or folder where the VM configuration or related files will be stored.        | `/var/lib/libvirt/images/`                         |
-| `vm_size`               | Disk size allocated for the VM's primary storage (in GB).                         | `20`                                  |
+| Variable              | Description                                                                      | Example Value                                                                                                           |
+| --------------------- | -------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `cis` (optional)      | Adjusts the installation to be CIS level 3 conformant.                           | `true`, `false`                                                                                                         |
+| `selinux` (optional)  | Toggle SELinux, `false` means it should be disabled.`                            | `true`, `false`                                                                                                         |
+| `filesystem`          | Filesystem type for the VM's primary storage.                                    | `btrfs`, `ext4`, `xfs`                                                                                                  |
+| `hostname`            | The hostname assigned to the virtual machine or system.                          | `vm01`                                                                                                                  |
+| `os`                  | Operating system to be installed on the VM.                                      | `archlinux`, `almalinux`, `debian11`, `debian12`, `fedora`, `rhel8`, `rhel9`, `rhel10`, `rocky`, `ubuntu`, `ubuntu-lts` |
+| `root_password`       | Root password for the VM or system, used for initial setup or secure access.     | `SecurePass123`                                                                                                         |
+| `user_name`           | Username for a user account within the VM, often used with cloud-init.           | `adminuser`                                                                                                             |
+| `user_password`       | Password for the user account within the VM.                                     | `UserPass123`                                                                                                           |
+| `user_public_key`     | SSH Key for the user account within the VM.                                      | `ssh-ed25519 AAAAC`                                                                                                     |
+| `vm_ballo` (optional) | Ballooning memory size for the VM, used to adjust memory allocation dynamically. | `2048`                                                                                                                  |
+| `vm_cpus`             | Number of CPU cores assigned to the virtual machine.                             | `4`                                                                                                                     |
+| `vm_dns`              | DNS server IP address(es) for the virtual machine's network configuration.       | `1.0.0.1`, `1.1.1.1`                                                                                                    |
+| `vm_dns_search`       | DNS search zone for the virtual machine's network configuration.                 | `example.com`                                                                                                           |
+| `vm_gw`               | Default gateway IP address for the virtual machine's network configuration.      | `192.168.0.1`                                                                                                           |
+| `vm_id`               | Unique identifier for the virtual machine.                                       | `101`                                                                                                                   |
+| `vm_ip`               | IP address assigned to the virtual machine.                                      | `192.168.0.10`                                                                                                          |
+| `vm_nm` (optional)    | IP address netmask assigned to the virtual machine.                              | `255.255.255.0`                                                                                                         |
+| `vm_nms` (optional)   | IP address netmask assigned to the virtual machine.                              | `24`                                                                                                                    |
+| `vm_memory`           | Amount of memory (in MB) allocated to the virtual machine.                       | `2048`                                                                                                                  |
+| `vm_nif`              | Network interface type or identifier for the VM's network connection.            | `vmbr0`                                                                                                                 |
+| `vm_path (optional)`  | Path or folder where the VM configuration or related files will be stored.       | `/var/lib/libvirt/images/`                                                                                              |
+| `vm_size`             | Disk size allocated for the VM's primary storage (in GB).                        | `20`                                                                                                                    |
 
 ## 4. How to Use the Playbook
 

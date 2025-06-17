@@ -9,7 +9,9 @@
       loop:
         - { cmd: umount -l /mnt }
         - { cmd: vgremove -f sys }
-        - { cmd: 'find /dev -wholename "{{ install_drive }}*" -exec wipefs --force --all {} \;' }
+        - {
+            cmd: 'find /dev -wholename "{{ install_drive }}*" -exec wipefs --force --all {} \;',
+          }
       loop_control:
         label: "{{ item.cmd }}"
 
@@ -138,19 +140,19 @@
         - path: /home
           uuid: "{{ uuid_home[0] | default(omit) }}"
           opts: "{{ 'defaults,nosuid,nodev' if filesystem != 'btrfs'
-                else 'rw,nosuid,nodev,relatime,compress=zstd:15,ssd,space_cache=v2,discard=async,subvol=@home' }}"
+            else 'rw,nosuid,nodev,relatime,compress=zstd:15,ssd,space_cache=v2,discard=async,subvol=@home' }}"
         - path: /var
           uuid: "{{ uuid_var[0] | default(omit) }}"
           opts: "{{ 'defaults,nosuid,nodev' if filesystem != 'btrfs'
-                else 'rw,nosuid,nodev,relatime,compress=zstd:15,ssd,space_cache=v2,discard=async,subvol=@var' }}"
+            else 'rw,nosuid,nodev,relatime,compress=zstd:15,ssd,space_cache=v2,discard=async,subvol=@var' }}"
         - path: /var/log
           uuid: "{{ uuid_var_log[0] | default(omit) }}"
           opts: "{{ 'defaults,nosuid,nodev,noexec' if filesystem != 'btrfs'
-                else 'rw,nosuid,nodev,noexec,relatime,compress=zstd:15,ssd,space_cache=v2,discard=async,subvol=@var_log' }}"
+            else 'rw,nosuid,nodev,noexec,relatime,compress=zstd:15,ssd,space_cache=v2,discard=async,subvol=@var_log' }}"
         - path: /var/log/audit
           uuid: "{{ uuid_var_log_audit[0] | default(omit) }}"
           opts: "{{ 'defaults,nosuid,nodev,noexec' if filesystem != 'btrfs'
-                else 'rw,nosuid,nodev,noexec,relatime,compress=zstd:15,ssd,space_cache=v2,discard=async,subvol=@var_log_audit' }}"
+            else 'rw,nosuid,nodev,noexec,relatime,compress=zstd:15,ssd,space_cache=v2,discard=async,subvol=@var_log_audit' }}"
 
     - name: Mount tmp and var_tmp filesystems
       ansible.posix.mount:

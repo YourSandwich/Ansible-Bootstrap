@@ -69,7 +69,7 @@
             ansible_user: "root"
             ansible_password: ""
             ansible_become_password: ""
-            ansible_ssh_extra_args: '-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'
+            ansible_ssh_extra_args: "-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
 
     - name: Speed-up Bootstrap process
       ansible.builtin.lineinfile:
@@ -81,30 +81,14 @@
       ansible.builtin.wait_for:
         timeout: 15
 
-    - name: Setup Pacman
-      community.general.pacman:
-        update_cache: true
-        force: true
-        name: "{{ item.name }}"
-        state: latest
-      loop:
-        - { name: glibc }
-        - { name: dnf, os: [almalinux, fedora, rhel9, rhel8, rocky] }
-        - { name: debootstrap, os: [debian11, debian12, ubuntu, ubuntu-lts] }
-        - { name: debian-archive-keyring, os: [debian11, debian12] }
-        - { name: ubuntu-keyring, os: [ubuntu, ubuntu-lts] }
-      when: "'os' not in item or os in item.os"
-      retries: 4
-      delay: 15
-
     - name: Prepare /iso mount and repository for RHEL-based systems
-      when: os | lower in ["rhel8", "rhel9"]
+      when: os | lower in ["rhel8", "rhel9", "rhel10"]
       block:
         - name: Create /iso directory
           ansible.builtin.file:
             path: /usr/local/install/redhat/dvd
             state: directory
-            mode: '0755'
+            mode: "0755"
 
         - name: Mount RHEL ISO
           ansible.posix.mount:
@@ -115,16 +99,16 @@
             state: mounted
 
     - name: Configure RHEL Repos for installation
-      when: os | lower in ["almalinux", "fedora", "rhel8", "rhel9", "rocky"]
+      when: os | lower in ["almalinux", "fedora", "rhel8", "rhel9", "rhel10", "rocky"]
       block:
         - name: Create directories for repository files and RPM GPG keys
           ansible.builtin.file:
             path: /etc/yum.repos.d
             state: directory
-            mode: '0755'
+            mode: "0755"
 
         - name: Create RHEL repository file
           ansible.builtin.template:
             src: "{{ os | lower }}.repo.j2"
             dest: /etc/yum.repos.d/{{ os | lower }}.repo
-            mode: '0644'
+            mode: "0644"
