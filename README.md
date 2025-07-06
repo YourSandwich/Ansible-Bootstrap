@@ -50,21 +50,22 @@ The playbook uses the ArchLinux ISO as a foundational tool to provides an effici
 
 Global variables apply across your Ansible project and are loaded from `vars.yml` by default. These variables define common settings such as hypervisor connection details and the boot ISO path. They can be overridden by inventory variables for specific hosts or VMs if needed.
 
-| Variable               | Description                                                | Example Value                             |
-| ---------------------- | ---------------------------------------------------------- | ----------------------------------------- |
-| `boot_iso`             | Path to the boot ISO image.                                | `local-btrfs:iso/archlinux-x86_64.iso`    |
-| `rhel_iso`             | Path to the RHEL ISO file, required for RHEL 8 and RHEL 9. | `local-btrfs:iso/rhel-9.4-x86_64-dvd.iso` |
-| `hypervisor`           | Type of hypervisor.                                        | `libvirt`, `proxmox`, `vmware`, `none`    |
-| `vmware_ssh`           | If Ansible should use SSH after base VM setup on VMware.   | `true`, `false (default)`                 |
-| `hypervisor_cluster`   | Name of the hypervisor cluster.                            | `default-cluster`                         |
-| `hypervisor_node`      | Hypervisor node name.                                      | `node01`                                  |
-| `hypervisor_password`  | Password for hypervisor authentication.                    | `123456`                                  |
-| `hypervisor_storage`   | Storage identifier for VM disks.                           | `local-btrfs`                             |
-| `hypervisor_url`       | URL/IP address for the hypervisor interface.               | `192.168.0.2`                             |
-| `hypervisor_username`  | Username for hypervisor authentication.                    | `root@pam`                                |
-| `install_drive`        | Drive where the system will be installed.                  | `/dev/sda`                                |
-| `install_type`         | Type of installation.                                      | `virtual`, `physical`                     |
-| `vlan_name` (optional) | VLAN for the VM's network interface.                       | `vlan100`                                 |
+| Variable                | Description                                                | Example Value                             |
+| ----------------------- | ---------------------------------------------------------- | ----------------------------------------- |
+| `boot_iso`              | Path to the boot ISO image.                                | `local-btrfs:iso/archlinux-x86_64.iso`    |
+| `rhel_iso`              | Path to the RHEL ISO file, required for RHEL 8 and RHEL 9. | `local-btrfs:iso/rhel-9.4-x86_64-dvd.iso` |
+| `hypervisor`            | Type of hypervisor.                                        | `libvirt`, `proxmox`, `vmware`, `none`    |
+| `vmware_ssh`            | If Ansible should use SSH after base VM setup on VMware.   | `true`, `false (default)`                 |
+| `hypervisor_datacenter` | Name of the hypervisor datacenter.                         | `default-datacenter`                      |
+| `hypervisor_cluster`    | Name of the hypervisor cluster.                            | `default-cluster`                         |
+| `hypervisor_node`       | Hypervisor node name.                                      | `node01`                                  |
+| `hypervisor_password`   | Password for hypervisor authentication.                    | `123456`                                  |
+| `hypervisor_storage`    | Storage identifier for VM disks.                           | `local-btrfs`                             |
+| `hypervisor_url`        | URL/IP address for the hypervisor interface.               | `192.168.0.2`                             |
+| `hypervisor_username`   | Username for hypervisor authentication.                    | `root@pam`                                |
+| `install_drive`         | Drive where the system will be installed.                  | `/dev/sda`                                |
+| `install_type`          | Type of installation.                                      | `virtual`, `physical`                     |
+| `vlan_name` (optional)  | VLAN for the VM's network interface.                       | `vlan100`                                 |
 
 To protect sensitive information, such as passwords, API keys, and other confidential variables (e.g., `hypervisor_password`), **it is recommended to use Ansible Vault**.
 

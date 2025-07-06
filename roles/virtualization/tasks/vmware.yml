@@ -5,8 +5,8 @@
     username: "{{ hypervisor_username }}"
     password: "{{ hypervisor_password }}"
     validate_certs: false
-    datacenter: "{{ hypervisor_cluster }}"
-    cluster: "{{ hypervisor_node }}"
+    datacenter: "{{ hypervisor_datacenter }}"
+    cluster: "{{ hypervisor_cluster }}"
     folder: "{{ vm_path }}"
     name: "{{ hostname }}"
     guest_id: otherLinux64Guest
