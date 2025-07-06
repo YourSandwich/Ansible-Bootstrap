@@ -49,7 +49,7 @@
           - hypervisor in ["libvirt", "proxmox", "vmware", "none"]
           - filesystem in ["btrfs", "ext4", "xfs"]
           - install_drive is defined
-          - os in ["archlinux", "almalinux", "debian11", "debian12", "fedora", "rhel8", "rhel9", "rhel10", "rocky", "ubuntu", "ubuntu-lts"]
+          - os in ["archlinux", "almalinux", "debian11", "debian12", "fedora", "rhel8", "rhel9", "rocky", "ubuntu", "ubuntu-lts"]
           - os not in ["rhel8", "rhel9", "rhel10"] or rhel_iso is defined
           - (filesystem == "btrfs" and (vm_size | int) >= 10) or (filesystem != "btrfs" and (vm_size | int) >= 20)
           - (vm_size | float) >= ((vm_memory | float / 1024 >= 16.0) | ternary((vm_memory | float / 2048), [vm_memory | float / 1024, 4.0] | max) + 16)
