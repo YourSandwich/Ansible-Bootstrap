@@ -22,7 +22,7 @@ This playbook supports multiple Linux distributions with specific versions tailo
 | almalinux  | AlmaLinux 9.x                      |
 | debian11   | Debian 11 (Bullseye)               |
 | debian12   | Debian 12 (Bookworm)               |
-| fedora     | Fedora 41                          |
+| fedora     | Fedora 42                          |
 | rhel8      | Red Hat Enterprise Linux 8         |
 | rhel9      | Red Hat Enterprise Linux 9         |
 | rhel10     | Red Hat Enterprise Linux 10        |
